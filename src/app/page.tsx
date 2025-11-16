@@ -8,25 +8,25 @@ const roles = [
     icon: <User className="h-8 w-8 text-primary" />,
     title: 'Gram Panchayat Members',
     description: 'Access administrative tools, manage water supply schemes, and monitor village-level data.',
-    href: '/gram-panchayat',
+    href: '/login?redirectTo=/gram-panchayat',
   },
   {
     icon: <Wrench className="h-8 w-8 text-primary" />,
     title: 'Pump Operators / Technicians',
     description: 'View operational data, report issues, and manage maintenance schedules for water pumps.',
-    href: '/pump-operator',
+    href: '/login?redirectTo=/pump-operator',
   },
   {
     icon: <Home className="h-8 w-8 text-primary" />,
     title: 'Village Residents',
     description: 'Check water availability, pay bills, and get updates on water supply in your area.',
-    href: '/village-resident',
+    href: '/login?redirectTo=/village-resident',
   },
   {
     icon: <BarChart className="h-8 w-8 text-primary" />,
     title: 'Block / District Officials',
     description: 'Oversee regional water management, analyze data dashboards, and coordinate across panchayats.',
-    href: '/block-official',
+    href: '/login?redirectTo=/block-official',
   },
 ];
 
