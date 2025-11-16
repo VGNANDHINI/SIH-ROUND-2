@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "pump-issue-1",
+      "description": "A leaking water pump.",
+      "imageUrl": "https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsZWFraW5nJTIwcHVtcHxlbnwwfHx8fDE3NjMyOTI3MTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "leaking pump"
+    }
+  ]
 }
