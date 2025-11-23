@@ -23,7 +23,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#f0f9ff" />
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
