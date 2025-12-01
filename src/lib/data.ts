@@ -119,4 +119,4 @@ async function seedDatabase() {
 
 // Call this function to seed the db when the app starts if needed,
 // but be careful not to call it on every render.
-seedDatabase();
+// seedDatabase();
