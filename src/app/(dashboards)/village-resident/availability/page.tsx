@@ -3,10 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { waterSchemes } from "@/lib/data";
+import { useWaterSchemes } from "@/firebase";
 import { Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 
+// This would ideally come from a 'villageStatus' collection in Firestore
 const statuses = {
   "Ramgarh": { status: "Available", schedule: "6 AM - 9 AM, 5 PM - 8 PM" },
   "Sitapur": { status: "Available", schedule: "5 AM - 8 AM, 6 PM - 9 PM" },
@@ -18,18 +19,22 @@ const statuses = {
 type Village = keyof typeof statuses;
 
 export default function AvailabilityPage() {
+  const { data: waterSchemes, loading: schemesLoading } = useWaterSchemes();
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{ status: string; schedule: string; } | null>(null);
 
-  const villages = [...new Set(waterSchemes.map(s => s.village))] as Village[];
+  const villages = useMemo(() => {
+    if (!waterSchemes) return [];
+    return [...new Set(waterSchemes.map(s => s.village))] as Village[];
+  }, [waterSchemes]);
 
   const handleCheck = () => {
     if (!selectedVillage) return;
     setIsLoading(true);
     setResult(null);
     setTimeout(() => {
-      setResult(statuses[selectedVillage]);
+      setResult(statuses[selectedVillage] || { status: 'Not Available', schedule: 'N/A' });
       setIsLoading(false);
     }, 1000);
   };
@@ -42,6 +47,7 @@ export default function AvailabilityPage() {
           <CardDescription>Select your village to check the current water supply status and schedule.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {schemesLoading ? <Loader2 className="h-6 w-6 animate-spin"/> : (
           <Select onValueChange={(value: Village) => setSelectedVillage(value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select your village" />
@@ -52,7 +58,8 @@ export default function AvailabilityPage() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={handleCheck} disabled={!selectedVillage || isLoading} className="w-full">
+          )}
+          <Button onClick={handleCheck} disabled={!selectedVillage || isLoading || schemesLoading} className="w-full">
             {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking...</> : "Check Status"}
           </Button>
         </CardContent>

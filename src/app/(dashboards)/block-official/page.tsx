@@ -1,14 +1,20 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { pumpIssues, waterSchemes } from "@/lib/data";
-import { ArrowUpRight, CheckCircle, Droplets, Users, AlertCircle } from "lucide-react";
+import { usePumpIssues, useWaterSchemes } from "@/firebase";
+import { ArrowUpRight, Droplets, Users, AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function BlockOfficialDashboard() {
-  const totalSchemes = waterSchemes.length;
-  const panchayats = [...new Set(waterSchemes.map(s => s.village))].length; // Assuming village is a proxy for panchayat here
-  const totalIssues = pumpIssues.length;
-  const openIssues = pumpIssues.filter(i => i.status === 'Open').length;
+  const { data: waterSchemes, loading: loadingSchemes } = useWaterSchemes();
+  const { data: pumpIssues, loading: loadingIssues } = usePumpIssues();
+
+  const totalSchemes = waterSchemes?.length ?? 0;
+  const panchayats = waterSchemes ? [...new Set(waterSchemes.map(s => s.village))].length : 0;
+  const totalIssues = pumpIssues?.length ?? 0;
+  const openIssues = pumpIssues?.filter(i => i.status === 'Open').length ?? 0;
+  const loading = loadingSchemes || loadingIssues;
 
   return (
     <div className="space-y-6">
@@ -19,7 +25,7 @@ export default function BlockOfficialDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{panchayats}</div>
+            <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : panchayats}</div>
             <p className="text-xs text-muted-foreground">under supervision</p>
           </CardContent>
         </Card>
@@ -29,7 +35,7 @@ export default function BlockOfficialDashboard() {
             <Droplets className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalSchemes}</div>
+            <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : totalSchemes}</div>
             <p className="text-xs text-muted-foreground">across all panchayats</p>
           </CardContent>
         </Card>
@@ -39,7 +45,7 @@ export default function BlockOfficialDashboard() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{openIssues}</div>
+            <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : openIssues}</div>
             <p className="text-xs text-muted-foreground">out of {totalIssues} total issues</p>
           </CardContent>
         </Card>

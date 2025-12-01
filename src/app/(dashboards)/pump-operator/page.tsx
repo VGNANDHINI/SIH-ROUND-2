@@ -1,13 +1,16 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { pumpIssues, type PumpIssue } from "@/lib/data";
-import { AlertCircle, ArrowUpRight, CheckCircle, FileQuestion, Wrench } from "lucide-react";
+import { usePumpIssues } from "@/firebase";
+import type { PumpIssue } from "@/lib/data";
+import { AlertCircle, FileQuestion, Wrench, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function PumpOperatorDashboard() {
-    const openIssues = pumpIssues.filter(i => i.status === 'Open').length;
+    const { data: pumpIssues, loading } = usePumpIssues();
+    const openIssues = pumpIssues?.filter(i => i.status === 'Open').length ?? 0;
 
     const getBadgeVariant = (status: PumpIssue['status']) => {
         switch (status) {
@@ -26,7 +29,7 @@ export default function PumpOperatorDashboard() {
                         <AlertCircle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{pumpIssues.length}</div>
+                        <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : pumpIssues?.length}</div>
                         <p className="text-xs text-muted-foreground">in total</p>
                     </CardContent>
                 </Card>
@@ -36,7 +39,7 @@ export default function PumpOperatorDashboard() {
                         <Wrench className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{openIssues}</div>
+                        <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : openIssues}</div>
                         <p className="text-xs text-muted-foreground">requiring attention</p>
                     </CardContent>
                 </Card>
@@ -59,6 +62,11 @@ export default function PumpOperatorDashboard() {
                     <CardDescription>A list of recently reported pump issues.</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {loading ? (
+                         <div className="flex justify-center items-center h-48">
+                            <Loader2 className="h-8 w-8 animate-spin" />
+                        </div>
+                    ) : (
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -69,7 +77,7 @@ export default function PumpOperatorDashboard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {pumpIssues.slice(0, 5).map((issue) => (
+                            {pumpIssues?.slice(0, 5).map((issue) => (
                                 <TableRow key={issue.id}>
                                     <TableCell className="font-medium">{issue.pumpId}</TableCell>
                                     <TableCell>{issue.location}</TableCell>
@@ -79,6 +87,7 @@ export default function PumpOperatorDashboard() {
                             ))}
                         </TableBody>
                     </Table>
+                    )}
                 </CardContent>
             </Card>
         </div>

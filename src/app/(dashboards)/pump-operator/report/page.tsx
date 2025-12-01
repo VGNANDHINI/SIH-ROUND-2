@@ -11,6 +11,8 @@ import { Loader2, Upload } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useFirestore } from "@/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 const reportSchema = z.object({
     pumpId: z.string().min(1, "Pump ID is required"),
@@ -22,6 +24,7 @@ const reportSchema = z.object({
 export default function ReportIssuePage() {
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
+    const firestore = useFirestore();
 
     const form = useForm<z.infer<typeof reportSchema>>({
         resolver: zodResolver(reportSchema),
@@ -32,19 +35,39 @@ export default function ReportIssuePage() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof reportSchema>) {
+    async function onSubmit(values: z.infer<typeof reportSchema>) {
+        if (!firestore) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Firestore is not initialized.",
+            });
+            return;
+        }
         setIsLoading(true);
-        console.log(values);
+        
+        try {
+            await addDoc(collection(firestore, "pumpIssues"), {
+                ...values,
+                reportedAt: new Date().toISOString().split('T')[0],
+                status: 'Open'
+            });
 
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
             toast({
                 title: "Issue Reported",
                 description: `Successfully reported issue for pump ${values.pumpId}.`,
             });
             form.reset();
-        }, 1500);
+        } catch (error) {
+            console.error("Error reporting issue: ", error);
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: "Could not report the issue. Please try again.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (

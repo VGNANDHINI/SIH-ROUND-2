@@ -1,11 +1,13 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { bills } from "@/lib/data";
-import { ArrowUpRight, Droplet, FileText, IndianRupee } from "lucide-react";
+import { useBills } from "@/firebase";
+import { ArrowUpRight, Droplet, FileText, IndianRupee, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function VillageResidentDashboard() {
-  const dueBill = bills.find(b => b.status === 'Due');
+  const { data: bills, loading } = useBills();
+  const dueBill = bills?.find(b => b.status === 'Due');
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -25,10 +27,14 @@ export default function VillageResidentDashboard() {
             <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {dueBill ? `₹${dueBill.amount}` : "₹0"}
-            </div>
-            <p className="text-xs text-muted-foreground">{dueBill ? `Due on ${dueBill.dueDate}` : "All bills paid"}</p>
+            {loading ? <Loader2 className="h-6 w-6 animate-spin"/> : (
+              <>
+                <div className="text-2xl font-bold">
+                  {dueBill ? `₹${dueBill.amount}` : "₹0"}
+                </div>
+                <p className="text-xs text-muted-foreground">{dueBill ? `Due on ${dueBill.dueDate}` : "All bills paid"}</p>
+              </>
+            )}
           </CardContent>
         </Card>
         <Card>

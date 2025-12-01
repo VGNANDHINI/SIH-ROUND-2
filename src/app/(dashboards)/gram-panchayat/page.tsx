@@ -1,12 +1,16 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { waterSchemes } from "@/lib/data";
-import { ArrowUpRight, CheckCircle, Droplets, Users } from "lucide-react";
+import { useWaterSchemes } from "@/firebase";
+import { ArrowUpRight, CheckCircle, Droplets, Users, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function GramPanchayatDashboard() {
-  const activeSchemes = waterSchemes.filter(s => s.status === 'Active').length;
-  const villages = [...new Set(waterSchemes.map(s => s.village))];
+  const { data: waterSchemes, loading } = useWaterSchemes();
+  
+  const activeSchemes = waterSchemes?.filter(s => s.status === 'Active').length ?? 0;
+  const villages = waterSchemes ? [...new Set(waterSchemes.map(s => s.village))] : [];
 
   return (
     <div className="space-y-6">
@@ -17,7 +21,7 @@ export default function GramPanchayatDashboard() {
             <Droplets className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{waterSchemes.length}</div>
+            <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : waterSchemes?.length}</div>
             <p className="text-xs text-muted-foreground">managed in your panchayat</p>
           </CardContent>
         </Card>
@@ -27,8 +31,8 @@ export default function GramPanchayatDashboard() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeSchemes}</div>
-            <p className="text-xs text-muted-foreground">out of {waterSchemes.length} are operational</p>
+            <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : activeSchemes}</div>
+            <p className="text-xs text-muted-foreground">out of {waterSchemes?.length ?? 0} are operational</p>
           </CardContent>
         </Card>
         <Card>
@@ -37,7 +41,7 @@ export default function GramPanchayatDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{villages.length}</div>
+            <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : villages.length}</div>
             <p className="text-xs text-muted-foreground">across the panchayat</p>
           </CardContent>
         </Card>

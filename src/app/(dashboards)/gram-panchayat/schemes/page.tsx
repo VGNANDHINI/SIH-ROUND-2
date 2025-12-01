@@ -3,25 +3,30 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { waterSchemes as initialSchemes, type WaterScheme } from "@/lib/data";
-import { Edit, PlusCircle, Trash2 } from "lucide-react";
+import { useWaterSchemes } from "@/firebase";
+import { useFirestore } from "@/firebase";
+import { collection, addDoc, doc, setDoc, deleteDoc } from "firebase/firestore";
+import type { WaterScheme } from "@/lib/data";
+import { Edit, PlusCircle, Trash2, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 
 export default function SchemesPage() {
-  const [schemes, setSchemes] = useState<WaterScheme[]>(initialSchemes);
+  const { data: schemes, loading } = useWaterSchemes();
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [currentScheme, setCurrentScheme] = useState<Partial<WaterScheme> | null>(null);
+  const firestore = useFirestore();
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!firestore) return;
+
     const formData = new FormData(e.currentTarget);
-    const newScheme: WaterScheme = {
-      id: currentScheme?.id || `WS${Math.floor(Math.random() * 1000)}`,
+    const newSchemeData: Omit<WaterScheme, 'id'> = {
       name: formData.get('name') as string,
       village: formData.get('village') as string,
       status: formData.get('status') as WaterScheme['status'],
@@ -30,14 +35,19 @@ export default function SchemesPage() {
     };
 
     if (currentScheme?.id) {
-      setSchemes(schemes.map(s => s.id === newScheme.id ? newScheme : s));
+      await setDoc(doc(firestore, "waterSchemes", currentScheme.id), newSchemeData, { merge: true });
     } else {
-      setSchemes([newScheme, ...schemes]);
+      await addDoc(collection(firestore, "waterSchemes"), newSchemeData);
     }
     setDialogOpen(false);
     setCurrentScheme(null);
   };
   
+  const handleDelete = async (id: string) => {
+    if(!firestore) return;
+    await deleteDoc(doc(firestore, "waterSchemes", id));
+  }
+
   const getBadgeVariant = (status: WaterScheme['status']) => {
     switch (status) {
       case 'Active':
@@ -59,11 +69,16 @@ export default function SchemesPage() {
             <CardTitle>Water Supply Schemes</CardTitle>
             <CardDescription>Manage water supply schemes in your panchayat.</CardDescription>
           </div>
-          <Button onClick={() => { setCurrentScheme({}); setDialogOpen(true); }}>
+          <Button onClick={() => { setCurrentScheme({ status: 'Active' }); setDialogOpen(true); }}>
             <PlusCircle className="mr-2 h-4 w-4" /> Add New Scheme
           </Button>
         </CardHeader>
         <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center h-48">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -76,7 +91,7 @@ export default function SchemesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {schemes.map((scheme) => (
+              {schemes?.map((scheme) => (
                 <TableRow key={scheme.id}>
                   <TableCell className="font-medium">{scheme.name}</TableCell>
                   <TableCell>{scheme.village}</TableCell>
@@ -89,7 +104,7 @@ export default function SchemesPage() {
                     <Button variant="ghost" size="icon" onClick={() => { setCurrentScheme(scheme); setDialogOpen(true); }}>
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setSchemes(schemes.filter(s => s.id !== scheme.id))}>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(scheme.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>
@@ -97,6 +112,7 @@ export default function SchemesPage() {
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
       

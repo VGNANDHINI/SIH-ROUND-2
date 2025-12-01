@@ -1,3 +1,9 @@
+import { collection, writeBatch, getDocs, doc, getFirestore } from "firebase/firestore";
+import { app } from "@/firebase/config";
+
+// NOTE: This file is used to seed the database with initial data.
+// It is not used in the application otherwise.
+
 export type WaterScheme = {
   id: string;
   name: string;
@@ -66,3 +72,51 @@ export const analyticsData = {
         { name: "Gopalpur", coverage: 92 },
     ]
 };
+
+async function seedDatabase() {
+    const db = getFirestore(app);
+    
+    async function collectionIsEmpty(collectionName: string) {
+        const collectionRef = collection(db, collectionName);
+        const snapshot = await getDocs(collectionRef);
+        return snapshot.empty;
+    }
+
+    try {
+        const batch = writeBatch(db);
+
+        if (await collectionIsEmpty('waterSchemes')) {
+            console.log('Seeding waterSchemes...');
+            waterSchemes.forEach((scheme) => {
+                const docRef = doc(db, "waterSchemes", scheme.id);
+                batch.set(docRef, scheme);
+            });
+        }
+
+        if (await collectionIsEmpty('pumpIssues')) {
+            console.log('Seeding pumpIssues...');
+            pumpIssues.forEach((issue) => {
+                const docRef = doc(db, "pumpIssues", issue.id);
+                batch.set(docRef, issue);
+            });
+        }
+
+        if (await collectionIsEmpty('bills')) {
+            console.log('Seeding bills...');
+            bills.forEach((bill) => {
+                const docRef = doc(db, "bills", bill.id);
+                batch.set(docRef, bill);
+            });
+        }
+        
+        await batch.commit();
+        console.log("Database seeded successfully!");
+
+    } catch (error) {
+        console.error("Error seeding database: ", error);
+    }
+}
+
+// Call this function to seed the db when the app starts if needed,
+// but be careful not to call it on every render.
+// seedDatabase();

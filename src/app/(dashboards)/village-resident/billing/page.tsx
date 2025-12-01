@@ -1,11 +1,14 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { bills, type Bill } from "@/lib/data";
-import { IndianRupee } from "lucide-react";
+import { useBills } from "@/firebase";
+import type { Bill } from "@/lib/data";
+import { IndianRupee, Loader2 } from "lucide-react";
 
 export default function BillingPage() {
+    const { data: bills, loading } = useBills();
 
     const getBadgeVariant = (status: Bill['status']) => {
         switch (status) {
@@ -22,6 +25,11 @@ export default function BillingPage() {
                 <CardDescription>View your billing history and pay outstanding bills.</CardDescription>
             </CardHeader>
             <CardContent>
+                 {loading ? (
+                    <div className="flex justify-center items-center h-48">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                 ) : (
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -33,7 +41,7 @@ export default function BillingPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {bills.map((bill) => (
+                        {bills?.map((bill) => (
                             <TableRow key={bill.id}>
                                 <TableCell className="font-medium">{bill.month}</TableCell>
                                 <TableCell>₹{bill.amount.toFixed(2)}</TableCell>
@@ -54,6 +62,7 @@ export default function BillingPage() {
                         ))}
                     </TableBody>
                 </Table>
+                 )}
             </CardContent>
         </Card>
     );
