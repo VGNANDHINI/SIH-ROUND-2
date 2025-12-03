@@ -137,14 +137,9 @@
         "operatorName": {
           "type": "string",
           "description": "Name of the operator who logged the entry."
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp of the log entry."
         }
       },
-      "required": ["pumpId", "status", "waterSupplied", "operatorName", "timestamp"]
+      "required": ["pumpId", "status", "waterSupplied", "operatorName"]
     }
   },
   "auth": {

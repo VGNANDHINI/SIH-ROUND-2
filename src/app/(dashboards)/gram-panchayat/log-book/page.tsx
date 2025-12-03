@@ -36,11 +36,10 @@ import {
 } from '@/components/ui/table';
 import { usePumpLogs, useUser } from '@/firebase';
 import { useFirestore } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import type { PumpLog } from '@/lib/data';
 import { PlusCircle, Loader2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { format } from 'date-fns';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -55,29 +54,23 @@ export default function LogBookPage() {
     if (!firestore || !user || !user.email) return;
 
     const formData = new FormData(e.currentTarget);
-    const newLogData: Omit<PumpLog, 'id' | 'timestamp'> = {
+    const newLogData: Omit<PumpLog, 'id'> = {
       pumpId: formData.get('pumpId') as string,
       status: formData.get('status') as PumpLog['status'],
       waterSupplied: Number(formData.get('waterSupplied')),
-      operatorName: user.email, // Use the authenticated user's email
+      operatorName: user.email,
     };
     
-    // Optimistically update the UI
     const optimisticLog: PumpLog = {
       id: `temp-${Date.now()}`,
       ...newLogData,
-      timestamp: new Date().toISOString()
     };
     setLogs(currentLogs => [optimisticLog, ...(currentLogs || [])]);
 
 
     const collectionRef = collection(firestore, 'pumpLogs');
     
-    addDoc(collectionRef, {
-        ...newLogData,
-        timestamp: serverTimestamp() // Use server-side timestamp
-    }).catch(async (serverError) => {
-        // If there's an error, roll back the optimistic update
+    addDoc(collectionRef, newLogData).catch(async (serverError) => {
         setLogs(currentLogs => currentLogs?.filter(log => log.id !== optimisticLog.id) || []);
         const permissionError = new FirestorePermissionError({
             path: collectionRef.path,
@@ -113,7 +106,6 @@ export default function LogBookPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Timestamp</TableHead>
                   <TableHead>Pump ID</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Water Supplied (Liters)</TableHead>
@@ -122,21 +114,8 @@ export default function LogBookPage() {
               </TableHeader>
               <TableBody>
                 {logs
-                  ?.sort(
-                    (a, b) => {
-                      const dateA = a.timestamp && (a.timestamp as any).toDate ? (a.timestamp as any).toDate() : new Date(a.timestamp as string);
-                      const dateB = b.timestamp && (b.timestamp as any).toDate ? (b.timestamp as any).toDate() : new Date(b.timestamp as string);
-                      return dateB.getTime() - dateA.getTime();
-                    }
-                  )
-                  .map((log) => (
+                  ?.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell>
-                        {(log.timestamp as any)?.toDate ? format(
-                          (log.timestamp as any).toDate(),
-                          'PPp'
-                        ) : 'Just now...'}
-                      </TableCell>
                       <TableCell className="font-medium">{log.pumpId}</TableCell>
                       <TableCell>
                         <Badge
@@ -162,8 +141,7 @@ export default function LogBookPage() {
           <DialogHeader>
             <DialogTitle>Add New Log Entry</DialogTitle>
             <DialogDescription>
-              Fill in the details of the pump operation. The timestamp will be
-              recorded automatically.
+              Fill in the details of the pump operation.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave}>

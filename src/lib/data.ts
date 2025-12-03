@@ -1,4 +1,4 @@
-import { collection, writeBatch, getDocs, doc, getFirestore, serverTimestamp } from "firebase/firestore";
+import { collection, writeBatch, getDocs, doc, getFirestore } from "firebase/firestore";
 import { app } from "@/firebase/config";
 
 // NOTE: This file is used to seed the database with initial data.
@@ -54,12 +54,11 @@ export type PumpLog = {
     id: string;
     pumpId: string;
     status: 'On' | 'Off';
-    timestamp: string | ReturnType<typeof serverTimestamp>;
     waterSupplied: number; // in liters
     operatorName: string;
 };
 
-export const pumpLogs: Omit<PumpLog, 'id' | 'timestamp'>[] = [
+export const pumpLogs: Omit<PumpLog, 'id'>[] = [
     { pumpId: 'PMP-RG-01', status: 'On', waterSupplied: 5000, operatorName: 'Ramesh' },
     { pumpId: 'PMP-RG-01', status: 'Off', waterSupplied: 5000, operatorName: 'Ramesh' },
 ];
@@ -124,12 +123,11 @@ async function seedDatabase() {
             });
         }
 
-        // Deactivated seeding for pumpLogs to avoid overwriting user data
         if (await collectionIsEmpty('pumpLogs')) {
             console.log('Seeding pumpLogs...');
             pumpLogs.forEach((log) => {
                 const docRef = doc(collection(db, "pumpLogs"));
-                batch.set(docRef, {...log, timestamp: serverTimestamp()});
+                batch.set(docRef, log);
             });
         }
         
