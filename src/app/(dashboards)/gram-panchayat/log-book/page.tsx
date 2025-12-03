@@ -52,14 +52,14 @@ export default function LogBookPage() {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!firestore || !user) return;
+    if (!firestore || !user || !user.email) return;
 
     const formData = new FormData(e.currentTarget);
     const newLogData: Omit<PumpLog, 'id' | 'timestamp'> = {
       pumpId: formData.get('pumpId') as string,
       status: formData.get('status') as PumpLog['status'],
       waterSupplied: Number(formData.get('waterSupplied')),
-      operatorName: user.displayName || user.email || 'Unknown User',
+      operatorName: user.email, // Use the authenticated user's email
     };
     
     // Optimistically update the UI

@@ -1,15 +1,27 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useFirebase } from '@/firebase';
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  updateProfile,
+} from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Chrome } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -27,32 +39,35 @@ export default function SignUpPage() {
     e.preventDefault();
     if (!auth || !firestore) return;
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Update Firebase Auth profile
       await updateProfile(user, { displayName: name });
-      
+
       // Create user document in Firestore
-      const userDocRef = doc(firestore, "users", user.uid);
+      const userDocRef = doc(firestore, 'users', user.uid);
       const userData = {
         uid: user.uid,
         displayName: name,
         email: user.email,
-        createdAt: new Date().toISOString(),
+        createdAt: serverTimestamp(),
       };
 
       setDoc(userDocRef, userData).catch(async (serverError) => {
-          const permissionError = new FirestorePermissionError({
-              path: userDocRef.path,
-              operation: 'create',
-              requestResourceData: userData,
-          });
-          errorEmitter.emit('permission-error', permissionError);
+        const permissionError = new FirestorePermissionError({
+          path: userDocRef.path,
+          operation: 'create',
+          requestResourceData: userData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
 
       router.push('/');
-
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -61,7 +76,7 @@ export default function SignUpPage() {
       });
     }
   };
-  
+
   const handleGoogleSignIn = async () => {
     if (!auth || !firestore) return;
     const provider = new GoogleAuthProvider();
@@ -70,27 +85,29 @@ export default function SignUpPage() {
       const user = result.user;
 
       // Create user document in Firestore for Google sign-in
-      const userDocRef = doc(firestore, "users", user.uid);
+      const userDocRef = doc(firestore, 'users', user.uid);
       const userData = {
         uid: user.uid,
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
-        createdAt: new Date().toISOString(),
+        createdAt: serverTimestamp(),
       };
 
-       setDoc(userDocRef, userData, { merge: true }).catch(async (serverError) => {
+      setDoc(userDocRef, userData, { merge: true }).catch(
+        async (serverError) => {
           const permissionError = new FirestorePermissionError({
-              path: userDocRef.path,
-              operation: 'create',
-              requestResourceData: userData,
+            path: userDocRef.path,
+            operation: 'create',
+            requestResourceData: userData,
           });
           errorEmitter.emit('permission-error', permissionError);
-      });
+        }
+      );
 
       router.push('/');
     } catch (error: any) {
-       toast({
+      toast({
         variant: 'destructive',
         title: 'Google sign in failed',
         description: error.message,
@@ -103,39 +120,75 @@ export default function SignUpPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
-          <CardDescription>Join JalSaathi to manage your water resources</CardDescription>
+          <CardDescription>
+            Join JalSaathi to manage your water resources
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-            <Button type="submit" className="w-full">Sign Up</Button>
+            <Button type="submit" className="w-full">
+              Sign Up
+            </Button>
           </form>
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
-          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+          >
             <Chrome className="mr-2 h-4 w-4" />
             Sign up with Google
           </Button>
         </CardContent>
         <CardFooter className="text-sm justify-center">
-          <p>Already have an account? <Link href="/login" className="font-semibold text-primary hover:underline">Sign in</Link></p>
+          <p>
+            Already have an account?{' '}
+            <Link
+              href="/login"
+              className="font-semibold text-primary hover:underline"
+            >
+              Sign in
+            </Link>
+          </p>
         </CardFooter>
       </Card>
     </div>
