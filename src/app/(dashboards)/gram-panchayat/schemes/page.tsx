@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useWaterSchemes } from "@/firebase";
-import { useFirestore } from "@/firebase";
+import { useWaterSchemes, useFirestore } from "@/firebase";
 import { collection, addDoc, doc, setDoc, deleteDoc } from "firebase/firestore";
 import type { WaterScheme } from "@/lib/data";
 import { Edit, PlusCircle, Trash2, Loader2 } from "lucide-react";
 import React, { useState } from "react";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
 
 export default function SchemesPage() {
   const { data: schemes, loading } = useWaterSchemes();
@@ -21,7 +22,7 @@ export default function SchemesPage() {
   const [currentScheme, setCurrentScheme] = useState<Partial<WaterScheme> | null>(null);
   const firestore = useFirestore();
 
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!firestore) return;
 
@@ -35,17 +36,40 @@ export default function SchemesPage() {
     };
 
     if (currentScheme?.id) {
-      await setDoc(doc(firestore, "waterSchemes", currentScheme.id), newSchemeData, { merge: true });
+      const docRef = doc(firestore, "waterSchemes", currentScheme.id);
+      setDoc(docRef, newSchemeData, { merge: true }).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'update',
+            requestResourceData: newSchemeData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
     } else {
-      await addDoc(collection(firestore, "waterSchemes"), newSchemeData);
+      const collectionRef = collection(firestore, "waterSchemes");
+      addDoc(collectionRef, newSchemeData).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: collectionRef.path,
+            operation: 'create',
+            requestResourceData: newSchemeData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
     }
     setDialogOpen(false);
     setCurrentScheme(null);
   };
   
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if(!firestore) return;
-    await deleteDoc(doc(firestore, "waterSchemes", id));
+    const docRef = doc(firestore, "waterSchemes", id);
+    deleteDoc(docRef).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
   }
 
   const getBadgeVariant = (status: WaterScheme['status']) => {

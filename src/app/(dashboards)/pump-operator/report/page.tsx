@@ -13,6 +13,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFirestore } from "@/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
 
 const reportSchema = z.object({
     pumpId: z.string().min(1, "Pump ID is required"),
@@ -46,28 +48,33 @@ export default function ReportIssuePage() {
         }
         setIsLoading(true);
         
-        try {
-            await addDoc(collection(firestore, "pumpIssues"), {
-                ...values,
-                reportedAt: new Date().toISOString().split('T')[0],
-                status: 'Open'
-            });
+        const issueData = {
+            ...values,
+            reportedAt: new Date().toISOString().split('T')[0],
+            status: 'Open'
+        };
 
-            toast({
-                title: "Issue Reported",
-                description: `Successfully reported issue for pump ${values.pumpId}.`,
+        const collectionRef = collection(firestore, "pumpIssues");
+        
+        addDoc(collectionRef, issueData)
+            .then(() => {
+                toast({
+                    title: "Issue Reported",
+                    description: `Successfully reported issue for pump ${values.pumpId}.`,
+                });
+                form.reset();
+            })
+            .catch(async (serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: collectionRef.path,
+                    operation: 'create',
+                    requestResourceData: issueData,
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
-            form.reset();
-        } catch (error) {
-            console.error("Error reporting issue: ", error);
-            toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong.",
-                description: "Could not report the issue. Please try again.",
-            });
-        } finally {
-            setIsLoading(false);
-        }
     }
 
     return (
