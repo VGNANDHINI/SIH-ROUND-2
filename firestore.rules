@@ -1,12 +1,29 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow users to create their own profile on sign-up and read/update their own data.
+    // Allow a user to create their own user document
     match /users/{userId} {
-      allow read, update: if request.auth.uid == userId;
-      allow create: if request.auth.uid == userId;
+      allow create: if request.auth != null
+                     && request.auth.uid == userId;
+
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      allow update: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+
+    // Allow authenticated users to read/write pumpLogs (with validation)
+    match /pumpLogs/{logId} {
+      allow create: if request.auth != null
+                    && request.resource.data.operatorName == request.auth.token.email
+                    && request.resource.data.pumpId is string
+                    && request.resource.data.status is string
+                    && request.resource.data.waterSupplied is number
+                    && request.resource.data.operatorName is string;
+
+      allow read: if request.auth != null;
     }
 
     // Allow any authenticated user to read and write to the waterSchemes collection.
@@ -23,17 +40,5 @@ service cloud.firestore {
     match /bills/{billId} {
       allow read, write: if request.auth != null;
     }
-    
-    // Allow authenticated users to read logs.
-    // Allow users to create a log if the operator name matches their email.
-    match /pumpLogs/{logId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.operatorName == request.auth.token.email
-                      && request.resource.data.pumpId is string
-                      && request.resource.data.status is string
-                      && request.resource.data.waterSupplied is number
-                      && request.resource.data.operatorName is string;
-    }
-
   }
 }
