@@ -1,20 +1,48 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { usePumpLogs, useUser } from "@/firebase";
-import { useFirestore } from "@/firebase";
-import { collection, addDoc } from "firebase/firestore";
-import type { PumpLog } from "@/lib/data";
-import { PlusCircle, Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { usePumpLogs, useUser } from '@/firebase';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import type { PumpLog } from '@/lib/data';
+import { PlusCircle, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function LogBookPage() {
   const { data: logs, loading } = usePumpLogs();
@@ -27,16 +55,27 @@ export default function LogBookPage() {
     if (!firestore || !user) return;
 
     const formData = new FormData(e.currentTarget);
-    const newLogData: Omit<PumpLog, 'id'> = {
+    const newLogData: Omit<PumpLog, 'id' | 'timestamp'> = {
       pumpId: formData.get('pumpId') as string,
       status: formData.get('status') as PumpLog['status'],
       waterSupplied: Number(formData.get('waterSupplied')),
-      operatorName: user.displayName || user.email || "Unknown User",
-      timestamp: new Date().toISOString(),
+      operatorName: user.displayName || user.email || 'Unknown User',
     };
-
-    await addDoc(collection(firestore, "pumpLogs"), newLogData);
     
+    const collectionRef = collection(firestore, 'pumpLogs');
+    
+    addDoc(collectionRef, {
+        ...newLogData,
+        timestamp: serverTimestamp() // Use server-side timestamp
+    }).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: collectionRef.path,
+            operation: 'create',
+            requestResourceData: newLogData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+
     setDialogOpen(false);
   };
 
@@ -46,7 +85,9 @@ export default function LogBookPage() {
         <CardHeader className="flex-row items-center justify-between">
           <div>
             <CardTitle>Pump Log Book</CardTitle>
-            <CardDescription>Record and view pump operations and water supply.</CardDescription>
+            <CardDescription>
+              Record and view pump operations and water supply.
+            </CardDescription>
           </div>
           <Button onClick={() => setDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" /> Add New Log
@@ -58,50 +99,78 @@ export default function LogBookPage() {
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Pump ID</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Water Supplied (Liters)</TableHead>
-                <TableHead>Operator</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs?.sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell>{format(new Date(log.timestamp), "PPp")}</TableCell>
-                  <TableCell className="font-medium">{log.pumpId}</TableCell>
-                  <TableCell>
-                    <Badge variant={log.status === 'On' ? 'success' : 'secondary'}>{log.status}</Badge>
-                  </TableCell>
-                  <TableCell>{log.waterSupplied.toLocaleString()}</TableCell>
-                  <TableCell>{log.operatorName}</TableCell>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead>Pump ID</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Water Supplied (Liters)</TableHead>
+                  <TableHead>Operator</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {logs
+                  ?.sort(
+                    (a, b) =>
+                      (b.timestamp as any)?.toDate().getTime() -
+                      (a.timestamp as any)?.toDate().getTime()
+                  )
+                  .map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell>
+                        {(log.timestamp as any)?.toDate ? format(
+                          (log.timestamp as any).toDate(),
+                          'PPp'
+                        ) : 'Just now...'}
+                      </TableCell>
+                      <TableCell className="font-medium">{log.pumpId}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={log.status === 'On' ? 'success' : 'secondary'}
+                        >
+                          {log.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {log.waterSupplied.toLocaleString()}
+                      </TableCell>
+                      <TableCell>{log.operatorName}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
-      
+
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add New Log Entry</DialogTitle>
             <DialogDescription>
-              Fill in the details of the pump operation. The timestamp will be recorded automatically.
+              Fill in the details of the pump operation. The timestamp will be
+              recorded automatically.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="pumpId" className="text-right">Pump ID</Label>
-                <Input id="pumpId" name="pumpId" defaultValue="PMP-RG-01" className="col-span-3" required />
+                <Label htmlFor="pumpId" className="text-right">
+                  Pump ID
+                </Label>
+                <Input
+                  id="pumpId"
+                  name="pumpId"
+                  defaultValue="PMP-RG-01"
+                  className="col-span-3"
+                  required
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">Status</Label>
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
                 <Select name="status" defaultValue="On" required>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select status" />
@@ -113,12 +182,27 @@ export default function LogBookPage() {
                 </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="waterSupplied" className="text-right">Water Supplied (L)</Label>
-                <Input id="waterSupplied" name="waterSupplied" type="number" defaultValue="5000" className="col-span-3" required />
+                <Label htmlFor="waterSupplied" className="text-right">
+                  Water Supplied (L)
+                </Label>
+                <Input
+                  id="waterSupplied"
+                  name="waterSupplied"
+                  type="number"
+                  defaultValue="5000"
+                  className="col-span-3"
+                  required
+                />
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+              >
+                Cancel
+              </Button>
               <Button type="submit">Save Log</Button>
             </DialogFooter>
           </form>
