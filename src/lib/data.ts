@@ -50,6 +50,21 @@ export const bills: Bill[] = [
     { id: 'B002', month: 'May 2024', amount: 150, dueDate: '2024-06-15', status: 'Due'},
 ];
 
+export type PumpLog = {
+    id: string;
+    pumpId: string;
+    status: 'On' | 'Off';
+    timestamp: string;
+    waterSupplied: number; // in liters
+    operatorName: string;
+};
+
+export const pumpLogs: PumpLog[] = [
+    { id: 'PL001', pumpId: 'PMP-RG-01', status: 'On', timestamp: '2024-05-25T06:00:00', waterSupplied: 5000, operatorName: 'Ramesh' },
+    { id: 'PL002', pumpId: 'PMP-RG-01', status: 'Off', timestamp: '2024-05-25T09:00:00', waterSupplied: 5000, operatorName: 'Ramesh' },
+];
+
+
 export const analyticsData = {
     waterConsumption: [
         { month: "Jan", consumption: 450 },
@@ -108,6 +123,15 @@ async function seedDatabase() {
                 batch.set(docRef, bill);
             });
         }
+
+        // Deactivated seeding for pumpLogs to avoid overwriting user data
+        // if (await collectionIsEmpty('pumpLogs')) {
+        //     console.log('Seeding pumpLogs...');
+        //     pumpLogs.forEach((log) => {
+        //         const docRef = doc(db, "pumpLogs", log.id);
+        //         batch.set(docRef, log);
+        //     });
+        // }
         
         await batch.commit();
         console.log("Database seeded successfully!");
@@ -119,4 +143,4 @@ async function seedDatabase() {
 
 // Call this function to seed the db when the app starts if needed,
 // but be careful not to call it on every render.
-seedDatabase();
+// seedDatabase();

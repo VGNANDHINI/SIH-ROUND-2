@@ -11,13 +11,14 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked } from "lucide-react";
 import React from "react";
 
 const navItems = {
   "gram-panchayat": [
     { href: "/gram-panchayat", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/gram-panchayat/schemes", label: "Water Schemes", icon: <Droplets /> },
+    { href: "/gram-panchayat/log-book", label: "Log Book", icon: <BookMarked /> },
   ],
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
