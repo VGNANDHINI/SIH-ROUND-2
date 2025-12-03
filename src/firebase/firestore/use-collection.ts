@@ -8,6 +8,7 @@ interface UseCollectionResponse<T> {
   data: T[] | null;
   loading: boolean;
   error: FirestoreError | null;
+  setData: React.Dispatch<React.SetStateAction<T[] | null>>;
 }
 
 export function useCollection<T>(path: string): UseCollectionResponse<T> {
@@ -36,5 +37,5 @@ export function useCollection<T>(path: string): UseCollectionResponse<T> {
     return () => unsubscribe();
   }, [firestore, path]);
 
-  return { data, loading, error };
+  return { data, loading, error, setData };
 }

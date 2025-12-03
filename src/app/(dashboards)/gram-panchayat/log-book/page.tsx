@@ -45,7 +45,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function LogBookPage() {
-  const { data: logs, loading } = usePumpLogs();
+  const { data: logs, loading, setData: setLogs } = usePumpLogs();
   const [isDialogOpen, setDialogOpen] = useState(false);
   const firestore = useFirestore();
   const { user } = useUser();
@@ -62,12 +62,23 @@ export default function LogBookPage() {
       operatorName: user.displayName || user.email || 'Unknown User',
     };
     
+    // Optimistically update the UI
+    const optimisticLog: PumpLog = {
+      id: `temp-${Date.now()}`,
+      ...newLogData,
+      timestamp: new Date().toISOString()
+    };
+    setLogs(currentLogs => [optimisticLog, ...(currentLogs || [])]);
+
+
     const collectionRef = collection(firestore, 'pumpLogs');
     
     addDoc(collectionRef, {
         ...newLogData,
         timestamp: serverTimestamp() // Use server-side timestamp
     }).catch(async (serverError) => {
+        // If there's an error, roll back the optimistic update
+        setLogs(currentLogs => currentLogs?.filter(log => log.id !== optimisticLog.id) || []);
         const permissionError = new FirestorePermissionError({
             path: collectionRef.path,
             operation: 'create',
@@ -94,7 +105,7 @@ export default function LogBookPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {loading && !logs ? (
             <div className="flex justify-center items-center h-48">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
@@ -112,9 +123,11 @@ export default function LogBookPage() {
               <TableBody>
                 {logs
                   ?.sort(
-                    (a, b) =>
-                      (b.timestamp as any)?.toDate().getTime() -
-                      (a.timestamp as any)?.toDate().getTime()
+                    (a, b) => {
+                      const dateA = a.timestamp && (a.timestamp as any).toDate ? (a.timestamp as any).toDate() : new Date(a.timestamp as string);
+                      const dateB = b.timestamp && (b.timestamp as any).toDate ? (b.timestamp as any).toDate() : new Date(b.timestamp as string);
+                      return dateB.getTime() - dateA.getTime();
+                    }
                   )
                   .map((log) => (
                     <TableRow key={log.id}>
