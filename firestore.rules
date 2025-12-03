@@ -3,11 +3,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default deny all reads and writes for security, unless explicitly allowed.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
     // Allow any authenticated user to read and write to the waterSchemes collection.
     match /waterSchemes/{schemeId} {
       allow read, write: if request.auth != null;
@@ -23,9 +18,16 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
     
-    // Allow any authenticated user to read and write to the pumpLogs collection.
+    // Allow any authenticated user to read, create, and update pump logs.
     match /pumpLogs/{logId} {
-      allow read, write: if request.auth != null;
+      allow read, update, delete: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // Default deny all reads and writes for security, unless explicitly allowed.
+    // This rule must come last.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
