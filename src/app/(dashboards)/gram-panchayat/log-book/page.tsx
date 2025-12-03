@@ -67,7 +67,6 @@ export default function LogBookPage() {
     };
     setLogs(currentLogs => [optimisticLog, ...(currentLogs || [])]);
 
-
     const collectionRef = collection(firestore, 'pumpLogs');
     
     addDoc(collectionRef, newLogData).catch(async (serverError) => {

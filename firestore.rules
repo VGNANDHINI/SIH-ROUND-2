@@ -19,7 +19,6 @@ service cloud.firestore {
 
     match /pumpLogs/{logId} {
       allow create: if request.auth != null
-                    && request.resource.data.operatorName == request.auth.token.email
                     && request.resource.data.pumpId is string
                     && request.resource.data.status is string
                     && request.resource.data.waterSupplied is number
