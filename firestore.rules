@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow any authenticated user to read and write to any of the collections.
+    // This is permissive for development. You should tighten these rules for production.
+    match /waterSchemes/{schemeId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /pumpIssues/{issueId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /bills/{billId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    match /pumpLogs/{logId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

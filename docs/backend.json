@@ -1,0 +1,140 @@
+{
+  "entities": {
+    "waterScheme": {
+      "title": "Water Scheme",
+      "description": "Represents a water supply scheme in a village.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the scheme."
+        },
+        "village": {
+          "type": "string",
+          "description": "The village the scheme belongs to."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the scheme.",
+          "enum": ["Active", "Inactive", "Under Maintenance"]
+        },
+        "coverage": {
+          "type": "number",
+          "description": "Percentage of households covered."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date",
+          "description": "Last updated date."
+        }
+      },
+      "required": ["name", "village", "status", "coverage", "lastUpdated"]
+    },
+    "pumpIssue": {
+      "title": "Pump Issue",
+      "description": "Represents a reported issue with a water pump.",
+      "type": "object",
+      "properties": {
+        "pumpId": {
+          "type": "string",
+          "description": "The ID of the pump with the issue."
+        },
+        "location": {
+          "type": "string",
+          "description": "Location of the pump."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the issue."
+        },
+        "reportedAt": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the issue was reported."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the issue.",
+          "enum": ["Open", "In Progress", "Resolved"]
+        }
+      },
+      "required": ["pumpId", "location", "description", "reportedAt", "status"]
+    },
+    "bill": {
+      "title": "Bill",
+      "description": "Represents a user's water bill.",
+      "type": "object",
+      "properties": {
+        "month": {
+          "type": "string",
+          "description": "The billing month."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount due."
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date",
+          "description": "The due date for the bill."
+        },
+        "status": {
+          "type": "string",
+          "description": "The payment status of the bill.",
+          "enum": ["Paid", "Due", "Overdue"]
+        }
+      },
+      "required": ["month", "amount", "dueDate", "status"]
+    },
+    "pumpLog": {
+      "title": "Pump Log",
+      "description": "A log entry for pump operation.",
+      "type": "object",
+      "properties": {
+        "pumpId": {
+          "type": "string",
+          "description": "The ID of the pump."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["On", "Off"]
+        },
+        "waterSupplied": {
+          "type": "number",
+          "description": "Water supplied in liters."
+        },
+        "operatorName": {
+          "type": "string",
+          "description": "Name of the operator who logged the entry."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the log entry."
+        }
+      },
+      "required": ["pumpId", "status", "waterSupplied", "operatorName", "timestamp"]
+    }
+  },
+  "auth": {
+    "providers": ["email", "google"]
+  },
+  "firestore": {
+    "/waterSchemes/{schemeId}": {
+      "schema": { "$ref": "#/entities/waterScheme" },
+      "description": "Stores all water supply schemes."
+    },
+    "/pumpIssues/{issueId}": {
+      "schema": { "$ref": "#/entities/pumpIssue" },
+      "description": "Stores all reported pump issues."
+    },
+    "/bills/{billId}": {
+      "schema": { "$ref": "#/entities/bill" },
+      "description": "Stores user billing information."
+    },
+    "/pumpLogs/{logId}": {
+      "schema": { "$ref": "#/entities/pumpLog" },
+      "description": "Stores logs of pump operations."
+    }
+  }
+}
