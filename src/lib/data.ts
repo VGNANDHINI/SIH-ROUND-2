@@ -102,6 +102,16 @@ export const analyticsData = {
     ]
 };
 
+export type Operator = {
+    id: string;
+    name: string;
+    state: string;
+    district: string;
+    block: string;
+    panchayat: string;
+};
+
+
 async function seedDatabase() {
     const db = getFirestore(app);
     

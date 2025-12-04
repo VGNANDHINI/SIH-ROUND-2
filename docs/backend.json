@@ -196,6 +196,34 @@
         }
       },
       "required": ["pumpId", "location", "status"]
+    },
+    "operator": {
+      "title": "Operator",
+      "description": "Represents a pump operator or technician who can be assigned to solve issues.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The full name of the operator."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state where the operator works."
+        },
+        "district": {
+          "type": "string",
+          "description": "The district where the operator works."
+        },
+        "block": {
+          "type": "string",
+          "description": "The block where the operator works."
+        },
+        "panchayat": {
+          "type": "string",
+          "description": "The panchayat where the operator works."
+        }
+      },
+      "required": ["name", "state", "district", "block", "panchayat"]
     }
   },
   "auth": {
@@ -225,6 +253,10 @@
     "/waterSupply/{pumpId}": {
       "schema": { "$ref": "#/entities/waterSupply" },
       "description": "Stores the real-time status of water pumps."
+    },
+    "/operators/{operatorId}": {
+      "schema": { "$ref": "#/entities/operator" },
+      "description": "Stores information about pump operators."
     }
   }
 }
