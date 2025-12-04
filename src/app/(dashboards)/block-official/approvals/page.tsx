@@ -102,18 +102,22 @@ export default function SchemeApprovalsPage() {
                     {scheme.approvalStatus === 'Pending' ? (
                       <>
                         <Button
-                          variant="ghost"
-                          size="icon"
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleApproval(scheme, 'Approved')}
+                          className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
                         >
-                          <Check className="h-4 w-4 text-green-600" />
+                          <Check className="mr-2 h-4 w-4" />
+                          Approve
                         </Button>
                         <Button
-                          variant="ghost"
-                          size="icon"
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleApproval(scheme, 'Rejected')}
+                          className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
                         >
-                          <X className="h-4 w-4 text-destructive" />
+                          <X className="mr-2 h-4 w-4" />
+                          Reject
                         </Button>
                       </>
                     ) : (
