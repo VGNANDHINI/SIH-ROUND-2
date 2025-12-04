@@ -18,11 +18,13 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { useFirestore, useUser } from '@/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
+import { doc, setDoc } from 'firebase/firestore';
+import { BookMarked, Loader2 } from 'lucide-react';
 import type { WaterSupply } from '@/lib/data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function PumpControlPage() {
   const {
@@ -59,11 +61,18 @@ export default function PumpControlPage() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Pump Control Center</CardTitle>
-        <CardDescription>
-          Monitor and control the operational status of water pumps in real-time.
-        </CardDescription>
+      <CardHeader className="flex-row items-center justify-between">
+        <div>
+          <CardTitle>Pump Control Center</CardTitle>
+          <CardDescription>
+            Monitor and control the operational status of water pumps in real-time.
+          </CardDescription>
+        </div>
+        <Button asChild>
+          <Link href="/gram-panchayat/log-book">
+            <BookMarked className="mr-2 h-4 w-4" /> View Log Book
+          </Link>
+        </Button>
       </CardHeader>
       <CardContent>
         {loading ? (
