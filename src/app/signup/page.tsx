@@ -32,6 +32,7 @@ export default function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [state, setState] = useState('');
   const [district, setDistrict] = useState('');
   const [block, setBlock] = useState('');
@@ -61,6 +62,7 @@ export default function SignUpPage() {
         uid: user.uid,
         displayName: name,
         email: user.email,
+        phoneNumber,
         createdAt: serverTimestamp(),
         state,
         district,
@@ -101,6 +103,7 @@ export default function SignUpPage() {
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
+        phoneNumber: user.phoneNumber, // This might be null
         createdAt: serverTimestamp(),
         state: 'Default State',
         district: 'Default District',
@@ -150,15 +153,27 @@ export default function SignUpPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+             <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
+                  />
+                </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>

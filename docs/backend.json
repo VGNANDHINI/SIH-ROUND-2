@@ -24,6 +24,10 @@
           "format": "uri",
           "description": "URL of the user's profile picture."
         },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -46,7 +50,7 @@
           "description": "The panchayat where the user resides."
         }
       },
-      "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat"]
+      "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat", "phoneNumber"]
     },
     "waterScheme": {
       "title": "Water Scheme",

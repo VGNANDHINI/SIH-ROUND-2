@@ -9,6 +9,7 @@ service cloud.firestore {
                     && request.resource.data.uid == userId
                     && request.resource.data.displayName is string
                     && request.resource.data.email is string
+                    && request.resource.data.phoneNumber is string
                     && ('createdAt' in request.resource.data)
                     && request.resource.data.state is string
                     && request.resource.data.district is string
