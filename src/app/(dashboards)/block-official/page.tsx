@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePumpIssues, useWaterSchemes } from "@/firebase";
-import { ArrowUpRight, Droplets, Users, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowUpRight, Droplets, Users, AlertCircle, Loader2, CheckSquare } from "lucide-react";
 import Link from "next/link";
 
 export default function BlockOfficialDashboard() {
@@ -14,6 +14,7 @@ export default function BlockOfficialDashboard() {
   const panchayats = waterSchemes ? [...new Set(waterSchemes.map(s => s.village))].length : 0;
   const totalIssues = pumpIssues?.length ?? 0;
   const openIssues = pumpIssues?.filter(i => i.status === 'Open').length ?? 0;
+  const pendingApprovals = waterSchemes?.filter(s => s.approvalStatus === 'Pending').length ?? 0;
   const loading = loadingSchemes || loadingIssues;
 
   return (
@@ -27,6 +28,16 @@ export default function BlockOfficialDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : panchayats}</div>
             <p className="text-xs text-muted-foreground">under supervision</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+            <CheckSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{loading ? <Loader2 className="h-6 w-6 animate-spin" /> : pendingApprovals}</div>
+            <p className="text-xs text-muted-foreground">schemes awaiting review</p>
           </CardContent>
         </Card>
         <Card>
@@ -49,18 +60,6 @@ export default function BlockOfficialDashboard() {
             <p className="text-xs text-muted-foreground">out of {totalIssues} total issues</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Go to Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-             <Button asChild>
-              <Link href="/block-official/analytics">
-                View Analytics <ArrowUpRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
       </div>
       <Card>
         <CardHeader>
@@ -70,7 +69,19 @@ export default function BlockOfficialDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p>This dashboard provides a high-level overview of the water supply status in your block/district. For detailed insights and visualizations, please proceed to the Analytics section.</p>
+          <p>This dashboard provides a high-level overview of the water supply status in your block/district. You have schemes to review. Use the navigation to see details.</p>
+           <div className="flex gap-4 mt-4">
+              <Button asChild>
+                <Link href="/block-official/approvals">
+                  Review Schemes <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/block-official/analytics">
+                  View Analytics <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
         </CardContent>
       </Card>
     </div>

@@ -9,16 +9,17 @@ export type WaterScheme = {
   name: string;
   village: string;
   status: 'Active' | 'Inactive' | 'Under Maintenance';
+  approvalStatus: 'Pending' | 'Approved' | 'Rejected';
   coverage: number; // percentage
   lastUpdated: string;
 };
 
 export const waterSchemes: WaterScheme[] = [
-  { id: 'WS001', name: 'Nal Jal Yojana', village: 'Ramgarh', status: 'Active', coverage: 95, lastUpdated: '2024-05-15' },
-  { id: 'WS002', name: 'Swajal Dhara', village: 'Sitapur', status: 'Active', coverage: 88, lastUpdated: '2024-05-20' },
-  { id: 'WS003', name: 'Har Ghar Jal', village: 'Laxmangarh', status: 'Under Maintenance', coverage: 100, lastUpdated: '2024-05-10' },
-  { id: 'WS004', name: 'Gramin Jal Aapurti', village: 'Krishnanagar', status: 'Inactive', coverage: 40, lastUpdated: '2023-11-01' },
-  { id: 'WS005', name: 'Jeevan Dhara', village: 'Gopalpur', status: 'Active', coverage: 92, lastUpdated: '2024-05-18' },
+  { id: 'WS001', name: 'Nal Jal Yojana', village: 'Ramgarh', status: 'Active', approvalStatus: 'Approved', coverage: 95, lastUpdated: '2024-05-15' },
+  { id: 'WS002', name: 'Swajal Dhara', village: 'Sitapur', status: 'Active', approvalStatus: 'Approved', coverage: 88, lastUpdated: '2024-05-20' },
+  { id: 'WS003', name: 'Har Ghar Jal', village: 'Laxmangarh', status: 'Under Maintenance', approvalStatus: 'Pending', coverage: 100, lastUpdated: '2024-05-10' },
+  { id: 'WS004', name: 'Gramin Jal Aapurti', village: 'Krishnanagar', status: 'Inactive', approvalStatus: 'Rejected', coverage: 40, lastUpdated: '2023-11-01' },
+  { id: 'WS005', name: 'Jeevan Dhara', village: 'Gopalpur', status: 'Active', approvalStatus: 'Pending', coverage: 92, lastUpdated: '2024-05-18' },
 ];
 
 

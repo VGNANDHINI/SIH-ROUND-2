@@ -46,8 +46,13 @@
         },
         "status": {
           "type": "string",
-          "description": "Current status of the scheme.",
+          "description": "Current operational status of the scheme.",
           "enum": ["Active", "Inactive", "Under Maintenance"]
+        },
+        "approvalStatus": {
+          "type": "string",
+          "description": "The approval status of the scheme.",
+          "enum": ["Pending", "Approved", "Rejected"]
         },
         "coverage": {
           "type": "number",
@@ -59,7 +64,7 @@
           "description": "Last updated date."
         }
       },
-      "required": ["name", "village", "status", "coverage", "lastUpdated"]
+      "required": ["name", "village", "status", "coverage", "lastUpdated", "approvalStatus"]
     },
     "pumpIssue": {
       "title": "Pump Issue",

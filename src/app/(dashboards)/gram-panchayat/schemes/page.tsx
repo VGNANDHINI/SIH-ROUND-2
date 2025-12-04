@@ -33,6 +33,7 @@ export default function SchemesPage() {
       status: formData.get('status') as WaterScheme['status'],
       coverage: Number(formData.get('coverage')),
       lastUpdated: new Date().toISOString().split('T')[0],
+      approvalStatus: 'Pending',
     };
 
     if (currentScheme?.id) {
@@ -85,6 +86,19 @@ export default function SchemesPage() {
     }
   };
 
+  const getApprovalBadgeVariant = (status: WaterScheme['approvalStatus']) => {
+    switch (status) {
+      case 'Approved':
+        return 'success';
+      case 'Pending':
+        return 'secondary';
+      case 'Rejected':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
+  };
+
   return (
     <>
       <Card>
@@ -109,6 +123,7 @@ export default function SchemesPage() {
                 <TableHead>Scheme Name</TableHead>
                 <TableHead>Village</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Approval</TableHead>
                 <TableHead>Coverage</TableHead>
                 <TableHead>Last Updated</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -121,6 +136,9 @@ export default function SchemesPage() {
                   <TableCell>{scheme.village}</TableCell>
                   <TableCell>
                     <Badge variant={getBadgeVariant(scheme.status)}>{scheme.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={getApprovalBadgeVariant(scheme.approvalStatus)}>{scheme.approvalStatus}</Badge>
                   </TableCell>
                   <TableCell>{scheme.coverage}%</TableCell>
                   <TableCell>{scheme.lastUpdated}</TableCell>

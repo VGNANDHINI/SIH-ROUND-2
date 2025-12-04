@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -33,6 +33,7 @@ const navItems = {
   ],
   "block-official": [
     { href: "/block-official", label: "Dashboard", icon: <LayoutDashboard /> },
+    { href: "/block-official/approvals", label: "Scheme Approvals", icon: <CheckSquare /> },
     { href: "/block-official/analytics", label: "Analytics", icon: <Presentation /> },
   ],
 };
