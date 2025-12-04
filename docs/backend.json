@@ -224,6 +224,62 @@
         }
       },
       "required": ["name", "state", "district", "block", "panchayat"]
+    },
+    "complaint": {
+      "title": "Complaint",
+      "description": "Represents a complaint filed by a resident.",
+      "type": "object",
+      "properties": {
+        "issueType": {
+          "type": "string",
+          "enum": ["No water", "Low pressure", "Dirty water", "Leakage", "Motor off", "Others"],
+          "description": "The type of issue being reported."
+        },
+        "address": {
+          "type": "string",
+          "description": "The address or landmark for the complaint."
+        },
+        "photoUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of an uploaded photo of the issue."
+        },
+        "description": {
+          "type": "string",
+          "description": "A short description of the complaint."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The contact number of the person who filed the complaint."
+        },
+        "reportedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the complaint was filed."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Open", "In Progress", "Resolved"],
+          "description": "The current status of the complaint."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who filed the complaint."
+        },
+        "userPanchayat": {
+          "type": "string"
+        },
+        "userBlock": {
+          "type": "string"
+        },
+        "userDistrict": {
+          "type": "string"
+        },
+        "userState": {
+          "type": "string"
+        }
+      },
+      "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
     }
   },
   "auth": {
@@ -257,6 +313,12 @@
     "/operators/{operatorId}": {
       "schema": { "$ref": "#/entities/operator" },
       "description": "Stores information about pump operators."
+    },
+    "/complaints/{complaintId}": {
+      "schema": { "$ref": "#/entities/complaint"},
+      "description": "Stores all user-submitted complaints."
     }
   }
 }
+
+    

@@ -111,6 +111,22 @@ export type Operator = {
     panchayat: string;
 };
 
+export type Complaint = {
+  id: string;
+  issueType: "No water" | "Low pressure" | "Dirty water" | "Leakage" | "Motor off" | "Others";
+  address: string;
+  photoUrl?: string;
+  description: string;
+  contactNumber: string;
+  reportedAt: string;
+  status: 'Open' | 'In Progress' | 'Resolved';
+  userId: string;
+  userPanchayat: string;
+  userBlock: string;
+  userDistrict: string;
+  userState: string;
+};
+
 
 async function seedDatabase() {
     const db = getFirestore(app);
@@ -175,3 +191,5 @@ async function seedDatabase() {
 // Call this function to seed the db when the app starts if needed,
 // but be careful not to call it on every render.
 // seedDatabase();
+
+    

@@ -11,12 +11,13 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine } from "lucide-react";
 import React from "react";
 
 const navItems = {
   "gram-panchayat": [
     { href: "/gram-panchayat", label: "Dashboard", icon: <LayoutDashboard /> },
+    { href: "/gram-panchayat/complaints", label: "View Complaints", icon: <MessageSquareWarning /> },
     { href: "/gram-panchayat/schemes", label: "Water Schemes", icon: <Droplets /> },
     { href: "/gram-panchayat/pump-control", label: "Pump Control", icon: <Power /> },
     { href: "/gram-panchayat/log-book", label: "Log Book", icon: <BookMarked /> },
@@ -32,6 +33,7 @@ const navItems = {
     { href: "/village-resident", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/village-resident/availability", label: "Water Availability", icon: <Droplet /> },
     { href: "/village-resident/billing", label: "Pay Bills", icon: <FileText /> },
+    { href: "/village-resident/complaints", label: "Register Complaint", icon: <FilePenLine /> },
   ],
   "block-official": [
     { href: "/block-official", label: "Dashboard", icon: <LayoutDashboard /> },
@@ -88,3 +90,5 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
+
+    
