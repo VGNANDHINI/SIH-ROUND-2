@@ -52,7 +52,7 @@ export default function RegisterComplaintPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const { data: userProfile, loading: userProfileLoading } = useDoc<UserProfile>(
-    user ? `users/${user.uid}` : ''
+    user ? `users/${user.uid}` : null
   );
 
   const form = useForm<z.infer<typeof complaintSchema>>({
@@ -242,5 +242,3 @@ export default function RegisterComplaintPage() {
     </Card>
   );
 }
-
-    

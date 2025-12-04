@@ -10,15 +10,20 @@ interface UseDocResponse<T> {
   error: FirestoreError | null;
 }
 
-export function useDoc<T>(path: string): UseDocResponse<T> {
+export function useDoc<T>(path: string | null): UseDocResponse<T> {
   const firestore = useFirestore();
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | null>(null);
 
   useEffect(() => {
-    if (!firestore) return;
-
+    if (!firestore || !path) {
+      setLoading(false);
+      setData(null);
+      return;
+    }
+    
+    setLoading(true);
     const docRef = doc(firestore, path);
     const unsubscribe = onSnapshot(
       docRef,

@@ -22,8 +22,8 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 
 export default function ViewComplaintsPage() {
-  const { user } = useUser();
-  const { data: currentUserProfile, loading: userLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : '');
+  const { user, loading: userLoading } = useUser();
+  const { data: currentUserProfile, loading: profileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
   const { data: allComplaints, loading: complaintsLoading } = useComplaints();
 
   const filteredComplaints = useMemo(() => {
@@ -33,7 +33,7 @@ export default function ViewComplaintsPage() {
     );
   }, [currentUserProfile, allComplaints]);
 
-  const loading = userLoading || complaintsLoading;
+  const loading = userLoading || profileLoading || complaintsLoading;
   
   const getStatusBadgeVariant = (status: Complaint['status']) => {
     switch (status) {
@@ -96,5 +96,3 @@ export default function ViewComplaintsPage() {
     </Card>
   );
 }
-
-    
