@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "userProfile": {
@@ -27,9 +28,25 @@
           "type": "string",
           "format": "date-time",
           "description": "The timestamp when the user profile was created."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state where the user resides."
+        },
+        "district": {
+          "type": "string",
+          "description": "The district where the user resides."
+        },
+        "block": {
+          "type": "string",
+          "description": "The block where the user resides."
+        },
+        "panchayat": {
+          "type": "string",
+          "description": "The panchayat where the user resides."
         }
       },
-      "required": ["uid", "email", "createdAt"]
+      "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat"]
     },
     "waterScheme": {
       "title": "Water Scheme",

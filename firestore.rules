@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -8,7 +9,11 @@ service cloud.firestore {
                     && request.resource.data.uid == userId
                     && request.resource.data.displayName is string
                     && request.resource.data.email is string
-                    && ('createdAt' in request.resource.data);
+                    && ('createdAt' in request.resource.data)
+                    && request.resource.data.state is string
+                    && request.resource.data.district is string
+                    && request.resource.data.block is string
+                    && request.resource.data.panchayat is string;
 
       allow read: if request.auth != null
                   && request.auth.uid == userId;

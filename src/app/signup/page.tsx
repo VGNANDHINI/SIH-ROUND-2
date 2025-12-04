@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -31,6 +32,11 @@ export default function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [state, setState] = useState('');
+  const [district, setDistrict] = useState('');
+  const [block, setBlock] = useState('');
+  const [panchayat, setPanchayat] = useState('');
+
   const router = useRouter();
   const { auth, firestore } = useFirebase();
   const { toast } = useToast();
@@ -56,6 +62,10 @@ export default function SignUpPage() {
         displayName: name,
         email: user.email,
         createdAt: serverTimestamp(),
+        state,
+        district,
+        block,
+        panchayat,
       };
 
       setDoc(userDocRef, userData).catch(async (serverError) => {
@@ -92,6 +102,10 @@ export default function SignUpPage() {
         email: user.email,
         photoURL: user.photoURL,
         createdAt: serverTimestamp(),
+        state: 'Default State',
+        district: 'Default District',
+        block: 'Default Block',
+        panchayat: 'Default Panchayat',
       };
 
       setDoc(userDocRef, userData, { merge: true }).catch(
@@ -116,7 +130,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex items-center justify-center min-h-screen bg-background py-12">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
@@ -155,6 +169,26 @@ export default function SignUpPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+            </div>
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="state">State</Label>
+                  <Input id="state" value={state} onChange={(e) => setState(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="district">District</Label>
+                  <Input id="district" value={district} onChange={(e) => setDistrict(e.target.value)} required />
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="block">Block</Label>
+                  <Input id="block" value={block} onChange={(e) => setBlock(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="panchayat">Panchayat</Label>
+                  <Input id="panchayat" value={panchayat} onChange={(e) => setPanchayat(e.target.value)} required />
+                </div>
             </div>
             <Button type="submit" className="w-full">
               Sign Up
