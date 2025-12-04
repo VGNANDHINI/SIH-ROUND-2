@@ -123,7 +123,7 @@ export default function SchemesPage() {
                 <TableHead>Scheme Name</TableHead>
                 <TableHead>Village</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Approval</TableHead>
+                <TableHead>Approval Status</TableHead>
                 <TableHead>Coverage</TableHead>
                 <TableHead>Last Updated</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
