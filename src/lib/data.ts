@@ -105,6 +105,8 @@ export const analyticsData = {
 export type Operator = {
     id: string;
     name: string;
+    email: string;
+    phone: string;
     state: string;
     district: string;
     block: string;
@@ -125,6 +127,9 @@ export type Complaint = {
   userBlock: string;
   userDistrict: string;
   userState: string;
+  assignedTo?: string;
+  assignedOperatorName?: string;
+  operatorEmail?: string;
 };
 
 

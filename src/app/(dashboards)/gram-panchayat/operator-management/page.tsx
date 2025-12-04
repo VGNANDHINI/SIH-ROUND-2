@@ -47,6 +47,8 @@ export default function OperatorManagementPage() {
     const formData = new FormData(e.currentTarget);
     const newOperatorData: Omit<Operator, 'id'> = {
       name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
       state: formData.get('state') as string,
       district: formData.get('district') as string,
       block: formData.get('block') as string,
@@ -121,10 +123,10 @@ export default function OperatorManagementPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
                   <TableHead>Panchayat</TableHead>
                   <TableHead>Block</TableHead>
-                  <TableHead>District</TableHead>
-                  <TableHead>State</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -132,10 +134,10 @@ export default function OperatorManagementPage() {
                 {operators?.map((op) => (
                   <TableRow key={op.id}>
                     <TableCell className="font-medium">{op.name}</TableCell>
+                    <TableCell>{op.email}</TableCell>
+                    <TableCell>{op.phone}</TableCell>
                     <TableCell>{op.panchayat}</TableCell>
                     <TableCell>{op.block}</TableCell>
-                    <TableCell>{op.district}</TableCell>
-                    <TableCell>{op.state}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -164,7 +166,7 @@ export default function OperatorManagementPage() {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
               {currentOperator?.id ? 'Edit Operator' : 'Add New Operator'}
@@ -183,6 +185,32 @@ export default function OperatorManagementPage() {
                   id="name"
                   name="name"
                   defaultValue={currentOperator?.name}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={currentOperator?.email}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="phone" className="text-right">
+                  Phone
+                </Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  defaultValue={currentOperator?.phone}
                   className="col-span-3"
                   required
                 />
@@ -252,3 +280,5 @@ export default function OperatorManagementPage() {
     </>
   );
 }
+
+    

@@ -206,6 +206,15 @@
           "type": "string",
           "description": "The full name of the operator."
         },
+        "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The operator's email address."
+        },
+        "phone": {
+            "type": "string",
+            "description": "The operator's phone number."
+        },
         "state": {
           "type": "string",
           "description": "The state where the operator works."
@@ -223,7 +232,7 @@
           "description": "The panchayat where the operator works."
         }
       },
-      "required": ["name", "state", "district", "block", "panchayat"]
+      "required": ["name", "email", "phone", "state", "district", "block", "panchayat"]
     },
     "complaint": {
       "title": "Complaint",
@@ -277,6 +286,19 @@
         },
         "userState": {
           "type": "string"
+        },
+        "assignedTo": {
+            "type": "string",
+            "description": "The ID of the operator this complaint is assigned to."
+        },
+        "assignedOperatorName": {
+            "type": "string",
+            "description": "The name of the operator this complaint is assigned to."
+        },
+        "operatorEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "The email of the assigned operator."
         }
       },
       "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
