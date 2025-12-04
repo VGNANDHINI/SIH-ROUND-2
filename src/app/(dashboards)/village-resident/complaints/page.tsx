@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -76,8 +77,11 @@ export default function RegisterComplaintPage() {
 
     setIsLoading(true);
 
+    // Destructure the photo from values and spread the rest
+    const { photo, ...restOfValues } = values;
+
     const complaintData = {
-      ...values,
+      ...restOfValues,
       photoUrl: '', // Placeholder for photo upload logic
       contactNumber: userProfile.phoneNumber,
       reportedAt: serverTimestamp(),
