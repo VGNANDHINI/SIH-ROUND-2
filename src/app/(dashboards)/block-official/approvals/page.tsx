@@ -35,7 +35,9 @@ export default function SchemeApprovalsPage() {
     if (!firestore) return;
 
     const docRef = doc(firestore, 'waterSchemes', scheme.id);
-    const updatedData = { ...scheme, approvalStatus };
+    // Create a new object without the 'id' field for Firestore
+    const { id, ...schemeData } = scheme;
+    const updatedData = { ...schemeData, approvalStatus };
 
     setDoc(docRef, updatedData, { merge: true }).catch(async (serverError) => {
       const permissionError = new FirestorePermissionError({
