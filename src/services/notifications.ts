@@ -1,3 +1,4 @@
+
 'use server';
 
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
@@ -27,17 +28,29 @@ export async function sendBulkSms(
       .filter((phoneNumber): phoneNumber is string => !!phoneNumber && phoneNumber.length > 0);
       
     if (phoneNumbers.length === 0) {
-        return { success: true, sentCount: 0, error: "No users with phone numbers found." };
+        return { success: false, sentCount: 0, error: "No users with phone numbers found." };
     }
 
     const sendPromises = phoneNumbers.map(number => sendSms(number, message));
     
     const results = await Promise.allSettled(sendPromises);
 
-    const successfulSends = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+    let successfulSends = 0;
+    let firstError: string | undefined;
 
-    if (successfulSends === 0) {
-        throw new Error('Failed to send SMS to any user. Check Twilio logs.');
+    results.forEach(result => {
+        if (result.status === 'fulfilled' && result.value.success) {
+            successfulSends++;
+        } else if (result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success)) {
+            if (!firstError) {
+                 const reason = result.status === 'rejected' ? result.reason : result.value.data.error;
+                 firstError = typeof reason === 'string' ? reason : (reason as Error)?.message || 'An unknown error occurred during SMS sending.';
+            }
+        }
+    });
+
+    if (successfulSends === 0 && firstError) {
+        throw new Error(firstError);
     }
 
     console.log(`Successfully sent ${successfulSends} out of ${phoneNumbers.length} messages.`);

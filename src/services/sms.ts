@@ -3,20 +3,19 @@
 
 import { Twilio } from 'twilio';
 
+// These are loaded from the .env file
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-if (!accountSid || !authToken || !twilioPhoneNumber) {
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn(
-      'Twilio environment variables (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER) are not set. SMS sending will be disabled.'
-    );
-  }
-}
-
 const client =
   accountSid && authToken ? new Twilio(accountSid, authToken) : null;
+
+if (!client) {
+    console.warn(
+      'Twilio client is not initialized. Check server environment variables (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER). SMS sending will be disabled.'
+    );
+}
 
 /**
  * Sends an SMS message to a given phone number.
@@ -28,9 +27,9 @@ export async function sendSms(
   to: string,
   body: string
 ): Promise<{ success: boolean; data: any }> {
-  if (!client) {
+  if (!client || !twilioPhoneNumber) {
     const error =
-      'Twilio client is not initialized. Check server environment variables.';
+      'Twilio client or phone number is not initialized. Check server environment variables.';
     console.error(error);
     return { success: false, data: { error } };
   }
@@ -45,6 +44,7 @@ export async function sendSms(
     return { success: true, data: { sid: message.sid } };
   } catch (error: any) {
     console.error('Failed to send SMS:', error);
+    // Pass the specific error message from Twilio back to the caller
     return { success: false, data: { error: error.message } };
   }
 }
