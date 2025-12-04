@@ -140,6 +140,36 @@
         }
       },
       "required": ["pumpId", "status", "waterSupplied", "operatorName"]
+    },
+    "waterSupply": {
+      "title": "Water Supply",
+      "description": "Represents the real-time status of a water pump.",
+      "type": "object",
+      "properties": {
+        "pumpId": {
+          "type": "string",
+          "description": "The unique identifier for the pump."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the pump."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current operational status of the pump.",
+          "enum": ["On", "Off"]
+        },
+        "lastChangedBy": {
+          "type": "string",
+          "description": "The email of the user who last changed the status."
+        },
+        "lastChangedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the last status change."
+        }
+      },
+      "required": ["pumpId", "location", "status"]
     }
   },
   "auth": {
@@ -165,6 +195,10 @@
     "/pumpLogs/{logId}": {
       "schema": { "$ref": "#/entities/pumpLog" },
       "description": "Stores logs of pump operations."
+    },
+    "/waterSupply/{pumpId}": {
+      "schema": { "$ref": "#/entities/waterSupply" },
+      "description": "Stores the real-time status of water pumps."
     }
   }
 }

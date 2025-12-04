@@ -63,6 +63,20 @@ export const pumpLogs: Omit<PumpLog, 'id'>[] = [
     { pumpId: 'PMP-RG-01', status: 'Off', waterSupplied: 5000, operatorName: 'Ramesh' },
 ];
 
+export type WaterSupply = {
+    id: string;
+    pumpId: string;
+    location: string;
+    status: 'On' | 'Off';
+    lastChangedBy: string | null;
+    lastChangedAt: string | null;
+}
+
+export const waterSupplyData: WaterSupply[] = [
+    { id: 'PMP-RG-01', pumpId: 'PMP-RG-01', location: 'Ramgarh, Near School', status: 'Off', lastChangedBy: 'system', lastChangedAt: '2024-01-01T10:00:00Z' },
+    { id: 'PMP-SP-03', pumpId: 'PMP-SP-03', location: 'Sitapur, Market Area', status: 'On', lastChangedBy: 'system', lastChangedAt: '2024-01-01T10:00:00Z' },
+    { id: 'PMP-LG-02', pumpId: 'PMP-LG-02', location: 'Laxmangarh, West Block', status: 'Off', lastChangedBy: 'system', lastChangedAt: '2024-01-01T10:00:00Z' },
+]
 
 export const analyticsData = {
     waterConsumption: [
@@ -128,6 +142,14 @@ async function seedDatabase() {
             pumpLogs.forEach((log) => {
                 const docRef = doc(collection(db, "pumpLogs"));
                 batch.set(docRef, log);
+            });
+        }
+
+        if (await collectionIsEmpty('waterSupply')) {
+            console.log('Seeding waterSupply...');
+            waterSupplyData.forEach((supply) => {
+                const docRef = doc(db, "waterSupply", supply.id);
+                batch.set(docRef, supply);
             });
         }
         
