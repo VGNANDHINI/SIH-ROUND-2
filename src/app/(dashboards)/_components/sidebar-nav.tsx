@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -20,6 +20,7 @@ const navItems = {
     { href: "/gram-panchayat/schemes", label: "Water Schemes", icon: <Droplets /> },
     { href: "/gram-panchayat/pump-control", label: "Pump Control", icon: <Power /> },
     { href: "/gram-panchayat/log-book", label: "Log Book", icon: <BookMarked /> },
+    { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
   ],
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
