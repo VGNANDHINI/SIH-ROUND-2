@@ -1,3 +1,4 @@
+
 import { collection, writeBatch, getDocs, doc, getFirestore } from "firebase/firestore";
 import { app } from "@/firebase/config";
 
@@ -120,8 +121,8 @@ export type Complaint = {
   photoUrl?: string;
   description: string;
   contactNumber: string;
-  reportedAt: string;
-  status: 'Open' | 'In Progress' | 'Resolved';
+  reportedAt: any;
+  status: 'Open' | 'In Progress' | 'Pending Verification' | 'Resolved';
   userId: string;
   userPanchayat: string;
   userBlock: string;
@@ -130,6 +131,12 @@ export type Complaint = {
   assignedTo?: string;
   assignedOperatorName?: string;
   operatorEmail?: string;
+  taskStartedAt?: any;
+  taskCompletedAt?: any;
+  actionTaken?: string;
+  resolutionPhotoUrl?: string;
+  rejectionReason?: string;
+  verifiedBy?: string;
 };
 
 

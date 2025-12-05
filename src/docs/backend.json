@@ -1,0 +1,371 @@
+
+{
+  "entities": {
+    "userProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID from Firebase Authentication."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the user profile was created."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state where the user resides."
+        },
+        "district": {
+          "type": "string",
+          "description": "The district where the user resides."
+        },
+        "block": {
+          "type": "string",
+          "description": "The block where the user resides."
+        },
+        "panchayat": {
+          "type": "string",
+          "description": "The panchayat where the user resides."
+        }
+      },
+      "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat", "phoneNumber"]
+    },
+    "waterScheme": {
+      "title": "Water Scheme",
+      "description": "Represents a water supply scheme in a village.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the scheme."
+        },
+        "village": {
+          "type": "string",
+          "description": "The village the scheme belongs to."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current operational status of the scheme.",
+          "enum": ["Active", "Inactive", "Under Maintenance"]
+        },
+        "approvalStatus": {
+          "type": "string",
+          "description": "The approval status of the scheme.",
+          "enum": ["Pending", "Approved", "Rejected"]
+        },
+        "coverage": {
+          "type": "number",
+          "description": "Percentage of households covered."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date",
+          "description": "Last updated date."
+        }
+      },
+      "required": ["name", "village", "status", "coverage", "lastUpdated", "approvalStatus"]
+    },
+    "pumpIssue": {
+      "title": "Pump Issue",
+      "description": "Represents a reported issue with a water pump.",
+      "type": "object",
+      "properties": {
+        "pumpId": {
+          "type": "string",
+          "description": "The ID of the pump with the issue."
+        },
+        "location": {
+          "type": "string",
+          "description": "Location of the pump."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the issue."
+        },
+        "reportedAt": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the issue was reported."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the issue.",
+          "enum": ["Open", "In Progress", "Resolved"]
+        }
+      },
+      "required": ["pumpId", "location", "description", "reportedAt", "status"]
+    },
+    "bill": {
+      "title": "Bill",
+      "description": "Represents a user's water bill.",
+      "type": "object",
+      "properties": {
+        "month": {
+          "type": "string",
+          "description": "The billing month."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount due."
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date",
+          "description": "The due date for the bill."
+        },
+        "status": {
+          "type": "string",
+          "description": "The payment status of the bill.",
+          "enum": ["Paid", "Due", "Overdue"]
+        }
+      },
+      "required": ["month", "amount", "dueDate", "status"]
+    },
+    "pumpLog": {
+      "title": "Pump Log",
+      "description": "A log entry for pump operation.",
+      "type": "object",
+      "properties": {
+        "pumpId": {
+          "type": "string",
+          "description": "The ID of the pump."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["On", "Off"]
+        },
+        "waterSupplied": {
+          "type": "number",
+          "description": "Water supplied in liters."
+        },
+        "operatorName": {
+          "type": "string",
+          "description": "Name of the operator who logged the entry."
+        }
+      },
+      "required": ["pumpId", "status", "waterSupplied", "operatorName"]
+    },
+    "waterSupply": {
+      "title": "Water Supply",
+      "description": "Represents the real-time status of a water pump.",
+      "type": "object",
+      "properties": {
+        "pumpId": {
+          "type": "string",
+          "description": "The unique identifier for the pump."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the pump."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current operational status of the pump.",
+          "enum": ["On", "Off"]
+        },
+        "lastChangedBy": {
+          "type": "string",
+          "description": "The email of the user who last changed the status."
+        },
+        "lastChangedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the last status change."
+        }
+      },
+      "required": ["pumpId", "location", "status"]
+    },
+    "operator": {
+      "title": "Operator",
+      "description": "Represents a pump operator or technician who can be assigned to solve issues.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The full name of the operator."
+        },
+        "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The operator's email address."
+        },
+        "phone": {
+            "type": "string",
+            "description": "The operator's phone number."
+        },
+        "state": {
+          "type": "string",
+          "description": "The state where the operator works."
+        },
+        "district": {
+          "type": "string",
+          "description": "The district where the operator works."
+        },
+        "block": {
+          "type": "string",
+          "description": "The block where the operator works."
+        },
+        "panchayat": {
+          "type": "string",
+          "description": "The panchayat where the operator works."
+        }
+      },
+      "required": ["name", "email", "phone", "state", "district", "block", "panchayat"]
+    },
+    "complaint": {
+      "title": "Complaint",
+      "description": "Represents a complaint filed by a resident.",
+      "type": "object",
+      "properties": {
+        "issueType": {
+          "type": "string",
+          "enum": ["No water", "Low pressure", "Dirty water", "Leakage", "Motor off", "Others"],
+          "description": "The type of issue being reported."
+        },
+        "address": {
+          "type": "string",
+          "description": "The address or landmark for the complaint."
+        },
+        "photoUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of an uploaded photo of the issue."
+        },
+        "description": {
+          "type": "string",
+          "description": "A short description of the complaint."
+        },
+        "contactNumber": {
+          "type": "string",
+          "description": "The contact number of the person who filed the complaint."
+        },
+        "reportedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the complaint was filed."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Open", "In Progress", "Pending Verification", "Resolved"],
+          "description": "The current status of the complaint."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who filed the complaint."
+        },
+        "userPanchayat": {
+          "type": "string"
+        },
+        "userBlock": {
+          "type": "string"
+        },
+        "userDistrict": {
+          "type": "string"
+        },
+        "userState": {
+          "type": "string"
+        },
+        "assignedTo": {
+            "type": "string",
+            "description": "The ID of the operator this complaint is assigned to."
+        },
+        "assignedOperatorName": {
+            "type": "string",
+            "description": "The name of the operator this complaint is assigned to."
+        },
+        "operatorEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "The email of the assigned operator."
+        },
+        "taskStartedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the operator started the task."
+        },
+        "taskCompletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the operator completed the task."
+        },
+        "actionTaken": {
+            "type": "string",
+            "description": "A description of the action taken by the operator."
+        },
+        "resolutionPhotoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the photo uploaded by the operator upon resolution."
+        },
+        "rejectionReason": {
+            "type": "string",
+            "description": "Reason provided by the block official for rejecting the resolution."
+        },
+        "verifiedBy": {
+            "type": "string",
+            "description": "The email of the block official who verified or rejected the work."
+        }
+      },
+      "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
+    }
+  },
+  "auth": {
+    "providers": ["email", "google"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/userProfile" },
+      "description": "Stores user profile information."
+    },
+    "/waterSchemes/{schemeId}": {
+      "schema": { "$ref": "#/entities/waterScheme" },
+      "description": "Stores all water supply schemes."
+    },
+    "/pumpIssues/{issueId}": {
+      "schema": { "$ref": "#/entities/pumpIssue" },
+      "description": "Stores all reported pump issues."
+    },
+    "/bills/{billId}": {
+      "schema": { "$ref": "#/entities/bill" },
+      "description": "Stores user billing information."
+    },
+    "/pumpLogs/{logId}": {
+      "schema": { "$ref": "#/entities/pumpLog" },
+      "description": "Stores logs of pump operations."
+    },
+    "/waterSupply/{pumpId}": {
+      "schema": { "$ref": "#/entities/waterSupply" },
+      "description": "Stores the real-time status of water pumps."
+    },
+    "/operators/{operatorId}": {
+      "schema": { "$ref": "#/entities/operator" },
+      "description": "Stores information about pump operators."
+    },
+    "/complaints/{complaintId}": {
+      "schema": { "$ref": "#/entities/complaint"},
+      "description": "Stores all user-submitted complaints."
+    }
+  }
+}

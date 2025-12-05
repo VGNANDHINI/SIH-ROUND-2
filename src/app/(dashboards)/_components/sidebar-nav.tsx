@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -11,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -39,6 +40,7 @@ const navItems = {
     { href: "/block-official", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/block-official/approvals", label: "Scheme Approvals", icon: <CheckSquare /> },
     { href: "/block-official/analytics", label: "Analytics", icon: <Presentation /> },
+    { href: "/block-official/work-verification", label: "Work Verification", icon: <ShieldCheck /> },
   ],
 };
 

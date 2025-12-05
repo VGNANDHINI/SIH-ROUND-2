@@ -8,13 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Textarea } from "@/components/ui/textarea";
 import { useComplaints, useUser, useFirestore } from "@/firebase";
 import type { Complaint } from "@/lib/data";
-import { AlertCircle, FileQuestion, Wrench, Loader2, Play, Square, Timer } from "lucide-react";
+import { AlertCircle, FileQuestion, Wrench, Loader2, Play, Square, Timer, Upload, ShieldX } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 
 const useTimer = (startTime: Date | null) => {
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
@@ -56,7 +57,7 @@ const TimerDisplay = ({ complaint }: { complaint: Complaint }) => {
     if (!startTime) return null;
 
     return (
-        <div className="flex items-center text-sm text-muted-foreground">
+        <div className="flex items-center text-sm text-green-600 font-medium">
             <Timer className="mr-1 h-4 w-4" />
             {elapsedTime}
         </div>
@@ -73,6 +74,7 @@ export default function PumpOperatorDashboard() {
     const [isResolveDialogOpen, setResolveDialogOpen] = useState(false);
     const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
     const [actionTaken, setActionTaken] = useState('');
+    const [resolutionPhoto, setResolutionPhoto] = useState<File | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
 
     const assignedComplaints = useMemo(() => {
@@ -86,7 +88,7 @@ export default function PumpOperatorDashboard() {
     const handleStartTask = (complaint: Complaint) => {
         if (!firestore) return;
         const complaintRef = doc(firestore, 'complaints', complaint.id);
-        const updatedData = { ...complaint, taskStartedAt: serverTimestamp() };
+        const updatedData = { ...complaint, taskStartedAt: serverTimestamp(), rejectionReason: "" }; // Clear rejection reason on new attempt
 
         setDoc(complaintRef, updatedData, { merge: true }).catch(async (serverError) => {
             const permissionError = new FirestorePermissionError({
@@ -103,20 +105,28 @@ export default function PumpOperatorDashboard() {
         setResolveDialogOpen(true);
     };
 
-    const handleConfirmResolution = () => {
+    const handleConfirmResolution = async () => {
         if (!firestore || !selectedComplaint) return;
         setIsUpdating(true);
+        
+        // In a real app, you would upload the photo to Firebase Storage and get a URL.
+        // For this prototype, we'll use a placeholder.
+        const photoUrl = resolutionPhoto 
+            ? "https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsZWFraW5nJTIwcHVtcHxlbnwwfHx8fDE3NjMyOTI3MTh8MA&ixlib=rb-4.1.0&q=80&w=1080"
+            : "";
+
         const complaintRef = doc(firestore, 'complaints', selectedComplaint.id);
         const updatedData = {
             ...selectedComplaint,
-            status: 'Resolved' as const,
+            status: 'Pending Verification' as const,
             taskCompletedAt: serverTimestamp(),
             actionTaken,
+            resolutionPhotoUrl: photoUrl,
         };
 
         setDoc(complaintRef, updatedData, { merge: true })
             .then(() => {
-                toast({ title: "Task Resolved", description: "Complaint has been marked as resolved." });
+                toast({ title: "Work Submitted for Verification", description: "The complaint resolution has been submitted to the Block Official." });
             })
             .catch(async (serverError) => {
                  const permissionError = new FirestorePermissionError({
@@ -125,12 +135,14 @@ export default function PumpOperatorDashboard() {
                     requestResourceData: updatedData,
                 });
                 errorEmitter.emit('permission-error', permissionError);
+                 toast({ variant: "destructive", title: "Submission Failed", description: "Could not submit your work for verification." });
             })
             .finally(() => {
                 setIsUpdating(false);
                 setResolveDialogOpen(false);
                 setSelectedComplaint(null);
                 setActionTaken('');
+                setResolutionPhoto(null);
             });
     };
 
@@ -138,6 +150,7 @@ export default function PumpOperatorDashboard() {
         switch (status) {
             case 'Open': return 'destructive';
             case 'In Progress': return 'secondary';
+            case 'Pending Verification': return 'default';
             case 'Resolved': return 'success';
         }
     };
@@ -207,12 +220,21 @@ export default function PumpOperatorDashboard() {
                                     </TableRow>
                                 ) : (
                                     assignedComplaints.map((complaint) => (
-                                        <TableRow key={complaint.id}>
+                                        <TableRow key={complaint.id} className={complaint.rejectionReason ? "bg-red-50 dark:bg-red-900/20" : ""}>
                                             <TableCell>
                                                 <div className="font-medium">{complaint.issueType}</div>
                                                 <div className="text-xs text-muted-foreground">{complaint.address}</div>
                                             </TableCell>
-                                            <TableCell className="max-w-xs truncate">{complaint.description}</TableCell>
+                                            <TableCell className="max-w-xs truncate">
+                                                {complaint.rejectionReason ? (
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="font-medium text-destructive flex items-center"><ShieldX className="mr-1 h-4 w-4"/> Rejected</span>
+                                                        <span className="text-xs text-destructive/80">{complaint.rejectionReason}</span>
+                                                    </div>
+                                                ) : (
+                                                    complaint.description
+                                                )}
+                                            </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-col gap-1 items-start">
                                                     <Badge variant={getBadgeVariant(complaint.status)}>{complaint.status}</Badge>
@@ -227,8 +249,8 @@ export default function PumpOperatorDashboard() {
                                                     </Button>
                                                 )}
                                                  {complaint.status === 'In Progress' && complaint.taskStartedAt && (
-                                                    <Button variant="destructive" size="sm" onClick={() => handleResolveClick(complaint)}>
-                                                        <Square className="mr-2 h-4 w-4"/> Mark as Resolved
+                                                    <Button variant="default" size="sm" onClick={() => handleResolveClick(complaint)}>
+                                                        <Square className="mr-2 h-4 w-4"/> Submit for Verification
                                                     </Button>
                                                 )}
                                             </TableCell>
@@ -245,24 +267,48 @@ export default function PumpOperatorDashboard() {
             <Dialog open={isResolveDialogOpen} onOpenChange={setResolveDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Resolve Complaint</DialogTitle>
+                        <DialogTitle>Submit for Verification</DialogTitle>
                         <DialogDescription>
-                            Describe the action you took to resolve this issue. This will mark the task as complete.
+                            Describe the action taken and upload a photo of the completed work. This will be sent for verification.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="py-4">
-                        <Textarea 
-                            placeholder="e.g., Replaced the faulty motor..."
-                            value={actionTaken}
-                            onChange={(e) => setActionTaken(e.target.value)}
-                            rows={4}
-                        />
+                    <div className="py-4 space-y-4">
+                        <div>
+                            <label htmlFor="action-taken" className="text-sm font-medium">Action Taken</label>
+                            <Textarea 
+                                id="action-taken"
+                                placeholder="e.g., Replaced the faulty motor..."
+                                value={actionTaken}
+                                onChange={(e) => setActionTaken(e.target.value)}
+                                rows={4}
+                                className="mt-1"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="photo-upload" className="text-sm font-medium">Upload Photo</label>
+                             <div className="mt-1 flex items-center justify-center w-full">
+                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <Upload className="w-8 h-8 mb-3 text-muted-foreground" />
+                                        {resolutionPhoto ? (
+                                             <p className="text-sm text-green-600">{resolutionPhoto.name}</p>
+                                        ) : (
+                                            <>
+                                            <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                            <p className="text-xs text-muted-foreground">PNG or JPG</p>
+                                            </>
+                                        )}
+                                    </div>
+                                    <Input id="dropzone-file" type="file" className="hidden" accept="image/png, image/jpeg" onChange={(e) => setResolutionPhoto(e.target.files ? e.target.files[0] : null)} />
+                                </label>
+                            </div> 
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setResolveDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleConfirmResolution} disabled={!actionTaken || isUpdating}>
+                        <Button onClick={handleConfirmResolution} disabled={!actionTaken || !resolutionPhoto || isUpdating}>
                             {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                            Confirm Resolution
+                            Submit for Verification
                         </Button>
                     </DialogFooter>
                 </DialogContent>
