@@ -219,14 +219,13 @@ export default function WorkVerificationPage() {
             <DialogTitle>Resolution Photo</DialogTitle>
             <DialogDescription>Image submitted by {selectedComplaint?.assignedOperatorName} for complaint at {selectedComplaint?.address}.</DialogDescription>
           </DialogHeader>
-          <div className="my-4">
+          <div className="my-4 flex items-center justify-center">
             {selectedComplaint?.resolutionPhotoUrl ? (
-                <Image src={selectedComplaint.resolutionPhotoUrl} alt="Resolution photo" width={800} height={600} className="rounded-md object-contain"/>
-            ) : <p className="text-muted-foreground">No photo available.</p>}
+                <Image src={selectedComplaint.resolutionPhotoUrl} alt="Resolution photo" width={800} height={600} className="rounded-md object-contain max-h-[70vh]"/>
+            ) : <p className="text-muted-foreground">No photo was submitted for this resolution.</p>}
           </div>
         </DialogContent>
       </Dialog>
     </>
   );
 }
-
