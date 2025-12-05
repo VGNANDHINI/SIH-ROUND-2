@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useWaterSchemes } from "@/firebase";
 import { ArrowUpRight, CheckCircle, Droplets, Users, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { TodoList } from "./_components/todo-list";
 
 export default function GramPanchayatDashboard() {
   const { data: waterSchemes, loading } = useWaterSchemes();
@@ -61,9 +59,8 @@ export default function GramPanchayatDashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <TodoList />
-        <Card className="lg:col-span-2">
+      <div className="grid gap-6 md:grid-cols-1">
+        <Card>
             <CardHeader>
             <CardTitle>Welcome, Panchayat Member</CardTitle>
             <CardDescription>
