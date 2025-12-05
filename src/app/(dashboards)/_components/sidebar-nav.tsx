@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers, Map } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -26,6 +26,7 @@ const navItems = {
     { href: "/gram-panchayat/operator-management", label: "Operator Management", icon: <Users /> },
     { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
     { href: "/gram-panchayat/water-quality", label: "Water Quality", icon: <FlaskConical /> },
+    { href: "/gram-panchayat/gis-atlas", label: "GIS Atlas", icon: <Map /> },
   ],
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
