@@ -37,7 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const profileSchema = z.object({
   pumpCategory: z.string().min(1, 'Please select a pump category.'),
