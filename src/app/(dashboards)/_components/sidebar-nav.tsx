@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -24,23 +24,27 @@ const navItems = {
     { href: "/gram-panchayat/log-book", label: "Log Book", icon: <BookMarked /> },
     { href: "/gram-panchayat/operator-management", label: "Operator Management", icon: <Users /> },
     { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
+    { href: "/gram-panchayat/water-quality", label: "Water Quality", icon: <FlaskConical /> },
   ],
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/pump-operator/report", label: "Report Issue", icon: <FileQuestion /> },
     { href: "/pump-operator/maintenance", label: "Maintenance", icon: <Wrench /> },
+    { href: "/pump-operator/water-quality", label: "Water Quality", icon: <FlaskConical /> },
   ],
   "village-resident": [
     { href: "/village-resident", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/village-resident/availability", label: "Water Availability", icon: <Droplet /> },
     { href: "/village-resident/billing", label: "Pay Bills", icon: <FileText /> },
     { href: "/village-resident/complaints", label: "Register Complaint", icon: <FilePenLine /> },
+    { href: "/village-resident/water-quality", label: "Water Quality", icon: <FlaskConical /> },
   ],
   "block-official": [
     { href: "/block-official", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/block-official/approvals", label: "Scheme Approvals", icon: <CheckSquare /> },
     { href: "/block-official/analytics", label: "Analytics", icon: <Presentation /> },
     { href: "/block-official/work-verification", label: "Work Verification", icon: <ShieldCheck /> },
+    { href: "/block-official/water-quality", label: "Water Quality", icon: <FlaskConical /> },
   ],
 };
 
@@ -50,6 +54,10 @@ export function SidebarNav() {
   const pathname = usePathname();
   const role = pathname.split("/")[1] as Role;
   const currentNavItems = navItems[role] || [];
+  
+  const getSubPath = (path: string, depth: number) => {
+    return "/" + path.split("/").slice(1, depth + 1).join("/");
+  }
 
   return (
     <Sidebar>
@@ -65,7 +73,7 @@ export function SidebarNav() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={getSubPath(pathname, 2) === item.href}
                 tooltip={{ children: item.label }}
               >
                 <Link href={item.href}>

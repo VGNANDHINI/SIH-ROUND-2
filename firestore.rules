@@ -3,6 +3,14 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isUserInRole(role) {
+      // In a real app, you would have a 'roles' claim or similar.
+      // For this prototype, we'll check a user's email or a field in their profile.
+      // e.g. return request.auth.token.role == role;
+      // For now, we'll just check if they are authenticated.
+      return request.auth != null;
+    }
+
     match /users/{userId} {
       allow create: if request.auth != null
                     && request.auth.uid == userId
@@ -51,6 +59,22 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow read: if request.auth != null;
       allow update, delete: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.panchayat == resource.data.userPanchayat;
+    }
+
+    match /panchayats/{panchayatId}/waterTests/{testId} {
+        // Assume user profile has 'panchayatId' and 'role' fields
+        // 'operator', 'gp_user', 'be_user'
+        let userProfile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+        let userRole = userProfile.role; // This field needs to be added to userProfile
+
+        allow create: if isUserInRole('operator') && userProfile.panchayat == panchayatId;
+        
+        allow read: if (isUserInRole('operator') && request.auth.uid == resource.data.operatorId)
+                   || (isUserInRole('gp_user') && userProfile.panchayat == panchayatId)
+                   || (isUserInRole('be_user') && userProfile.block == get(/databases/$(database)/documents/panchayats/$(panchayatId)).data.blockId);
+        
+        // No one can update after creation, except cloud functions
+        allow update, delete: if false;
     }
   }
 }

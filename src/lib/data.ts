@@ -1,4 +1,5 @@
 
+
 import { collection, writeBatch, getDocs, doc, getFirestore } from "firebase/firestore";
 import { app } from "@/firebase/config";
 
@@ -137,6 +138,46 @@ export type Complaint = {
   resolutionPhotoUrl?: string;
   rejectionReason?: string;
   verifiedBy?: string;
+};
+
+export type UserProfile = {
+  id: string;
+  uid: string;
+  displayName: string;
+  email: string;
+  photoURL?: string;
+  phoneNumber?: string;
+  createdAt: any;
+  state: string;
+  district: string;
+  block: string;
+  panchayat: string;
+  role?: 'gram-panchayat' | 'pump-operator' | 'village-resident' | 'block-official';
+}
+
+export type WaterTest = {
+    id: string;
+    panchayatId: string;
+    operatorId: string;
+    ward: string;
+    locationType: "source" | "tank" | "pipeline" | "household";
+    pH: number;
+    turbidity: number;
+    chlorine: number;
+    tds: number;
+    iron: number;
+    fluoride: number;
+    nitrate: number;
+    coliform: boolean;
+    samplePhotoUrl?: string;
+    testDate: any;
+    status: "safe" | "unsafe" | "attention-needed";
+    flaggedParameters: string[];
+    remarks: string;
+    reviewedByGp: boolean;
+    reviewedByBe: boolean;
+    createdAt: any;
+    updatedAt: any;
 };
 
 

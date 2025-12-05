@@ -329,6 +329,35 @@
         }
       },
       "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
+    },
+    "waterTest": {
+      "title": "Water Quality Test",
+      "description": "Represents a single water quality test record.",
+      "type": "object",
+      "properties": {
+        "panchayatId": { "type": "string" },
+        "operatorId": { "type": "string" },
+        "ward": { "type": "string" },
+        "locationType": { "type": "string", "enum": ["source", "tank", "pipeline", "household"] },
+        "pH": { "type": "number" },
+        "turbidity": { "type": "number" },
+        "chlorine": { "type": "number" },
+        "tds": { "type": "number" },
+        "iron": { "type": "number" },
+        "fluoride": { "type": "number" },
+        "nitrate": { "type": "number" },
+        "coliform": { "type": "boolean" },
+        "samplePhotoUrl": { "type": "string", "format": "uri" },
+        "testDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["safe", "unsafe", "attention-needed"] },
+        "flaggedParameters": { "type": "array", "items": { "type": "string" } },
+        "remarks": { "type": "string" },
+        "reviewedByGp": { "type": "boolean" },
+        "reviewedByBe": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["panchayatId", "operatorId", "ward", "locationType", "pH", "turbidity", "chlorine", "tds", "iron", "fluoride", "nitrate", "coliform", "testDate", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -366,6 +395,12 @@
     "/complaints/{complaintId}": {
       "schema": { "$ref": "#/entities/complaint"},
       "description": "Stores all user-submitted complaints."
+    },
+    "/panchayats/{panchayatId}/waterTests/{testId}": {
+        "schema": { "$ref": "#/entities/waterTest" },
+        "description": "Stores all water quality test records for a given panchayat."
     }
   }
 }
+
+    
