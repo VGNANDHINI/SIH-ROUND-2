@@ -513,19 +513,6 @@
         "status": { "type": "string", "enum": ["Pending", "Submitted", "Requires Review"] }
       },
       "required": ["date", "operatorId", "panchayatId"]
-    },
-    "todoTask": {
-      "title": "To-Do Task",
-      "description": "Represents a single task in a user's to-do list.",
-      "type": "object",
-      "properties": {
-        "title": { "type": "string" },
-        "completed": { "type": "boolean" },
-        "dueDate": { "type": "string", "format": "date-time" },
-        "isRecurring": { "type": "boolean" },
-        "panchayatId": { "type": "string" }
-      },
-      "required": ["title", "completed", "panchayatId"]
     }
   },
   "auth": {
@@ -575,10 +562,6 @@
     "/panchayats/{panchayatId}/checklists/{checklistId}": {
       "schema": { "$ref": "#/entities/dailyChecklist"},
       "description": "Stores the daily O&M checklist for a panchayat."
-    },
-    "/panchayats/{panchayatId}/tasks/{taskId}": {
-        "schema": { "$ref": "#/entities/todoTask" },
-        "description": "Stores to-do tasks for a specific panchayat."
     }
   }
 }
