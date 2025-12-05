@@ -197,6 +197,35 @@
       },
       "required": ["pumpId", "location", "status"]
     },
+    "waterTank": {
+      "title": "Water Tank",
+      "description": "Represents a water storage tank.",
+      "type": "object",
+      "properties": {
+        "tankId": {
+          "type": "string",
+          "description": "The unique identifier for the tank."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the tank."
+        },
+        "capacity": {
+          "type": "number",
+          "description": "The total capacity of the tank in liters."
+        },
+        "currentLevel": {
+          "type": "number",
+          "description": "The current water level in percentage (0-100)."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the last level update."
+        }
+      },
+      "required": ["tankId", "location", "capacity", "currentLevel", "lastUpdated"]
+    },
     "operator": {
       "title": "Operator",
       "description": "Represents a pump operator or technician who can be assigned to solve issues.",
@@ -353,6 +382,10 @@
     "/complaints/{complaintId}": {
       "schema": { "$ref": "#/entities/complaint"},
       "description": "Stores all user-submitted complaints."
+    },
+    "/waterTanks/{tankId}": {
+      "schema": { "$ref": "#/entities/waterTank" },
+      "description": "Stores real-time data for water tanks."
     }
   }
 }

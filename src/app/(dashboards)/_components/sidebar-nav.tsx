@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -21,6 +21,7 @@ const navItems = {
     { href: "/gram-panchayat/complaints", label: "View Complaints", icon: <MessageSquareWarning /> },
     { href: "/gram-panchayat/schemes", label: "Water Schemes", icon: <Droplets /> },
     { href: "/gram-panchayat/pump-control", label: "All Pump Status", icon: <Power /> },
+    { href: "/gram-panchayat/tank-levels", label: "All Water Tank Levels", icon: <Layers /> },
     { href: "/gram-panchayat/log-book", label: "Log Book", icon: <BookMarked /> },
     { href: "/gram-panchayat/operator-management", label: "Operator Management", icon: <Users /> },
     { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
