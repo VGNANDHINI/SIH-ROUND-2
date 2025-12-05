@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useWaterSchemes } from "@/firebase";
 import { ArrowUpRight, CheckCircle, Droplets, Users, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { TodoList } from "./_components/todo-list";
 
 export default function GramPanchayatDashboard() {
   const { data: waterSchemes, loading } = useWaterSchemes();
@@ -14,7 +16,7 @@ export default function GramPanchayatDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Schemes</CardTitle>
@@ -45,23 +47,40 @@ export default function GramPanchayatDashboard() {
             <p className="text-xs text-muted-foreground">across the panchayat</p>
           </CardContent>
         </Card>
+         <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+                <Link href="/gram-panchayat/complaints">
+                View Complaints <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome, Panchayat Member</CardTitle>
-          <CardDescription>
-            This is your dashboard to manage and monitor water supply schemes in your area. Use the navigation on the left to access different modules.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>You can manage water schemes, view reports, and monitor the overall health of the water supply infrastructure.</p>
-          <Button asChild className="mt-4">
-            <Link href="/gram-panchayat/schemes">
-              Manage Schemes <ArrowUpRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <TodoList />
+        <Card className="lg:col-span-2">
+            <CardHeader>
+            <CardTitle>Welcome, Panchayat Member</CardTitle>
+            <CardDescription>
+                This is your dashboard to manage and monitor water supply schemes in your area. Use the navigation on the left to access different modules.
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <p>You can manage water schemes, view reports, and monitor the overall health of the water supply infrastructure.</p>
+            <Button asChild className="mt-4">
+                <Link href="/gram-panchayat/schemes">
+                Manage Schemes <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
+            </CardContent>
+        </Card>
+      </div>
+
     </div>
   );
 }
