@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -74,7 +74,7 @@ export function TankLevels({ checklist, checklistPath, profile }: TankLevelsProp
             </div>
             <Slider
                 value={[endLevel]}
-                onValueChange={(v) => handleLevelChange('end', v[0])}
+                onValueChange={(v) => handleLevelchange('end', v[0])}
                 max={100}
                 step={5}
             />
