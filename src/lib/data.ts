@@ -124,10 +124,11 @@ export type Complaint = {
   issueType: "No water" | "Low pressure" | "Dirty water" | "Leakage" | "Motor off" | "Others";
   address: string;
   photoUrl?: string;
+  resolutionPhotoUrl?: string;
   description: string;
   contactNumber: string;
   reportedAt: any;
-  status: 'Open' | 'In Progress' | 'Resolved';
+  status: 'Open' | 'In Progress' | 'Pending Verification' | 'Resolved';
   userId: string;
   userPanchayat: string;
   userBlock: string;
@@ -139,6 +140,8 @@ export type Complaint = {
   taskStartedAt?: any;
   taskCompletedAt?: any;
   actionTaken?: string;
+  verifiedBy?: string;
+  rejectionReason?: string;
 };
 
 export type UserProfile = {
@@ -256,6 +259,15 @@ export type DailyChecklist = {
   completedPercentage: number;
   status: 'Pending' | 'Submitted' | 'Requires Review';
 }
+
+export type TodoTask = {
+    id: string;
+    title: string;
+    completed: boolean;
+    dueDate: any;
+    isRecurring: boolean;
+    panchayatId: string;
+};
 
 
 async function seedDatabase() {

@@ -1,10 +1,10 @@
+
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWaterSchemes } from "@/firebase";
-import { ArrowUpRight, CheckCircle, Droplets, Users, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { CheckCircle, Droplets, Users, Loader2 } from "lucide-react";
+import { TodoList } from "./_components/todo-list";
 
 export default function GramPanchayatDashboard() {
   const { data: waterSchemes, loading } = useWaterSchemes();
@@ -45,18 +45,7 @@ export default function GramPanchayatDashboard() {
             <p className="text-xs text-muted-foreground">across the panchayat</p>
           </CardContent>
         </Card>
-         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full">
-                <Link href="/gram-panchayat/complaints">
-                View Complaints <ArrowUpRight className="ml-2 h-4 w-4" />
-                </Link>
-            </Button>
-          </CardContent>
-        </Card>
+         <TodoList />
       </div>
 
       <div className="grid gap-6 md:grid-cols-1">
@@ -69,11 +58,6 @@ export default function GramPanchayatDashboard() {
             </CardHeader>
             <CardContent>
             <p>You can manage water schemes, view reports, and monitor the overall health of the water supply infrastructure.</p>
-            <Button asChild className="mt-4">
-                <Link href="/gram-panchayat/schemes">
-                Manage Schemes <ArrowUpRight className="ml-2 h-4 w-4" />
-                </Link>
-            </Button>
             </CardContent>
         </Card>
       </div>
