@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useUser, useDoc } from '@/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import type { PumpLog, WaterTank } from '@/lib/data';
+import type { PumpLog, WaterTank, UserProfile } from '@/lib/data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from '@/hooks/use-toast';
@@ -34,15 +34,22 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
   const [tankName, setTankName] = useState('Main OHT');
   const { toast } = useToast();
   const firestore = useFirestore();
+  const { user } = useUser();
+  const { data: profile } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
+
 
   useEffect(() => {
-    if (sessionToConfirm && sessionToConfirm.duration && sessionToConfirm.energyConsumed) {
+    if (sessionToConfirm && sessionToConfirm.duration && sessionToConfirm.energyConsumed && profile) {
         setIsLoading(true);
         suggestWaterLevel({
             duration: sessionToConfirm.duration,
             energyConsumed: sessionToConfirm.energyConsumed,
+            pumpDischargeRate: profile.pumpDischargeRate || 0,
+            motorHorsepower: profile.motorHorsepower || 0,
+            tankHeight: profile.tankHeight || 0,
+            tankBaseArea: profile.tankBaseArea || 0,
         }).then(result => {
-            setAiPrediction(result.predictedLevel);
+            setAiPrediction(Math.round(result.predictedLevel));
         }).catch(err => {
             console.error("AI Prediction failed:", err);
             toast({ title: 'AI Prediction Failed', description: 'Could not get a prediction. Please select a level manually.', variant: 'destructive'});
@@ -52,7 +59,7 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
     } else {
         setAiPrediction(null);
     }
-  }, [sessionToConfirm, toast]);
+  }, [sessionToConfirm, profile, toast]);
 
   const handleConfirmLevel = async (level: number) => {
     if (!firestore || !sessionToConfirm || !tankName) {
@@ -66,6 +73,7 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
 
     const logUpdate = { confirmedWaterLevel: level, tankName };
     const tankUpdate: Omit<WaterTank, 'id'> = { 
+        tankId: tankName.replace(/\s+/g, '-').toLowerCase(),
         name: tankName,
         currentLevel: level, 
         lastUpdated: serverTimestamp(),

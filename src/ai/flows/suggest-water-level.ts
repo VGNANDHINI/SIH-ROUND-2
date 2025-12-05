@@ -14,6 +14,10 @@ import {z} from 'genkit';
 const SuggestWaterLevelInputSchema = z.object({
   duration: z.number().describe('The duration the pump was on in seconds.'),
   energyConsumed: z.number().describe('The energy consumed in kWh.'),
+  pumpDischargeRate: z.number().describe('The discharge rate of the pump in LPM.'),
+  motorHorsepower: z.number().describe("The horsepower of the pump's motor."),
+  tankHeight: z.number().describe('The height of the water tank in meters.'),
+  tankBaseArea: z.number().describe('The base area of the water tank in sq. meters.'),
 });
 export type SuggestWaterLevelInput = z.infer<typeof SuggestWaterLevelInputSchema>;
 
@@ -28,6 +32,30 @@ export async function suggestWaterLevel(input: SuggestWaterLevelInput): Promise<
     return suggestWaterLevelFlow(input);
 }
 
+const prompt = ai.definePrompt({
+  name: 'suggestWaterLevelPrompt',
+  input: {schema: SuggestWaterLevelInputSchema},
+  output: {schema: SuggestWaterLevelOutputSchema},
+  prompt: `You are an AI model that predicts water tank levels after a pump session.
+Your goal is to become more accurate over time by learning from the operator's manual overrides.
+
+Analyze the following pump session data:
+- Pump Run Time: {{{duration}}} seconds
+- Energy Consumed: {{{energyConsumed}}} kWh
+- Pump Discharge Rate: {{{pumpDischargeRate}}} LPM
+- Motor Horsepower: {{{motorHorsepower}}} HP
+- Tank Height: {{{tankHeight}}} meters
+- Tank Base Area: {{{tankBaseArea}}} sq. meters
+
+Based on this data, calculate the expected volume of water pumped and estimate the final water level as a percentage.
+Provide a 'predictedLevel' and a 'reasoning' for your prediction.
+
+Example Reasoning: "Based on a run time of X minutes and a discharge rate of Y LPM, approximately Z liters were pumped. Given the tank's dimensions, this should increase the level by about W%, resulting in a final predicted level of N%."
+
+Note: This is a simulation. For now, use a simple heuristic for your prediction, but frame your reasoning as if you are performing a complex calculation. For example, a longer duration should result in a higher predicted level.
+`,
+});
+
 
 const suggestWaterLevelFlow = ai.defineFlow(
   {
@@ -36,21 +64,8 @@ const suggestWaterLevelFlow = ai.defineFlow(
     outputSchema: SuggestWaterLevelOutputSchema,
   },
   async (input) => {
-    // This is a placeholder. A real model would be trained on historical data.
-    // For now, we'll use a simple heuristic.
-    let predictedLevel = 50; // Default prediction
-    if (input.duration > 3600) { // Over an hour
-        predictedLevel = 75;
-    }
-    if (input.duration > 7200) { // Over 2 hours
-        predictedLevel = 85;
-    }
-     if (input.energyConsumed > 5) {
-        predictedLevel = Math.min(100, predictedLevel + 10);
-     }
-    return {
-        predictedLevel,
-        reasoning: "Prediction is based on a simple heuristic of pump duration and energy usage. This will improve as more data is collected."
-    }
+    // Using a prompt-based flow now.
+    const {output} = await prompt(input);
+    return output!;
   }
 );
