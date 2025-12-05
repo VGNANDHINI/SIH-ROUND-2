@@ -44,8 +44,13 @@ export function PumpControl({ profile, activeLog, onSessionStart, onSessionEnd }
 
   const isPumpOn = useMemo(() => !!activeLog, [activeLog]);
   const startTime = useMemo(() => {
-    if (activeLog?.startTime instanceof Timestamp) {
-      return activeLog.startTime.toDate();
+    if (activeLog?.startTime) {
+        if (activeLog.startTime instanceof Timestamp) {
+            return activeLog.startTime.toDate();
+        }
+        if (activeLog.startTime instanceof Date) {
+            return activeLog.startTime;
+        }
     }
     return null;
   }, [activeLog]);
@@ -53,10 +58,10 @@ export function PumpControl({ profile, activeLog, onSessionStart, onSessionEnd }
   const elapsedTime = useTimer(startTime);
 
   const handlePumpOn = async () => {
-    if (!firestore || !profile?.id) return;
+    if (!firestore || !profile?.uid) return;
     setIsLoading(true);
 
-    const newLog: Omit<PumpLog, 'id'> = {
+    const newLog: Omit<PumpLog, 'id' | 'startTime'> & { startTime: any } = {
       operatorId: profile.uid,
       startTime: serverTimestamp(),
       endTime: null,
@@ -74,6 +79,7 @@ export function PumpControl({ profile, activeLog, onSessionStart, onSessionEnd }
           ...newLog,
           id: docRef.id,
           startTime: new Date(),
+          endTime: null,
       };
       onSessionStart(optimisticLog);
 
@@ -99,8 +105,13 @@ export function PumpControl({ profile, activeLog, onSessionStart, onSessionEnd }
     const duration = (endTime.getTime() - startTime.getTime()) / 1000; // in seconds
     const durationMinutes = duration / 60;
     
-    const waterSupplied = (profile.pumpDischargeRate || 0) * durationMinutes;
-    const energyConsumed = ((profile.motorHorsepower || 0) * 0.746 * duration) / 3600; // kWh
+    // Safely access profile properties with fallbacks
+    const pumpDischargeRate = profile.pumpDischargeRate || 0;
+    const motorHorsepower = profile.motorHorsepower || 0;
+
+    const waterSupplied = pumpDischargeRate * durationMinutes;
+    // Energy in kWh = (HP * 0.746 * hours)
+    const energyConsumed = (motorHorsepower * 0.746 * (duration / 3600));
 
     const logRef = doc(firestore, 'pumpLogs', activeLog.id);
     const updatedData = {
@@ -112,7 +123,7 @@ export function PumpControl({ profile, activeLog, onSessionStart, onSessionEnd }
     
     try {
       await setDoc(logRef, updatedData, { merge: true });
-      onSessionEnd({ ...activeLog, ...updatedData, endTime });
+      onSessionEnd({ ...activeLog, ...updatedData, endTime: endTime, startTime: activeLog.startTime });
       toast({ title: 'Pump OFF', description: 'Session ended. Please confirm water level.' });
     } catch (error) {
       console.error(error);
