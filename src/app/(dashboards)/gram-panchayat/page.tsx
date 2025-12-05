@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import type { UserProfile } from "@/lib/data";
 import { useMemo } from "react";
+import { HealthScore } from "./_components/health-score";
 
 export default function GramPanchayatDashboard() {
   const { user, loading: userLoading } = useUser();
@@ -74,6 +75,8 @@ export default function GramPanchayatDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <HealthScore />
 
       <div className="grid gap-6 md:grid-cols-1">
         <Card>
