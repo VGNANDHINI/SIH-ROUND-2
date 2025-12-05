@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useFirestore } from '@/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import type { PumpLog } from '@/lib/data';
+import type { PumpLog, WaterTank } from '@/lib/data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from '@/hooks/use-toast';
@@ -65,7 +65,7 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
     const tankRef = doc(firestore, 'waterTanks', tankName.replace(/\s+/g, '-').toLowerCase());
 
     const logUpdate = { confirmedWaterLevel: level, tankName };
-    const tankUpdate = { 
+    const tankUpdate: Omit<WaterTank, 'id'> = { 
         name: tankName,
         currentLevel: level, 
         lastUpdated: serverTimestamp(),
@@ -107,7 +107,7 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
       <CardContent className="space-y-4">
         <div className="space-y-2">
             <Label htmlFor="tank-name">Tank Name</Label>
-            <Input id="tank-name" value={tankName} onChange={(e) => setTankName(e.target.value)} placeholder="e.g., Main OHT" disabled={!sessionToConfirm || isLoading}/>
+            <Input id="tank-name" value={tankName} onChange={(e) => setTankName(e.target.value)} placeholder="e.g., Main OHT" disabled={!sessionToConfirm} />
         </div>
         <div className="text-center p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">AI Prediction</p>
@@ -131,5 +131,3 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
     </Card>
   );
 }
-
-    
