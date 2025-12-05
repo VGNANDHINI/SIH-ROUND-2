@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -37,9 +38,9 @@ import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useEffect, useState } from 'react';
 
 const profileSchema = z.object({
+  pumpName: z.string().min(1, 'Pump name is required.'),
   pumpCategory: z.string().min(1, 'Please select a pump category.'),
   pumpDischargeRate: z.coerce.number().min(1, 'Discharge rate is required.'),
   motorHorsepower: z.coerce.number().min(0.5, 'Motor HP is required.'),
@@ -61,6 +62,7 @@ export default function OperatorProfilePage() {
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
+      pumpName: '',
       pumpCategory: '',
       pumpDischargeRate: 0,
       motorHorsepower: 0,
@@ -73,6 +75,7 @@ export default function OperatorProfilePage() {
   useEffect(() => {
     if (profile) {
       form.reset({
+        pumpName: profile.pumpName || '',
         pumpCategory: profile.pumpCategory || '',
         pumpDischargeRate: profile.pumpDischargeRate || 0,
         motorHorsepower: profile.motorHorsepower || 0,
@@ -163,6 +166,22 @@ export default function OperatorProfilePage() {
                       </Select>
                       <FormDescription>
                         Select the category that best fits your pump.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="pumpName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pump Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Main Well Pump" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Give a unique name to this pump.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

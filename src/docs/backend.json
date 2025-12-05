@@ -49,6 +49,10 @@
           "type": "string",
           "description": "The panchayat where the user resides."
         },
+        "pumpName": {
+            "type": "string",
+            "description": "A unique name for the pump the operator manages."
+        },
         "pumpCategory": {
             "type": "string",
             "description": "The category of pump the operator manages."
