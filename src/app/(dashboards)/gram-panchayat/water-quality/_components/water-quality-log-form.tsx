@@ -59,47 +59,104 @@ type WaterQualityFormValues = z.infer<typeof testSchema>;
 
 // BIS 10500:2012 Standards (Acceptable Limit, Permissible Limit)
 const STANDARDS = {
-  pH: { acceptable: [6.5, 8.5], permissible: [6.5, 8.5] },
-  turbidity: { acceptable: 1, permissible: 5 }, // NTU
-  chlorine: { acceptable: 0.2, permissible: 1.0 }, // mg/L (residual)
-  tds: { acceptable: 500, permissible: 2000 }, // mg/L
-  hardness: { acceptable: 200, permissible: 600 }, // mg/L as CaCO3
-  alkalinity: { acceptable: 200, permissible: 600 }, // mg/L as CaCO3
-  chloride: { acceptable: 250, permissible: 1000 }, // mg/L
-  iron: { acceptable: 0.3, permissible: 1.0 }, // mg/L
-  fluoride: { acceptable: 1.0, permissible: 1.5 }, // mg/L
-  nitrate: { acceptable: 45, permissible: 45 }, // mg/L
-  coliform: { acceptable: false, permissible: false }, // Should be absent
+  pH: { good: [6.5, 8.5], attention: [6.0, 9.0] },
+  turbidity: { good: 1, acceptable: 5 }, // NTU
+  tds: { good: 500, acceptable: 2000 }, // mg/L
+  chloride: { good: 250, acceptable: 1000 }, // mg/L
+  chlorine: { good: [0.2, 0.5] }, // mg/L
+  coliform: { good: false }, // Should be absent
+  nitrate: { good: 45 }, // mg/L
+  fluoride: { good: [0.6, 1.2], attention: 1.5 }, // mg/L
+  iron: { good: 0.3 }, // mg/L
 };
 
 const evaluateWaterQuality = (data: WaterQualityFormValues) => {
-    let status: 'safe' | 'unsafe' | 'attention-needed' = 'safe';
     const flaggedParameters: string[] = [];
+    let isUnsafe = false;
+    let needsAttention = false;
 
-    if (data.pH < STANDARDS.pH.acceptable[0] || data.pH > STANDARDS.pH.acceptable[1]) {
-        flaggedParameters.push(`pH (${data.pH})`);
-        status = 'attention-needed';
-    }
-    if (data.turbidity > STANDARDS.turbidity.acceptable) {
-        flaggedParameters.push(`Turbidity (${data.turbidity} NTU)`);
-        status = 'attention-needed';
-    }
-    if (data.chlorine < STANDARDS.chlorine.acceptable) {
-        flaggedParameters.push(`Chlorine (${data.chlorine} mg/L)`);
-        status = 'attention-needed';
-    }
-    if (data.tds > STANDARDS.tds.acceptable) {
-        flaggedParameters.push(`TDS (${data.tds} mg/L)`);
-        status = 'attention-needed';
-    }
-    if (data.coliform === true) {
-        flaggedParameters.push('Coliform (Present)');
-        status = 'unsafe';
+    // pH
+    if (data.pH < STANDARDS.pH.good[0] || data.pH > STANDARDS.pH.good[1]) {
+        if (data.pH < STANDARDS.pH.attention[0] || data.pH > STANDARDS.pH.attention[1]) {
+            isUnsafe = true;
+            flaggedParameters.push(`pH (${data.pH})`);
+        } else {
+            needsAttention = true;
+            flaggedParameters.push(`pH (${data.pH})`);
+        }
     }
     
-    // If any parameter exceeds permissible limits, it's unsafe
-    if (data.turbidity > STANDARDS.turbidity.permissible || data.tds > STANDARDS.tds.permissible || data.iron > STANDARDS.iron.permissible) {
+    // Turbidity
+    if (data.turbidity > STANDARDS.turbidity.good) {
+        if (data.turbidity > STANDARDS.turbidity.acceptable) {
+            isUnsafe = true;
+        } else {
+            needsAttention = true;
+        }
+        flaggedParameters.push(`Turbidity (${data.turbidity} NTU)`);
+    }
+
+    // TDS
+    if (data.tds > STANDARDS.tds.good) {
+        if (data.tds > STANDARDS.tds.acceptable) {
+            isUnsafe = true;
+        } else {
+            needsAttention = true;
+        }
+        flaggedParameters.push(`TDS (${data.tds} mg/L)`);
+    }
+
+    // Chloride
+    if (data.chloride > STANDARDS.chloride.good) {
+        if (data.chloride > STANDARDS.chloride.acceptable) {
+            isUnsafe = true;
+        } else {
+            needsAttention = true;
+        }
+        flaggedParameters.push(`Chloride (${data.chloride} mg/L)`);
+    }
+    
+    // Residual Chlorine
+    if (data.chlorine < STANDARDS.chlorine.good[0] || data.chlorine > STANDARDS.chlorine.good[1]) {
+        isUnsafe = true;
+        flaggedParameters.push(`Chlorine (${data.chlorine} mg/L)`);
+    }
+
+    // Coliform
+    if (data.coliform !== STANDARDS.coliform.good) {
+        isUnsafe = true;
+        flaggedParameters.push('Coliform (Present)');
+    }
+
+    // Nitrate
+    if (data.nitrate > STANDARDS.nitrate.good) {
+        isUnsafe = true;
+        flaggedParameters.push(`Nitrate (${data.nitrate} mg/L)`);
+    }
+
+    // Fluoride
+    if (data.fluoride < STANDARDS.fluoride.good[0] || data.fluoride > STANDARDS.fluoride.good[1]) {
+        if (data.fluoride > STANDARDS.fluoride.attention) {
+             isUnsafe = true;
+        } else {
+            needsAttention = true;
+        }
+        flaggedParameters.push(`Fluoride (${data.fluoride} mg/L)`);
+    }
+
+    // Iron
+    if (data.iron > STANDARDS.iron.good) {
+        isUnsafe = true;
+        flaggedParameters.push(`Iron (${data.iron} mg/L)`);
+    }
+
+    let status: 'safe' | 'unsafe' | 'attention-needed';
+    if (isUnsafe) {
         status = 'unsafe';
+    } else if (needsAttention) {
+        status = 'attention-needed';
+    } else {
+        status = 'safe';
     }
 
     return { status, flaggedParameters };
@@ -178,8 +235,10 @@ export function WaterQualityLogForm({ onTestLogged }: { onTestLogged: (test: Wat
 
       toast({
         title: `Test Logged: Status ${status.toUpperCase()}`,
-        description: `Water quality test for ${values.ward} has been submitted.`,
-        variant: status === 'unsafe' ? 'destructive' : 'default',
+        description: flaggedParameters.length > 0 
+            ? `Flagged: ${flaggedParameters.join(', ')}`
+            : `Water quality for ${values.ward} is safe.`,
+        variant: status === 'unsafe' ? 'destructive' : (status === 'attention-needed' ? 'default' : 'success'),
       });
       onTestLogged(optimisticNewTest);
       form.reset();
@@ -222,7 +281,7 @@ export function WaterQualityLogForm({ onTestLogged }: { onTestLogged: (test: Wat
               )}
             />
             <h4 className="text-sm font-medium pt-2">Core Parameters</h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
               <FormField control={form.control} name="pH" render={({ field }) => (
                   <FormItem>
                       <FormLabel>pH</FormLabel>
@@ -259,7 +318,65 @@ export function WaterQualityLogForm({ onTestLogged }: { onTestLogged: (test: Wat
                       <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
                   </FormItem>
               )} />
+              <FormField control={form.control} name="iron" render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Iron (mg/L)</FormLabel>
+                      <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
+                  </FormItem>
+              )} />
+              <FormField control={form.control} name="nitrate" render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Nitrate (mg/L)</FormLabel>
+                      <FormControl><Input type="number" step="1" {...field} /></FormControl>
+                  </FormItem>
+              )} />
+              <FormField control={form.control} name="fluoride" render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Fluoride (mg/L)</FormLabel>
+                      <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                  </FormItem>
+              )} />
             </div>
+             <h4 className="text-sm font-medium pt-2">Optional Parameters</h4>
+             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                 <FormField control={form.control} name="tds" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>TDS (mg/L)</FormLabel>
+                          <FormControl><Input type="number" step="1" {...field} /></FormControl>
+                      </FormItem>
+                  )} />
+                  <FormField control={form.control} name="arsenic" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>Arsenic (mg/L)</FormLabel>
+                          <FormControl><Input type="number" step="0.001" {...field} /></FormControl>
+                      </FormItem>
+                  )} />
+                   <FormField control={form.control} name="coliform" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Coliform Bacteria</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="false">Absent</SelectItem>
+                                    <SelectItem value="true">Present</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </FormItem>
+                    )} />
+             </div>
+             <FormField
+              control={form.control}
+              name="h2s"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>H₂S Vial Test Result</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., No color change" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
              <Button type="submit" disabled={isSubmitting} className="w-full">
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Log & Evaluate Data
