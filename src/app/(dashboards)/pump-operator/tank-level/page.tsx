@@ -17,11 +17,11 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from 'recharts';
 import {
   ChartContainer,
+  ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
