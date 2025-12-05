@@ -1,3 +1,4 @@
+
 // src/firebase/firestore/use-collection.ts
 'use client';
 import { useState, useEffect } from 'react';
@@ -11,15 +12,20 @@ interface UseCollectionResponse<T> {
   setData: React.Dispatch<React.SetStateAction<T[] | null>>;
 }
 
-export function useCollection<T>(path: string): UseCollectionResponse<T> {
+export function useCollection<T>(path: string | null): UseCollectionResponse<T> {
   const firestore = useFirestore();
   const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | null>(null);
 
   useEffect(() => {
-    if (!firestore) return;
+    if (!firestore || !path) {
+        setLoading(false);
+        setData(null);
+        return;
+    }
 
+    setLoading(true);
     const collectionRef = collection(firestore, path);
     const unsubscribe = onSnapshot(
       collectionRef,

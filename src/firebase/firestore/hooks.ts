@@ -28,12 +28,14 @@ export function useComplaints() {
     return useCollection<Complaint>('complaints');
 }
 
-export function useWaterQualityTests(panchayatId: string) {
-    return useCollection<WaterTest>(`panchayats/${panchayatId}/waterTests`);
+export function useWaterQualityTests(panchayatId?: string) {
+    const path = panchayatId ? `panchayats/${panchayatId}/waterTests` : null;
+    return useCollection<WaterTest>(path);
 }
 
-export function useDailyChecklists(panchayatId: string) {
-    return useCollection<DailyChecklist>(`panchayats/${panchayatId}/checklists`);
+export function useDailyChecklists(panchayatId?: string) {
+    const path = panchayatId ? `panchayats/${panchayatId}/checklists` : null;
+    return useCollection<DailyChecklist>(path);
 }
 
 // NOTE: This hook uses static data for the prototype.
