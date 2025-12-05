@@ -1,3 +1,4 @@
+
 'use client';
 import { useEffect, useState } from 'react';
 import { useWaterQualityTests, useUser, useDoc } from '@/firebase';
@@ -38,9 +39,17 @@ export function WaterQualityHistory({ newTest }: { newTest: WaterTest | null }) 
 
   useEffect(() => {
     if (newTest) {
-      setTests((prevTests) => [newTest, ...(prevTests || [])]);
+      // Add the new test to the top of the list.
+      // Filter out any existing test with the same ID to prevent duplicates
+      // when the real-time listener provides the same new document.
+      setTests((prevTests) => {
+        const existingTests = prevTests || [];
+        const filteredTests = existingTests.filter(t => t.id !== newTest.id);
+        return [newTest, ...filteredTests];
+      });
     }
   }, [newTest]);
+
 
   const loading = userLoading || profileLoading || (!!profile && testsLoading && !tests);
 
