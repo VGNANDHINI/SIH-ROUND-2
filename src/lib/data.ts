@@ -199,6 +199,64 @@ export type SopLibraryItem = {
     tags: string[];
 };
 
+export type DailyChecklist = {
+  id: string;
+  date: string;
+  operatorId: string;
+  panchayatId: string;
+  pumpData?: {
+    totalRuntime: number;
+    estimatedVolume: number;
+    confirmed: boolean;
+  };
+  tankLevels?: {
+    startOfDay: number;
+    endOfDay: number;
+  };
+  waterQuality?: {
+    chlorine: number;
+    turbidity: number;
+    needsAttention: boolean;
+  };
+  valveOperations?: {
+    valveId: string;
+    operation: 'opened' | 'closed';
+    timestamp: any;
+  }[];
+  pipelineInspection?: {
+    status: 'OK' | 'Minor Issue' | 'Major Issue';
+    photoUrl?: string;
+    description?: string;
+  };
+  motorInspection?: {
+    status: 'OK' | 'Minor Issue' | 'Major Issue';
+    volts?: number;
+    amps?: number;
+  };
+  sourceStatus?: {
+    availability: 'Adequate' | 'Low' | 'No Water';
+    rechargeTime?: number;
+  };
+  wardSupply?: {
+    wardId: string;
+    startTime: string;
+    stopTime: string;
+    duration: number;
+  }[];
+  preventiveMaintenance?: {
+    lubrication: boolean;
+    panelCleaned: boolean;
+    valveMovementTested: boolean;
+    pressureChecked: boolean;
+  };
+  observations?: {
+    notes: string;
+    photoUrl?: string;
+  };
+  completedPercentage: number;
+  status: 'Pending' | 'Submitted' | 'Requires Review';
+}
+
 
 async function seedDatabase() {
     const db = getFirestore(app);

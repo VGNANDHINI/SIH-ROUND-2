@@ -415,6 +415,104 @@
         }
       },
       "required": ["title", "category", "fileType", "fileUrl"]
+    },
+    "dailyChecklist": {
+      "title": "Daily O&M Checklist",
+      "description": "A daily operational and maintenance checklist for a water scheme.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "operatorId": { "type": "string" },
+        "panchayatId": { "type": "string" },
+        "pumpData": {
+          "type": "object",
+          "properties": {
+            "totalRuntime": { "type": "number", "description": "Total pump runtime in hours." },
+            "estimatedVolume": { "type": "number", "description": "Estimated water volume supplied in liters." },
+            "confirmed": { "type": "boolean" }
+          }
+        },
+        "tankLevels": {
+          "type": "object",
+          "properties": {
+            "startOfDay": { "type": "number", "description": "Tank level percentage at start of day." },
+            "endOfDay": { "type": "number", "description": "Tank level percentage at end of day." }
+          }
+        },
+        "waterQuality": {
+          "type": "object",
+          "properties": {
+            "chlorine": { "type": "number" },
+            "turbidity": { "type": "number" },
+            "needsAttention": { "type": "boolean" }
+          }
+        },
+        "valveOperations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "valveId": { "type": "string" },
+              "operation": { "type": "string", "enum": ["opened", "closed"] },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "pipelineInspection": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["OK", "Minor Issue", "Major Issue"] },
+            "photoUrl": { "type": "string", "format": "uri" },
+            "description": { "type": "string" }
+          }
+        },
+        "motorInspection": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["OK", "Minor Issue", "Major Issue"] },
+            "volts": { "type": "number" },
+            "amps": { "type": "number" }
+          }
+        },
+        "sourceStatus": {
+          "type": "object",
+          "properties": {
+            "availability": { "type": "string", "enum": ["Adequate", "Low", "No Water"] },
+            "rechargeTime": { "type": "number", "description": "Estimated recharge time in hours." }
+          }
+        },
+        "wardSupply": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "wardId": { "type": "string" },
+              "startTime": { "type": "string", "format": "time" },
+              "stopTime": { "type": "string", "format": "time" },
+              "duration": { "type": "number", "description": "Duration in minutes." }
+            }
+          }
+        },
+        "preventiveMaintenance": {
+          "type": "object",
+          "properties": {
+            "lubrication": { "type": "boolean" },
+            "panelCleaned": { "type": "boolean" },
+            "valveMovementTested": { "type": "boolean" },
+            "pressureChecked": { "type": "boolean" }
+          }
+        },
+        "observations": {
+          "type": "object",
+          "properties": {
+            "notes": { "type": "string" },
+            "photoUrl": { "type": "string", "format": "uri" }
+          }
+        },
+        "completedPercentage": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Submitted", "Requires Review"] }
+      },
+      "required": ["date", "operatorId", "panchayatId"]
     }
   },
   "auth": {
@@ -460,6 +558,10 @@
     "/sopLibrary/{sopId}": {
       "schema": { "$ref": "#/entities/sopLibraryItem" },
       "description": "Stores items for the SOP and micro-learning library."
+    },
+    "/panchayats/{panchayatId}/checklists/{checklistId}": {
+      "schema": { "$ref": "#/entities/dailyChecklist"},
+      "description": "Stores the daily O&M checklist for a panchayat."
     }
   }
 }

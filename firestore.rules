@@ -77,6 +77,16 @@ service cloud.firestore {
         allow update, delete: if false;
     }
 
+    match /panchayats/{panchayatId}/checklists/{checklistId} {
+        let userProfile = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+        let isOperatorForPanchayat = userProfile.panchayat == panchayatId && userProfile.role == 'pump-operator';
+        let isGPForPanchayat = userProfile.panchayat == panchayatId && userProfile.role == 'gram-panchayat';
+        
+        allow create: if isOperatorForPanchayat && request.resource.data.operatorId == request.auth.uid;
+        allow update: if isOperatorForPanchayat && request.resource.data.operatorId == request.auth.uid;
+        allow read: if isOperatorForPanchayat || isGPForPanchayat;
+    }
+
     match /sopLibrary/{sopId} {
       allow read: if request.auth != null;
       allow write: if false; // Only admins can write

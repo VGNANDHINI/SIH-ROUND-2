@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers, Map } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers, Map, ClipboardCheck } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -31,6 +31,7 @@ const navItems = {
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/pump-operator/profile", label: "Operator Profile", icon: <User /> },
+    { href: "/pump-operator/checklist", label: "Daily Checklist", icon: <ClipboardCheck /> },
     { href: "/pump-operator/pump-status", label: "Pump Status", icon: <Power /> },
     { href: "/pump-operator/tank-level", label: "Tank Level", icon: <Layers /> },
     { href: "/pump-operator/report", label: "Report Issue", icon: <FileQuestion /> },
