@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useComplaints, useFirestore, useUser } from '@/firebase';
-import type { Complaint } from '@/lib/data';
+import { useComplaints, useFirestore, useUser, useDoc } from '@/firebase';
+import type { Complaint, UserProfile } from '@/lib/data';
 import {
   Card,
   CardContent,
@@ -40,6 +40,7 @@ import Image from 'next/image';
 export default function WorkVerificationPage() {
   const { data: allComplaints, loading: complaintsLoading } = useComplaints();
   const { user, loading: userLoading } = useUser();
+  const { data: userProfile, loading: profileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
   const firestore = useFirestore();
   const { toast } = useToast();
 
@@ -50,11 +51,17 @@ export default function WorkVerificationPage() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const complaintsToVerify = useMemo(() => {
-    if (!allComplaints) return [];
-    return allComplaints.filter(c => c.status === 'Pending Verification');
-  }, [allComplaints]);
+    if (!allComplaints || !userProfile) return [];
+    // Filter complaints that are pending verification AND match the official's administrative area.
+    return allComplaints.filter(c => 
+        c.status === 'Pending Verification' &&
+        c.userState === userProfile.state &&
+        c.userDistrict === userProfile.district &&
+        c.userBlock === userProfile.block
+    );
+  }, [allComplaints, userProfile]);
 
-  const loading = complaintsLoading || userLoading;
+  const loading = complaintsLoading || userLoading || profileLoading;
 
   const handleAction = (complaint: Complaint, action: 'approve' | 'reject') => {
     setSelectedComplaint(complaint);
@@ -69,20 +76,20 @@ export default function WorkVerificationPage() {
     if (!firestore || !user) return;
     setIsUpdating(true);
     const complaintRef = doc(firestore, 'complaints', complaint.id);
+    
+    // Create a clean payload without the 'id' field
+    const { id, ...complaintData } = complaint;
     const updatedData = { 
-        ...complaint, 
+        ...complaintData,
         status: 'Resolved' as const,
         verifiedBy: user.email,
         rejectionReason: '', // Clear previous rejection reason if any
     };
 
-    // Remove id before sending to firestore
-    const { id, ...finalData } = updatedData;
-
-    setDoc(complaintRef, finalData, { merge: true })
+    setDoc(complaintRef, updatedData, { merge: true })
         .then(() => toast({ title: "Work Approved", description: "The complaint has been marked as resolved." }))
         .catch(async (serverError) => {
-             const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: finalData });
+             const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: updatedData });
              errorEmitter.emit('permission-error', permissionError);
         })
         .finally(() => setIsUpdating(false));
@@ -92,8 +99,11 @@ export default function WorkVerificationPage() {
     if (!firestore || !selectedComplaint || !user) return;
     setIsUpdating(true);
     const complaintRef = doc(firestore, 'complaints', selectedComplaint.id);
+
+    // Create a clean payload without the 'id' field
+    const { id, ...complaintData } = selectedComplaint;
     const updatedData = {
-        ...selectedComplaint,
+        ...complaintData,
         status: 'In Progress' as const,
         rejectionReason: rejectionReason,
         verifiedBy: user.email,
@@ -101,15 +111,12 @@ export default function WorkVerificationPage() {
         taskCompletedAt: null,
     };
     
-    // Remove id before sending to firestore
-    const { id, ...finalData } = updatedData;
-
-    setDoc(complaintRef, finalData, { merge: true })
+    setDoc(complaintRef, updatedData, { merge: true })
       .then(() => {
         toast({ variant: "destructive", title: "Work Rejected", description: "The complaint has been sent back to the operator." });
       })
       .catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: finalData });
+        const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: updatedData });
         errorEmitter.emit('permission-error', permissionError);
       })
       .finally(() => {
@@ -141,7 +148,7 @@ export default function WorkVerificationPage() {
         <CardHeader>
           <CardTitle>Complaint Work Verification</CardTitle>
           <CardDescription>
-            Review and verify the resolution work submitted by pump operators.
+            Review and verify the resolution work submitted by pump operators in your block.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -222,3 +229,4 @@ export default function WorkVerificationPage() {
     </>
   );
 }
+
