@@ -62,6 +62,7 @@ export type PumpLog = {
   waterSupplied?: number;
   energyConsumed?: number;
   confirmedWaterLevel?: number | null;
+  tankName?: string;
 };
 
 
@@ -152,6 +153,7 @@ export type UserProfile = {
   district: string;
   block: string;
   panchayat: string;
+  pumpName?: string;
   pumpCategory?: string;
   pumpDischargeRate?: number;
   motorHorsepower?: number;
@@ -184,6 +186,17 @@ export type WaterTest = {
     reviewedByBe: boolean;
     createdAt: any;
     updatedAt: any;
+};
+
+export type SopLibraryItem = {
+    id: string;
+    title: string;
+    description: string;
+    category: 'Pumping' | 'Pipeline' | 'Chlorination' | 'Safety' | 'General O&M';
+    fileType: 'video' | 'image' | 'pdf';
+    fileUrl: string;
+    thumbnailUrl: string;
+    tags: string[];
 };
 
 

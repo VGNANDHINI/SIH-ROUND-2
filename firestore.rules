@@ -76,7 +76,10 @@ service cloud.firestore {
         // No one can update after creation, except cloud functions
         allow update, delete: if false;
     }
+
+    match /sopLibrary/{sopId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only admins can write
+    }
   }
 }
-
-    

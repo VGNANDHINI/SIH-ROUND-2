@@ -1,7 +1,8 @@
 
 'use client';
 import { useCollection } from './use-collection';
-import type { WaterScheme, PumpIssue, Bill, PumpLog, Operator, Complaint, WaterTest } from '@/lib/data';
+import type { WaterScheme, PumpIssue, Bill, PumpLog, Operator, Complaint, WaterTest, SopLibraryItem } from '@/lib/data';
+import { sopLibraryItems } from '@/lib/sop-data';
 
 export function useWaterSchemes() {
   return useCollection<WaterScheme>('waterSchemes');
@@ -31,4 +32,8 @@ export function useWaterQualityTests(panchayatId: string) {
     return useCollection<WaterTest>(`panchayats/${panchayatId}/waterTests`);
 }
 
-    
+// NOTE: This hook uses static data for the prototype.
+// In a real app, it would use useCollection('sopLibrary').
+export function useSopLibrary() {
+    return { data: sopLibraryItems, loading: false, error: null };
+}

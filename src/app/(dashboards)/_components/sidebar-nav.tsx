@@ -35,6 +35,7 @@ const navItems = {
     { href: "/pump-operator/tank-level", label: "Tank Level", icon: <Layers /> },
     { href: "/pump-operator/report", label: "Report Issue", icon: <FileQuestion /> },
     { href: "/pump-operator/maintenance", label: "Maintenance", icon: <Wrench /> },
+    { href: "/pump-operator/sop-library", label: "SOP Library", icon: <BookMarked /> },
     { href: "/pump-operator/water-quality", label: "Water Quality", icon: <FlaskConical /> },
   ],
   "village-resident": [

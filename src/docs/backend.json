@@ -391,6 +391,30 @@
         }
       },
       "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
+    },
+    "sopLibraryItem": {
+      "title": "SOP Library Item",
+      "description": "Represents a single item in the SOP and micro-learning library.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": ["Pumping", "Pipeline", "Chlorination", "Safety", "General O&M"]
+        },
+        "fileType": {
+          "type": "string",
+          "enum": ["video", "image", "pdf"]
+        },
+        "fileUrl": { "type": "string", "format": "uri" },
+        "thumbnailUrl": { "type": "string", "format": "uri" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["title", "category", "fileType", "fileUrl"]
     }
   },
   "auth": {
@@ -432,8 +456,10 @@
     "/waterTanks/{tankId}": {
       "schema": { "$ref": "#/entities/waterTank" },
       "description": "Stores real-time data for water tanks."
+    },
+    "/sopLibrary/{sopId}": {
+      "schema": { "$ref": "#/entities/sopLibraryItem" },
+      "description": "Stores items for the SOP and micro-learning library."
     }
   }
 }
-
-    
