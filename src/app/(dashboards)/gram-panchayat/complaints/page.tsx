@@ -66,6 +66,7 @@ const hhAffected: Record<Complaint['issueType'], number> = {
 
 const getHoursOverdue = (reportedAt: any): number => {
     if (!reportedAt) return 0;
+    // Firestore timestamps need to be converted to JS Date objects
     const reportedDate = reportedAt.toDate ? reportedAt.toDate() : new Date(reportedAt);
     const now = new Date();
     const diffInMs = now.getTime() - reportedDate.getTime();
@@ -77,7 +78,8 @@ const calculatePriority = (complaint: Complaint) => {
     const risk = riskMultipliers[complaint.issueType] || 1;
     const affected = hhAffected[complaint.issueType] || 5;
 
-    const score = (affected * 2) + (hoursOverdue * 1) + (risk * 10);
+    // Adjusted the multipliers to better fit the 0-100 scale.
+    const score = (affected * 0.5) + (hoursOverdue * 1) + (risk * 5);
     return Math.min(Math.round(score), 100); // Cap score at 100
 };
 
