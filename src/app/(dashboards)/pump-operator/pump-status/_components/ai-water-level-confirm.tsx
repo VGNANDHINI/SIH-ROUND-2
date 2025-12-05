@@ -1,5 +1,6 @@
+
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFirestore } from '@/firebase';
@@ -31,19 +32,24 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
   const { toast } = useToast();
   const firestore = useFirestore();
 
-  useState(() => {
-    if (sessionToConfirm) {
+  useEffect(() => {
+    if (sessionToConfirm && sessionToConfirm.duration && sessionToConfirm.energyConsumed) {
         setIsLoading(true);
         suggestWaterLevel({
-            duration: sessionToConfirm.duration || 0,
-            energyConsumed: sessionToConfirm.energyConsumed || 0,
+            duration: sessionToConfirm.duration,
+            energyConsumed: sessionToConfirm.energyConsumed,
         }).then(result => {
             setAiPrediction(result.predictedLevel);
+        }).catch(err => {
+            console.error("AI Prediction failed:", err);
+            toast({ title: 'AI Prediction Failed', description: 'Could not get a prediction. Please select a level manually.', variant: 'destructive'});
         }).finally(() => {
             setIsLoading(false);
         });
+    } else {
+        setAiPrediction(null);
     }
-  });
+  }, [sessionToConfirm, toast]);
 
   const handleConfirmLevel = async (level: number) => {
     if (!firestore || !sessionToConfirm) return;
