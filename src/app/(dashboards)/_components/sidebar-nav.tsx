@@ -45,6 +45,7 @@ const navItems = {
     { href: "/village-resident/billing", label: "Pay Bills", icon: <FileText /> },
     { href: "/village-resident/complaints", label: "Register Complaint", icon: <FilePenLine /> },
     { href: "/village-resident/water-quality", label: "Water Quality", icon: <FlaskConical /> },
+    { href: "/village-resident/report", label: "Public Report", icon: <Presentation /> },
   ],
   "block-official": [
     { href: "/block-official", label: "Dashboard", icon: <LayoutDashboard /> },
