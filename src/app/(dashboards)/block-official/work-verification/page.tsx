@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Check, X, Eye } from 'lucide-react';
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from '@/hooks/use-toast';
@@ -73,12 +73,16 @@ export default function WorkVerificationPage() {
         ...complaint, 
         status: 'Resolved' as const,
         verifiedBy: user.email,
+        rejectionReason: '', // Clear previous rejection reason if any
     };
 
-    setDoc(complaintRef, updatedData, { merge: true })
+    // Remove id before sending to firestore
+    const { id, ...finalData } = updatedData;
+
+    setDoc(complaintRef, finalData, { merge: true })
         .then(() => toast({ title: "Work Approved", description: "The complaint has been marked as resolved." }))
         .catch(async (serverError) => {
-             const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: updatedData });
+             const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: finalData });
              errorEmitter.emit('permission-error', permissionError);
         })
         .finally(() => setIsUpdating(false));
@@ -93,14 +97,19 @@ export default function WorkVerificationPage() {
         status: 'In Progress' as const,
         rejectionReason: rejectionReason,
         verifiedBy: user.email,
+        taskStartedAt: null, // Reset timer
+        taskCompletedAt: null,
     };
+    
+    // Remove id before sending to firestore
+    const { id, ...finalData } = updatedData;
 
-    setDoc(complaintRef, updatedData, { merge: true })
+    setDoc(complaintRef, finalData, { merge: true })
       .then(() => {
         toast({ variant: "destructive", title: "Work Rejected", description: "The complaint has been sent back to the operator." });
       })
       .catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: updatedData });
+        const permissionError = new FirestorePermissionError({ path: complaintRef.path, operation: 'update', requestResourceData: finalData });
         errorEmitter.emit('permission-error', permissionError);
       })
       .finally(() => {
@@ -115,6 +124,16 @@ export default function WorkVerificationPage() {
       setSelectedComplaint(complaint);
       setPhotoDialogOpen(true);
   }
+  
+  const getStatusBadgeVariant = (status: Complaint['status']) => {
+    switch (status) {
+      case 'Open': return 'destructive';
+      case 'In Progress': return 'secondary';
+      case 'Pending Verification': return 'default';
+      case 'Resolved': return 'success';
+      default: return 'outline';
+    }
+  };
 
   return (
     <>
