@@ -44,6 +44,7 @@ const complaintSchema = z.object({
   description: z
     .string()
     .min(10, 'Description must be at least 10 characters long.'),
+  contactNumber: z.string().min(10, 'Please enter a valid contact number.'),
   photo: z.any().optional(),
 });
 
@@ -51,7 +52,7 @@ export default function RegisterComplaintPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const { data: userProfile, loading: userProfileLoading } = useDoc<UserProfile>(
     user ? `users/${user.uid}` : null
   );
@@ -62,14 +63,23 @@ export default function RegisterComplaintPage() {
       issueType: '',
       address: '',
       description: '',
+      contactNumber: userProfile?.phoneNumber || '',
     },
   });
 
+  // Keep default values in sync with user profile
+  useState(() => {
+      if (userProfile?.phoneNumber) {
+          form.setValue('contactNumber', userProfile.phoneNumber);
+      }
+  });
+
+
   async function onSubmit(values: z.infer<typeof complaintSchema>) {
-    if (!firestore || !user || !userProfile) {
+    if (!firestore || !user) {
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: 'Authentication Error',
         description: 'You must be logged in to file a complaint.',
       });
       return;
@@ -77,20 +87,19 @@ export default function RegisterComplaintPage() {
 
     setIsLoading(true);
 
-    // Destructure the photo from values and spread the rest
     const { photo, ...restOfValues } = values;
 
     const complaintData = {
       ...restOfValues,
       photoUrl: '', // Placeholder for photo upload logic
-      contactNumber: userProfile.phoneNumber,
       reportedAt: serverTimestamp(),
-      status: 'Open',
+      status: 'Open' as const,
       userId: user.uid,
-      userPanchayat: userProfile.panchayat,
-      userBlock: userProfile.block,
-      userDistrict: userProfile.district,
-      userState: userProfile.state,
+      // User profile data might be loading, so provide defaults
+      userPanchayat: userProfile?.panchayat || 'N/A',
+      userBlock: userProfile?.block || 'N/A',
+      userDistrict: userProfile?.district || 'N/A',
+      userState: userProfile?.state || 'N/A',
     };
 
     const collectionRef = collection(firestore, 'complaints');
@@ -121,6 +130,8 @@ export default function RegisterComplaintPage() {
       });
   }
 
+  const loading = userLoading || userProfileLoading;
+
   return (
     <Card className="max-w-3xl mx-auto">
       <CardHeader>
@@ -131,7 +142,7 @@ export default function RegisterComplaintPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {userProfileLoading ? <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin"/></div> : (
+        {loading ? <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin"/></div> : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -177,6 +188,19 @@ export default function RegisterComplaintPage() {
                 )}
               />
             </div>
+             <FormField
+                control={form.control}
+                name="contactNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your contact number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <FormField
               control={form.control}
               name="description"
@@ -222,6 +246,7 @@ export default function RegisterComplaintPage() {
                           type="file"
                           className="hidden"
                           {...field}
+                          onChange={(e) => field.onChange(e.target.files)}
                         />
                       </label>
                     </div>
@@ -230,7 +255,7 @@ export default function RegisterComplaintPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading || loading} className="w-full">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...
