@@ -250,11 +250,11 @@
       "properties": {
         "tankId": {
           "type": "string",
-          "description": "The unique identifier for the tank."
+          "description": "The unique identifier for the tank (often the tank name)."
         },
-        "location": {
+        "name": {
           "type": "string",
-          "description": "The location of the tank."
+          "description": "The name of the tank."
         },
         "capacity": {
           "type": "number",
@@ -270,7 +270,7 @@
           "description": "The timestamp of the last level update."
         }
       },
-      "required": ["tankId", "location", "capacity", "currentLevel", "lastUpdated"]
+      "required": ["name", "capacity", "currentLevel", "lastUpdated"]
     },
     "operator": {
       "title": "Operator",
@@ -435,3 +435,5 @@
     }
   }
 }
+
+    

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useFirestore } from '@/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import type { PumpLog } from '@/lib/data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -55,22 +55,40 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
   }, [sessionToConfirm, toast]);
 
   const handleConfirmLevel = async (level: number) => {
-    if (!firestore || !sessionToConfirm) return;
+    if (!firestore || !sessionToConfirm || !tankName) {
+        toast({ title: 'Error', description: 'Tank name is required.', variant: 'destructive' });
+        return;
+    };
     setIsLoading(true);
 
     const logRef = doc(firestore, 'pumpLogs', sessionToConfirm.id);
-    const updatedData = { confirmedWaterLevel: level, tankName };
+    const tankRef = doc(firestore, 'waterTanks', tankName.replace(/\s+/g, '-').toLowerCase());
+
+    const logUpdate = { confirmedWaterLevel: level, tankName };
+    const tankUpdate = { 
+        name: tankName,
+        currentLevel: level, 
+        lastUpdated: serverTimestamp(),
+        // A default capacity, a real app would have a way to set this
+        capacity: 50000 
+    };
 
     try {
-      await setDoc(logRef, updatedData, { merge: true });
-      toast({ title: 'Level Confirmed', description: `Tank level set to ${level}%.` });
+      // Update the pump log
+      await setDoc(logRef, logUpdate, { merge: true });
+      
+      // Update the tank status
+      await setDoc(tankRef, tankUpdate, { merge: true });
+      
+      toast({ title: 'Level Confirmed', description: `Tank '${tankName}' level set to ${level}%.` });
       onConfirmation();
+
     } catch (error) {
       console.error(error);
       const permissionError = new FirestorePermissionError({
         path: logRef.path,
         operation: 'update',
-        requestResourceData: updatedData,
+        requestResourceData: { logUpdate, tankUpdate },
       });
       errorEmitter.emit('permission-error', permissionError);
     } finally {
@@ -113,3 +131,5 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
     </Card>
   );
 }
+
+    
