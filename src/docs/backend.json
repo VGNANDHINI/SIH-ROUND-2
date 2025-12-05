@@ -48,6 +48,30 @@
         "panchayat": {
           "type": "string",
           "description": "The panchayat where the user resides."
+        },
+        "pumpCategory": {
+            "type": "string",
+            "description": "The category of pump the operator manages."
+        },
+        "pumpDischargeRate": {
+            "type": "number",
+            "description": "The discharge rate of the pump in LPM."
+        },
+        "motorHorsepower": {
+            "type": "number",
+            "description": "The horsepower of the pump's motor."
+        },
+        "tankHeight": {
+            "type": "number",
+            "description": "The height of the water tank in meters."
+        },
+        "tankBaseArea": {
+            "type": "number",
+            "description": "The base area of the water tank in sq. meters."
+        },
+        "distributionNetworkDetails": {
+            "type": "string",
+            "description": "Details about the water distribution network."
         }
       },
       "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat", "phoneNumber"]
@@ -148,24 +172,38 @@
       "description": "A log entry for pump operation.",
       "type": "object",
       "properties": {
-        "pumpId": {
-          "type": "string",
-          "description": "The ID of the pump."
+        "operatorId": {
+            "type": "string",
+            "description": "The UID of the operator who logged the entry."
         },
-        "status": {
-          "type": "string",
-          "enum": ["On", "Off"]
+        "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the pump session started."
+        },
+        "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the pump session ended."
+        },
+        "duration": {
+            "type": "number",
+            "description": "The duration of the pump session in seconds."
         },
         "waterSupplied": {
-          "type": "number",
-          "description": "Water supplied in liters."
+            "type": "number",
+            "description": "Water supplied in liters, calculated."
         },
-        "operatorName": {
-          "type": "string",
-          "description": "Name of the operator who logged the entry."
+        "energyConsumed": {
+            "type": "number",
+            "description": "Energy consumed in kWh, calculated."
+        },
+        "confirmedWaterLevel": {
+            "type": "number",
+            "description": "The water level confirmed by the operator after the session (percentage)."
         }
       },
-      "required": ["pumpId", "status", "waterSupplied", "operatorName"]
+      "required": ["operatorId", "startTime"]
     },
     "waterSupply": {
       "title": "Water Supply",
@@ -196,6 +234,35 @@
         }
       },
       "required": ["pumpId", "location", "status"]
+    },
+    "waterTank": {
+      "title": "Water Tank",
+      "description": "Represents a water storage tank.",
+      "type": "object",
+      "properties": {
+        "tankId": {
+          "type": "string",
+          "description": "The unique identifier for the tank."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location of the tank."
+        },
+        "capacity": {
+          "type": "number",
+          "description": "The total capacity of the tank in liters."
+        },
+        "currentLevel": {
+          "type": "number",
+          "description": "The current water level in percentage (0-100)."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the last level update."
+        }
+      },
+      "required": ["tankId", "location", "capacity", "currentLevel", "lastUpdated"]
     },
     "operator": {
       "title": "Operator",
@@ -268,7 +335,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["Open", "In Progress", "Pending Verification", "Resolved"],
+          "enum": ["Open", "In Progress", "Resolved"],
           "description": "The current status of the complaint."
         },
         "userId": {
@@ -313,51 +380,9 @@
         "actionTaken": {
             "type": "string",
             "description": "A description of the action taken by the operator."
-        },
-        "resolutionPhotoUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "URL of the photo uploaded by the operator upon resolution."
-        },
-        "rejectionReason": {
-            "type": "string",
-            "description": "Reason provided by the block official for rejecting the resolution."
-        },
-        "verifiedBy": {
-            "type": "string",
-            "description": "The email of the block official who verified or rejected the work."
         }
       },
       "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
-    },
-    "waterTest": {
-      "title": "Water Quality Test",
-      "description": "Represents a single water quality test record.",
-      "type": "object",
-      "properties": {
-        "panchayatId": { "type": "string" },
-        "operatorId": { "type": "string" },
-        "ward": { "type": "string" },
-        "locationType": { "type": "string", "enum": ["source", "tank", "pipeline", "household"] },
-        "pH": { "type": "number" },
-        "turbidity": { "type": "number" },
-        "chlorine": { "type": "number" },
-        "tds": { "type": "number" },
-        "iron": { "type": "number" },
-        "fluoride": { "type": "number" },
-        "nitrate": { "type": "number" },
-        "coliform": { "type": "boolean" },
-        "samplePhotoUrl": { "type": "string", "format": "uri" },
-        "testDate": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["safe", "unsafe", "attention-needed"] },
-        "flaggedParameters": { "type": "array", "items": { "type": "string" } },
-        "remarks": { "type": "string" },
-        "reviewedByGp": { "type": "boolean" },
-        "reviewedByBe": { "type": "boolean" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["panchayatId", "operatorId", "ward", "locationType", "pH", "turbidity", "chlorine", "tds", "iron", "fluoride", "nitrate", "coliform", "testDate", "createdAt", "updatedAt"]
     }
   },
   "auth": {
@@ -396,11 +421,9 @@
       "schema": { "$ref": "#/entities/complaint"},
       "description": "Stores all user-submitted complaints."
     },
-    "/panchayats/{panchayatId}/waterTests/{testId}": {
-        "schema": { "$ref": "#/entities/waterTest" },
-        "description": "Stores all water quality test records for a given panchayat."
+    "/waterTanks/{tankId}": {
+      "schema": { "$ref": "#/entities/waterTank" },
+      "description": "Stores real-time data for water tanks."
     }
   }
 }
-
-    

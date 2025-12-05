@@ -1,6 +1,6 @@
 
 
-import { collection, writeBatch, getDocs, doc, getFirestore } from "firebase/firestore";
+import { collection, writeBatch, getDocs, doc, getFirestore, Timestamp } from "firebase/firestore";
 import { app } from "@/firebase/config";
 
 // NOTE: This file is used to seed the database with initial data.
@@ -54,16 +54,19 @@ export const bills: Bill[] = [
 ];
 
 export type PumpLog = {
-    id: string;
-    pumpId: string;
-    status: 'On' | 'Off';
-    waterSupplied: number; // in liters
-    operatorName: string;
+  id: string;
+  operatorId: string;
+  startTime: any;
+  endTime: any;
+  duration?: number;
+  waterSupplied?: number;
+  energyConsumed?: number;
+  confirmedWaterLevel?: number | null;
 };
 
-export const pumpLogs: Omit<PumpLog, 'id'>[] = [
-    { pumpId: 'PMP-RG-01', status: 'On', waterSupplied: 5000, operatorName: 'Ramesh' },
-    { pumpId: 'PMP-RG-01', status: 'Off', waterSupplied: 5000, operatorName: 'Ramesh' },
+
+export const pumpLogs: Omit<PumpLog, 'id' | 'startTime' | 'endTime'>[] = [
+    { operatorId: 'op-123', duration: 3600, waterSupplied: 5000, energyConsumed: 2.5, confirmedWaterLevel: 80 },
 ];
 
 export type WaterSupply = {
@@ -123,7 +126,7 @@ export type Complaint = {
   description: string;
   contactNumber: string;
   reportedAt: any;
-  status: 'Open' | 'In Progress' | 'Pending Verification' | 'Resolved';
+  status: 'Open' | 'In Progress' | 'Resolved';
   userId: string;
   userPanchayat: string;
   userBlock: string;
@@ -135,9 +138,6 @@ export type Complaint = {
   taskStartedAt?: any;
   taskCompletedAt?: any;
   actionTaken?: string;
-  resolutionPhotoUrl?: string;
-  rejectionReason?: string;
-  verifiedBy?: string;
 };
 
 export type UserProfile = {
@@ -152,6 +152,12 @@ export type UserProfile = {
   district: string;
   block: string;
   panchayat: string;
+  pumpCategory?: string;
+  pumpDischargeRate?: number;
+  motorHorsepower?: number;
+  tankHeight?: number;
+  tankBaseArea?: number;
+  distributionNetworkDetails?: string;
   role?: 'gram-panchayat' | 'pump-operator' | 'village-resident' | 'block-official';
 }
 
@@ -217,14 +223,6 @@ async function seedDatabase() {
             });
         }
 
-        if (await collectionIsEmpty('pumpLogs')) {
-            console.log('Seeding pumpLogs...');
-            pumpLogs.forEach((log) => {
-                const docRef = doc(collection(db, "pumpLogs"));
-                batch.set(docRef, log);
-            });
-        }
-
         if (await collectionIsEmpty('waterSupply')) {
             console.log('Seeding waterSupply...');
             waterSupplyData.forEach((supply) => {
@@ -244,5 +242,3 @@ async function seedDatabase() {
 // Call this function to seed the db when the app starts if needed,
 // but be careful not to call it on every render.
 // seedDatabase();
-
-    
