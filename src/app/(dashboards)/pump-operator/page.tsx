@@ -16,6 +16,7 @@ import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 const useTimer = (startTime: Date | null) => {
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
@@ -47,7 +48,12 @@ const useTimer = (startTime: Date | null) => {
 const TimerDisplay = ({ complaint }: { complaint: Complaint }) => {
     const startTime = useMemo(() => {
         if (complaint.taskStartedAt && !complaint.taskCompletedAt) {
-            return new Date((complaint.taskStartedAt as any).seconds * 1000);
+            // Firestore timestamps can be seconds/nanoseconds objects
+            if (complaint.taskStartedAt.seconds) {
+                return new Date(complaint.taskStartedAt.seconds * 1000);
+            }
+            // Or they can be JS Dates during optimistic updates
+            return new Date(complaint.taskStartedAt);
         }
         return null;
     }, [complaint.taskStartedAt, complaint.taskCompletedAt]);
@@ -88,13 +94,15 @@ export default function PumpOperatorDashboard() {
     const handleStartTask = (complaint: Complaint) => {
         if (!firestore) return;
         const complaintRef = doc(firestore, 'complaints', complaint.id);
-        const updatedData = { ...complaint, taskStartedAt: serverTimestamp(), rejectionReason: "" }; // Clear rejection reason on new attempt
+        
+        // Optimistically update the UI
+        const updatedData = { ...complaint, taskStartedAt: new Date(), rejectionReason: "" }; 
 
-        setDoc(complaintRef, updatedData, { merge: true }).catch(async (serverError) => {
+        setDoc(complaintRef, { taskStartedAt: serverTimestamp(), rejectionReason: "" }, { merge: true }).catch(async (serverError) => {
             const permissionError = new FirestorePermissionError({
                 path: complaintRef.path,
                 operation: 'update',
-                requestResourceData: updatedData,
+                requestResourceData: { taskStartedAt: "SERVER_TIMESTAMP" },
             });
             errorEmitter.emit('permission-error', permissionError);
         });
@@ -109,22 +117,20 @@ export default function PumpOperatorDashboard() {
         if (!firestore || !selectedComplaint) return;
         setIsUpdating(true);
         
+        // For this prototype, we'll use a placeholder image from unsplash.
         // In a real app, you would upload the photo to Firebase Storage and get a URL.
-        // For this prototype, we'll use a placeholder.
-        const photoUrl = resolutionPhoto 
-            ? "https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsZWFraW5nJTIwcHVtcHxlbnwwfHx8fDE3NjMyOTI3MTh8MA&ixlib=rb-4.1.0&q=80&w=1080"
-            : "";
+        const photoUrl = PlaceHolderImages.find(p => p.id === 'pump-issue-1')?.imageUrl || "";
 
         const complaintRef = doc(firestore, 'complaints', selectedComplaint.id);
-        const updatedData = {
-            ...selectedComplaint,
+        
+        const updatePayload = {
             status: 'Pending Verification' as const,
             taskCompletedAt: serverTimestamp(),
             actionTaken,
             resolutionPhotoUrl: photoUrl,
         };
 
-        setDoc(complaintRef, updatedData, { merge: true })
+        setDoc(complaintRef, updatePayload, { merge: true })
             .then(() => {
                 toast({ title: "Work Submitted for Verification", description: "The complaint resolution has been submitted to the Block Official." });
             })
@@ -132,7 +138,7 @@ export default function PumpOperatorDashboard() {
                  const permissionError = new FirestorePermissionError({
                     path: complaintRef.path,
                     operation: 'update',
-                    requestResourceData: updatedData,
+                    requestResourceData: updatePayload,
                 });
                 errorEmitter.emit('permission-error', permissionError);
                  toast({ variant: "destructive", title: "Submission Failed", description: "Could not submit your work for verification." });
@@ -316,3 +322,5 @@ export default function PumpOperatorDashboard() {
         </>
     );
 }
+
+    
