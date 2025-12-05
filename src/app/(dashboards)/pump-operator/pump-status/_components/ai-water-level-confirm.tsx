@@ -11,6 +11,8 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { suggestWaterLevel } from '@/ai/flows/suggest-water-level';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface AiWaterLevelConfirmProps {
   sessionToConfirm: PumpLog | null;
@@ -29,6 +31,7 @@ const levels = [
 export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWaterLevelConfirmProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [aiPrediction, setAiPrediction] = useState<number | null>(null);
+  const [tankName, setTankName] = useState('Main OHT');
   const { toast } = useToast();
   const firestore = useFirestore();
 
@@ -56,7 +59,7 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
     setIsLoading(true);
 
     const logRef = doc(firestore, 'pumpLogs', sessionToConfirm.id);
-    const updatedData = { confirmedWaterLevel: level };
+    const updatedData = { confirmedWaterLevel: level, tankName };
 
     try {
       await setDoc(logRef, updatedData, { merge: true });
@@ -84,6 +87,10 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="space-y-2">
+            <Label htmlFor="tank-name">Tank Name</Label>
+            <Input id="tank-name" value={tankName} onChange={(e) => setTankName(e.target.value)} placeholder="e.g., Main OHT" disabled={!sessionToConfirm || isLoading}/>
+        </div>
         <div className="text-center p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">AI Prediction</p>
             {isLoading && !aiPrediction ? <Loader2 className="h-6 w-6 mx-auto my-2 animate-spin"/> :

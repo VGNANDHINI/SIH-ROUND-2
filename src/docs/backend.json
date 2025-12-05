@@ -202,6 +202,10 @@
             "type": "number",
             "description": "Energy consumed in kWh, calculated."
         },
+        "tankName": {
+            "type": "string",
+            "description": "The name of the tank being filled."
+        },
         "confirmedWaterLevel": {
             "type": "number",
             "description": "The water level confirmed by the operator after the session (percentage)."
