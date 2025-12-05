@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useUser, useDoc, useFirestore } from '@/firebase';
+import { useUser, useDoc } from '@/firebase';
 import type { UserProfile, PumpLog } from '@/lib/data';
 import { Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -13,6 +14,9 @@ import { DailyStats } from './_components/daily-stats';
 import { PumpLogsHistory } from './_components/pump-logs-history';
 import { AnalyticsCharts } from './_components/analytics-charts';
 import { useCollection } from '@/firebase/firestore/use-collection';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WeeklyAnalytics } from './_components/weekly-analytics';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function PumpStatusPage() {
   const { user, loading: userLoading } = useUser();
@@ -100,10 +104,30 @@ export default function PumpStatusPage() {
            <DailyStats logs={logs} />
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <PumpLogsHistory logs={logs} loading={logsLoading} />
-        <AnalyticsCharts />
-      </div>
+      
+      <PumpLogsHistory logs={logs} loading={logsLoading} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Analytics</CardTitle>
+          <CardDescription>Performance trends and historical data.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="24-hours">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="24-hours">Last 24 Hours</TabsTrigger>
+              <TabsTrigger value="7-days">Last 7 Days</TabsTrigger>
+            </TabsList>
+            <TabsContent value="24-hours">
+              <AnalyticsCharts />
+            </TabsContent>
+            <TabsContent value="7-days">
+              <WeeklyAnalytics />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+      
     </div>
   );
 }
