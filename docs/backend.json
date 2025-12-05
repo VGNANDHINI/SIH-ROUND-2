@@ -299,6 +299,20 @@
             "type": "string",
             "format": "email",
             "description": "The email of the assigned operator."
+        },
+        "taskStartedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the operator started the task."
+        },
+        "taskCompletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the operator completed the task."
+        },
+        "actionTaken": {
+            "type": "string",
+            "description": "A description of the action taken by the operator."
         }
       },
       "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
@@ -342,5 +356,3 @@
     }
   }
 }
-
-    
