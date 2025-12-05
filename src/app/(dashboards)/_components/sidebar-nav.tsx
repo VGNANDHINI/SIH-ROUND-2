@@ -30,6 +30,7 @@ const navItems = {
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/pump-operator/pump-status", label: "Pump Status", icon: <Power /> },
+    { href: "/pump-operator/tank-level", label: "Tank Level", icon: <Layers /> },
     { href: "/pump-operator/report", label: "Report Issue", icon: <FileQuestion /> },
     { href: "/pump-operator/maintenance", label: "Maintenance", icon: <Wrench /> },
     { href: "/pump-operator/water-quality", label: "Water Quality", icon: <FlaskConical /> },
