@@ -48,6 +48,30 @@
         "panchayat": {
           "type": "string",
           "description": "The panchayat where the user resides."
+        },
+        "pumpCategory": {
+            "type": "string",
+            "description": "The category of pump the operator manages."
+        },
+        "pumpDischargeRate": {
+            "type": "number",
+            "description": "The discharge rate of the pump in LPM."
+        },
+        "motorHorsepower": {
+            "type": "number",
+            "description": "The horsepower of the pump's motor."
+        },
+        "tankHeight": {
+            "type": "number",
+            "description": "The height of the water tank in meters."
+        },
+        "tankBaseArea": {
+            "type": "number",
+            "description": "The base area of the water tank in sq. meters."
+        },
+        "distributionNetworkDetails": {
+            "type": "string",
+            "description": "Details about the water distribution network."
         }
       },
       "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat", "phoneNumber"]
