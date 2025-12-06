@@ -10,9 +10,6 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   updateProfile,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  ConfirmationResult,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -28,33 +25,18 @@ import {
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Chrome, Loader2 } from 'lucide-react';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-
-declare global {
-    interface Window {
-        recaptchaVerifier?: RecaptchaVerifier;
-        confirmationResult?: ConfirmationResult;
-    }
-}
 
 export default function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState('');
   const [state, setState] = useState('');
   const [district, setDistrict] = useState('');
   const [block, setBlock] = useState('');
   const [panchayat, setPanchayat] = useState('');
   
   const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
-
 
   const router = useRouter();
   const { auth, firestore } = useFirebase();
@@ -146,80 +128,6 @@ export default function SignUpPage() {
     }
   };
 
-  const setupRecaptcha = () => {
-      if (!auth) return;
-      if (!window.recaptchaVerifier) {
-          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': (response: any) => { /* reCAPTCHA solved */ }
-          });
-      }
-  }
-
-  const handleSendOtp = async () => {
-      if (!auth) return;
-      setLoading(true);
-      setupRecaptcha();
-      try {
-          const appVerifier = window.recaptchaVerifier!;
-          const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-          window.confirmationResult = confirmationResult;
-          setOtpSent(true);
-          toast({ title: "OTP Sent", description: "An OTP has been sent to your phone number." });
-      } catch (error: any) {
-          toast({ variant: 'destructive', title: 'Failed to send OTP', description: error.message });
-      } finally {
-          setLoading(false);
-      }
-  }
-  
-  const handleVerifyOtp = async () => {
-    if (!auth || !window.confirmationResult) return;
-    setLoading(true);
-    try {
-        await window.confirmationResult.confirm(otp);
-        setIsPhoneVerified(true);
-        toast({ title: 'Phone Verified', description: 'Please fill in the rest of your details.' });
-    } catch (error: any) {
-        toast({ variant: 'destructive', title: 'OTP Verification Failed', description: error.message });
-    } finally {
-        setLoading(false);
-    }
-  }
-
-  const handlePhoneSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!auth || !firestore || !auth.currentUser) return;
-    setLoading(true);
-    try {
-      const user = auth.currentUser;
-      
-      await updateProfile(user, { displayName: name });
-      
-      const userData = {
-        uid: user.uid,
-        displayName: name,
-        email: user.email, // can be null for phone auth
-        phoneNumber,
-        createdAt: serverTimestamp(),
-        state,
-        district,
-        block,
-        panchayat,
-      };
-
-      const userDocRef = doc(firestore, 'users', user.uid);
-      await setDoc(userDocRef, userData);
-      router.push('/');
-
-    } catch (error: any) {
-        toast({ variant: 'destructive', title: 'Sign up failed', description: error.message });
-    } finally {
-        setLoading(false);
-    }
-  }
-
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-background py-12">
       <Card className="w-full max-w-md">
@@ -230,65 +138,24 @@ export default function SignUpPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-           <Tabs defaultValue="email">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="email">Email</TabsTrigger>
-                    <TabsTrigger value="phone">Phone</TabsTrigger>
-                </TabsList>
-                <TabsContent value="email">
-                    <form onSubmit={handleEmailSignUp} className="space-y-4 pt-4">
-                        <div className="space-y-2"> <Label htmlFor="name-email">Name</Label> <Input id="name-email" type="text" value={name} onChange={(e) => setName(e.target.value)} required /> </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"> <Label htmlFor="email">Email</Label> <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /> </div>
-                            <div className="space-y-2"> <Label htmlFor="phoneNumber-email">Phone Number</Label> <Input id="phoneNumber-email" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required /> </div>
-                        </div>
-                        <div className="space-y-2"> <Label htmlFor="password">Password</Label> <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /> </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"> <Label htmlFor="state-email">State</Label> <Input id="state-email" value={state} onChange={(e) => setState(e.target.value)} required /> </div>
-                            <div className="space-y-2"> <Label htmlFor="district-email">District</Label> <Input id="district-email" value={district} onChange={(e) => setDistrict(e.target.value)} required /> </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"> <Label htmlFor="block-email">Block</Label> <Input id="block-email" value={block} onChange={(e) => setBlock(e.target.value)} required /> </div>
-                            <div className="space-y-2"> <Label htmlFor="panchayat-email">Panchayat</Label> <Input id="panchayat-email" value={panchayat} onChange={(e) => setPanchayat(e.target.value)} required /> </div>
-                        </div>
-                        <Button type="submit" className="w-full" disabled={loading}> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign Up </Button>
-                    </form>
-                </TabsContent>
-                <TabsContent value="phone">
-                    {!isPhoneVerified ? (
-                        <div className="space-y-4 pt-4">
-                            {!otpSent ? (
-                                <div className="space-y-4">
-                                    <div className="space-y-2"> <Label htmlFor="phone">Phone Number</Label> <Input id="phone" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="+1 123 456 7890" required /> </div>
-                                    <Button onClick={handleSendOtp} className="w-full" disabled={loading || !phoneNumber}> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Send OTP </Button>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="space-y-2"> <Label htmlFor="otp">OTP</Label> <Input id="otp" type="text" value={otp} onChange={(e) => setOtp(e.target.value)} required /> </div>
-                                    <Button onClick={handleVerifyOtp} className="w-full" disabled={loading || !otp}> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Verify OTP </Button>
-                                    <Button variant="link" size="sm" onClick={() => setOtpSent(false)} className="w-full">Back</Button>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                         <form onSubmit={handlePhoneSignUp} className="space-y-4 pt-4">
-                            <div className="space-y-2"> <Label htmlFor="name-phone">Name</Label> <Input id="name-phone" type="text" value={name} onChange={(e) => setName(e.target.value)} required /> </div>
-                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2"> <Label htmlFor="state-phone">State</Label> <Input id="state-phone" value={state} onChange={(e) => setState(e.target.value)} required /> </div>
-                                <div className="space-y-2"> <Label htmlFor="district-phone">District</Label> <Input id="district-phone" value={district} onChange={(e) => setDistrict(e.target.value)} required /> </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2"> <Label htmlFor="block-phone">Block</Label> <Input id="block-phone" value={block} onChange={(e) => setBlock(e.target.value)} required /> </div>
-                                <div className="space-y-2"> <Label htmlFor="panchayat-phone">Panchayat</Label> <Input id="panchayat-phone" value={panchayat} onChange={(e) => setPanchayat(e.target.value)} required /> </div>
-                            </div>
-                            <Button type="submit" className="w-full" disabled={loading}> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign Up </Button>
-                         </form>
-                    )}
-                </TabsContent>
-           </Tabs>
+            <form onSubmit={handleEmailSignUp} className="space-y-4 pt-4">
+                <div className="space-y-2"> <Label htmlFor="name-email">Name</Label> <Input id="name-email" type="text" value={name} onChange={(e) => setName(e.target.value)} required /> </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"> <Label htmlFor="email">Email</Label> <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /> </div>
+                    <div className="space-y-2"> <Label htmlFor="phoneNumber-email">Phone Number</Label> <Input id="phoneNumber-email" type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required /> </div>
+                </div>
+                <div className="space-y-2"> <Label htmlFor="password">Password</Label> <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /> </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"> <Label htmlFor="state-email">State</Label> <Input id="state-email" value={state} onChange={(e) => setState(e.target.value)} required /> </div>
+                    <div className="space-y-2"> <Label htmlFor="district-email">District</Label> <Input id="district-email" value={district} onChange={(e) => setDistrict(e.target.value)} required /> </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"> <Label htmlFor="block-email">Block</Label> <Input id="block-email" value={block} onChange={(e) => setBlock(e.target.value)} required /> </div>
+                    <div className="space-y-2"> <Label htmlFor="panchayat-email">Panchayat</Label> <Input id="panchayat-email" value={panchayat} onChange={(e) => setPanchayat(e.target.value)} required /> </div>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}> {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign Up </Button>
+            </form>
           
-          <div id="recaptcha-container"></div>
-
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -325,3 +192,5 @@ export default function SignUpPage() {
     </div>
   );
 }
+
+    

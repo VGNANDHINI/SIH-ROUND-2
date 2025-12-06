@@ -78,7 +78,7 @@
             "description": "Details about the water distribution network."
         }
       },
-      "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat", "phoneNumber"]
+      "required": ["uid", "createdAt", "state", "district", "block", "panchayat"]
     },
     "waterScheme": {
       "title": "Water Scheme",
@@ -565,3 +565,5 @@
     }
   }
 }
+
+    
