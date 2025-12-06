@@ -1,6 +1,6 @@
 import type {NextConfig} from 'next';
 
-const nextConfig: NextConfig = {
+const config: NextConfig = {
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -39,4 +39,4 @@ export const allowedDevOrigins = [
 ];
 
 
-export default nextConfig;
+export default config;
