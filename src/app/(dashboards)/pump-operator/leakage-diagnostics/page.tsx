@@ -139,18 +139,16 @@ export default function LeakageDiagnosticsPage() {
                   control={form.control}
                   name="past_leak_history"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          Any past leak history in this zone?
-                        </FormLabel>
-                      </div>
+                      <FormLabel className="font-normal">
+                        Any past leak history in this zone?
+                      </FormLabel>
                     </FormItem>
                   )}
                 />
@@ -158,18 +156,16 @@ export default function LeakageDiagnosticsPage() {
                   control={form.control}
                   name="is_critical_zone"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          Is this a critical zone (school, hospital)?
-                        </FormLabel>
-                      </div>
+                      <FormLabel className="font-normal">
+                        Is this a critical zone (school, hospital)?
+                      </FormLabel>
                     </FormItem>
                   )}
                 />
@@ -234,3 +230,5 @@ export default function LeakageDiagnosticsPage() {
     </div>
   );
 }
+
+    
