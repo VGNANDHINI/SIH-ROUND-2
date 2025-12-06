@@ -14,14 +14,11 @@ import { LeakageDetectionInputSchema, LeakageDetectionOutputSchema, type Leakage
 export async function detectLeakage(
   input: LeakageDetectionInput
 ): Promise<LeakageDetectionOutput> {
-  return leakageDetectionFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'leakageDetectionPrompt',
-  input: { schema: LeakageDetectionInputSchema },
-  output: { schema: LeakageDetectionOutputSchema },
-  prompt: `You are an expert system designed to implement an intelligent Leakage Detection Feature for rural piped-water systems. 
+    const prompt = ai.definePrompt({
+        name: 'leakageDetectionPrompt',
+        input: { schema: LeakageDetectionInputSchema },
+        output: { schema: LeakageDetectionOutputSchema },
+        prompt: `You are an expert system designed to implement an intelligent Leakage Detection Feature for rural piped-water systems. 
 Your job is to analyze incoming telemetry data, operator inputs, and complaint trends to determine whether a leakage is present.
 You must strictly evaluate only the provided values and never invent data.
 
@@ -56,16 +53,19 @@ Example Actions: "- Check the line from standpost 3 to Ward 2.\n- Inspect for se
 
 Output ONLY the final, valid JSON object with the fields: leak_score, leakage_status, triggered_rules, reasoning, recommended_actions.
 `,
-});
+    });
 
-const leakageDetectionFlow = ai.defineFlow(
-  {
-    name: 'leakageDetectionFlow',
-    inputSchema: LeakageDetectionInputSchema,
-    outputSchema: LeakageDetectionOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
-  }
-);
+    const leakageDetectionFlow = ai.defineFlow(
+      {
+        name: 'leakageDetectionFlow',
+        inputSchema: LeakageDetectionInputSchema,
+        outputSchema: LeakageDetectionOutputSchema,
+      },
+      async (input) => {
+        const { output } = await prompt(input);
+        return output!;
+      }
+    );
+
+  return leakageDetectionFlow(input);
+}

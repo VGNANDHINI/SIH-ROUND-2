@@ -13,14 +13,11 @@ import { DiagnoseWaterNetworkInputSchema, DiagnoseWaterNetworkOutputSchema, type
 export async function diagnoseWaterNetwork(
   input: DiagnoseWaterNetworkInput
 ): Promise<DiagnoseWaterNetworkOutput> {
-  return diagnoseWaterNetworkFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'diagnoseWaterNetworkPrompt',
-  input: { schema: DiagnoseWaterNetworkInputSchema },
-  output: { schema: DiagnoseWaterNetworkOutputSchema },
-  prompt: `You are an expert Water Network Diagnostic System for rural piped water supply.
+    const prompt = ai.definePrompt({
+        name: 'diagnoseWaterNetworkPrompt',
+        input: { schema: DiagnoseWaterNetworkInputSchema },
+        output: { schema: DiagnoseWaterNetworkOutputSchema },
+        prompt: `You are an expert Water Network Diagnostic System for rural piped water supply.
 Your job is to analyze manually entered data from village/GP operators and determine:
 
 1. Whether the water condition is NORMAL or LEAKAGE.
@@ -74,17 +71,19 @@ E. RULES:
 - If data is conflicting, choose the safest path (e.g., warn if in doubt).
 - Output ONLY valid JSON. Nothing else.
 `,
-});
+    });
 
-const diagnoseWaterNetworkFlow = ai.defineFlow(
-  {
-    name: 'diagnoseWaterNetworkFlow',
-    inputSchema: DiagnoseWaterNetworkInputSchema,
-    outputSchema: DiagnoseWaterNetworkOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
-  }
-);
+    const diagnoseWaterNetworkFlow = ai.defineFlow(
+      {
+        name: 'diagnoseWaterNetworkFlow',
+        inputSchema: DiagnoseWaterNetworkInputSchema,
+        outputSchema: DiagnoseWaterNetworkOutputSchema,
+      },
+      async (input) => {
+        const { output } = await prompt(input);
+        return output!;
+      }
+    );
 
+    return diagnoseWaterNetworkFlow(input);
+}
