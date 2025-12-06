@@ -135,18 +135,44 @@ export default function LeakageDiagnosticsPage() {
               </div>
               
               <div className="grid grid-cols-2 gap-4 pt-4">
-                <FormField control={form.control} name="past_leak_history" render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl>
-                      <div className="space-y-1 leading-none"> <FormLabel>Any past leak history in this zone?</FormLabel> </div>
-                  </FormItem>
-                )}/>
-                 <FormField control={form.control} name="is_critical_zone" render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl>
-                      <div className="space-y-1 leading-none"> <FormLabel>Is this a critical zone (school, hospital)?</FormLabel> </div>
-                  </FormItem>
-                )}/>
+                <FormField
+                  control={form.control}
+                  name="past_leak_history"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>
+                          Any past leak history in this zone?
+                        </FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="is_critical_zone"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>
+                          Is this a critical zone (school, hospital)?
+                        </FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
               
               <Button type="submit" disabled={isLoading} className="w-full">
