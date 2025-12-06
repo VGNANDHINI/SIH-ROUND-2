@@ -37,7 +37,7 @@ The operator will manually enter the following fields:
 - reservoir_drop_rate (liters/hour): {{{reservoir_drop_rate}}}
 - pump_status (running / stopped): {{{pump_status}}}
 - complaints_count (number of complaints in the area): {{{complaints_count}}}
-- complaint_types: {{jsonStringify complaint_types}}
+- complaint_types: {{{complaint_types}}}
 - sewage_line_nearby (true / false): {{{sewage_line_nearby}}}
 - past_leak_history (yes / no): {{{past_leak_history}}}
 
