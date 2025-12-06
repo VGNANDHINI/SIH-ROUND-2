@@ -74,7 +74,7 @@ export function TankLevels({ checklist, checklistPath, profile }: TankLevelsProp
             </div>
             <Slider
                 value={[endLevel]}
-                onValueChange={(v) => handleLevelchange('end', v[0])}
+                onValueChange={(v) => handleLevelChange('end', v[0])}
                 max={100}
                 step={5}
             />
