@@ -25,10 +25,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { detectLeakage } from '@/ai/flows/leakage-detection-flow';
-import { LeakageDetectionInputSchema, type LeakageDetectionOutput } from '@/ai/flows/leakage-detection-flow';
+import { LeakageDetectionInputSchema, type LeakageDetectionOutput } from '@/ai/flows/leakage-detection-flow.types';
 import { Separator } from '@/components/ui/separator';
 import { z } from 'zod';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 type FormValues = z.infer<typeof LeakageDetectionInputSchema>;
 
