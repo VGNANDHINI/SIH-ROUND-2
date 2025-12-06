@@ -33,11 +33,8 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import {
-  diagnoseWaterNetwork,
-  DiagnoseWaterNetworkInput,
-  DiagnoseWaterNetworkOutput,
-} from '@/ai/flows/diagnose-water-network';
+import { diagnoseWaterNetwork } from '@/ai/flows/diagnose-water-network';
+import { DiagnoseWaterNetworkInputSchema, type DiagnoseWaterNetworkInput, type DiagnoseWaterNetworkOutput } from '@/ai/flows/diagnose-water-network.types';
 import { Separator } from '@/components/ui/separator';
 
 const complaintTypes = [
@@ -47,22 +44,7 @@ const complaintTypes = [
   { id: 'bad smell', label: 'Bad Smell' },
 ] as const;
 
-const formSchema = z.object({
-  pressure_value: z.coerce.number().min(0, 'Pressure must be a positive number.'),
-  flow_rate: z.coerce.number().min(0, 'Flow rate must be a positive number.'),
-  chlorine_level: z.coerce.number().min(0, 'Chlorine must be a positive number.'),
-  turbidity_level: z.coerce.number().min(0, 'Turbidity must be a positive number.'),
-  reservoir_drop_rate: z.coerce.number().min(0, 'Rate must be a positive number.'),
-  pump_status: z.enum(['running', 'stopped']),
-  complaints_count: z.coerce.number().int().min(0, 'Complaints must be a positive integer.'),
-  complaint_types: z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: 'You have to select at least one complaint type.',
-    }),
-  sewage_line_nearby: z.boolean().default(false),
-  past_leak_history: z.enum(['yes', 'no']),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof DiagnoseWaterNetworkInputSchema>;
 
 export default function DiagnosticsPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +52,7 @@ export default function DiagnosticsPage() {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(DiagnoseWaterNetworkInputSchema),
     defaultValues: {
       pressure_value: 15,
       flow_rate: 100,
