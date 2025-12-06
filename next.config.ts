@@ -30,6 +30,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    // This is to allow cross-origin requests in the development environment.
+    // The web editor is on a different origin than the preview server.
+    allowedDevOrigins: [
+      'https://*.cluster-mwsteha33jfdowtvzffztbjcj6.cloudworkstations.dev',
+    ],
+  },
 };
 
 export default nextConfig;
