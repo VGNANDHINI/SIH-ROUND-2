@@ -49,6 +49,10 @@
           "type": "string",
           "description": "The panchayat where the user resides."
         },
+        "pumpName": {
+            "type": "string",
+            "description": "A unique name for the pump the operator manages."
+        },
         "pumpCategory": {
             "type": "string",
             "description": "The category of pump the operator manages."
@@ -74,7 +78,7 @@
             "description": "Details about the water distribution network."
         }
       },
-      "required": ["uid", "email", "createdAt", "state", "district", "block", "panchayat", "phoneNumber"]
+      "required": ["uid", "createdAt", "state", "district", "block", "panchayat"]
     },
     "waterScheme": {
       "title": "Water Scheme",
@@ -172,24 +176,42 @@
       "description": "A log entry for pump operation.",
       "type": "object",
       "properties": {
-        "pumpId": {
-          "type": "string",
-          "description": "The ID of the pump."
+        "operatorId": {
+            "type": "string",
+            "description": "The UID of the operator who logged the entry."
         },
-        "status": {
-          "type": "string",
-          "enum": ["On", "Off"]
+        "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the pump session started."
+        },
+        "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the pump session ended."
+        },
+        "duration": {
+            "type": "number",
+            "description": "The duration of the pump session in seconds."
         },
         "waterSupplied": {
-          "type": "number",
-          "description": "Water supplied in liters."
+            "type": "number",
+            "description": "Water supplied in liters, calculated."
         },
-        "operatorName": {
-          "type": "string",
-          "description": "Name of the operator who logged the entry."
+        "energyConsumed": {
+            "type": "number",
+            "description": "Energy consumed in kWh, calculated."
+        },
+        "tankName": {
+            "type": "string",
+            "description": "The name of the tank being filled."
+        },
+        "confirmedWaterLevel": {
+            "type": "number",
+            "description": "The water level confirmed by the operator after the session (percentage)."
         }
       },
-      "required": ["pumpId", "status", "waterSupplied", "operatorName"]
+      "required": ["operatorId", "startTime"]
     },
     "waterSupply": {
       "title": "Water Supply",
@@ -228,11 +250,11 @@
       "properties": {
         "tankId": {
           "type": "string",
-          "description": "The unique identifier for the tank."
+          "description": "The unique identifier for the tank (often the tank name)."
         },
-        "location": {
+        "name": {
           "type": "string",
-          "description": "The location of the tank."
+          "description": "The name of the tank."
         },
         "capacity": {
           "type": "number",
@@ -248,7 +270,7 @@
           "description": "The timestamp of the last level update."
         }
       },
-      "required": ["tankId", "location", "capacity", "currentLevel", "lastUpdated"]
+      "required": ["name", "capacity", "currentLevel", "lastUpdated"]
     },
     "operator": {
       "title": "Operator",
@@ -369,10 +391,132 @@
         }
       },
       "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
+    },
+    "sopLibraryItem": {
+      "title": "SOP Library Item",
+      "description": "Represents a single item in the SOP and micro-learning library.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": ["Pumping", "Pipeline", "Chlorination", "Safety", "General O&M"]
+        },
+        "fileType": {
+          "type": "string",
+          "enum": ["video", "image", "pdf"]
+        },
+        "fileUrl": { "type": "string", "format": "uri" },
+        "thumbnailUrl": { "type": "string", "format": "uri" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["title", "category", "fileType", "fileUrl"]
+    },
+    "dailyChecklist": {
+      "title": "Daily O&M Checklist",
+      "description": "A daily operational and maintenance checklist for a water scheme.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "operatorId": { "type": "string" },
+        "panchayatId": { "type": "string" },
+        "pumpData": {
+          "type": "object",
+          "properties": {
+            "totalRuntime": { "type": "number", "description": "Total pump runtime in hours." },
+            "estimatedVolume": { "type": "number", "description": "Estimated water volume supplied in liters." },
+            "confirmed": { "type": "boolean" }
+          }
+        },
+        "tankLevels": {
+          "type": "object",
+          "properties": {
+            "startOfDay": { "type": "number", "description": "Tank level percentage at start of day." },
+            "endOfDay": { "type": "number", "description": "Tank level percentage at end of day." }
+          }
+        },
+        "waterQuality": {
+          "type": "object",
+          "properties": {
+            "chlorine": { "type": "number" },
+            "turbidity": { "type": "number" },
+            "needsAttention": { "type": "boolean" }
+          }
+        },
+        "valveOperations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "valveId": { "type": "string" },
+              "operation": { "type": "string", "enum": ["opened", "closed"] },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "pipelineInspection": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["OK", "Minor Issue", "Major Issue"] },
+            "photoUrl": { "type": "string", "format": "uri" },
+            "description": { "type": "string" }
+          }
+        },
+        "motorInspection": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["OK", "Minor Issue", "Major Issue"] },
+            "volts": { "type": "number" },
+            "amps": { "type": "number" }
+          }
+        },
+        "sourceStatus": {
+          "type": "object",
+          "properties": {
+            "availability": { "type": "string", "enum": ["Adequate", "Low", "No Water"] },
+            "rechargeTime": { "type": "number", "description": "Estimated recharge time in hours." }
+          }
+        },
+        "wardSupply": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "wardId": { "type": "string" },
+              "startTime": { "type": "string", "format": "time" },
+              "stopTime": { "type": "string", "format": "time" },
+              "duration": { "type": "number", "description": "Duration in minutes." }
+            }
+          }
+        },
+        "preventiveMaintenance": {
+          "type": "object",
+          "properties": {
+            "lubrication": { "type": "boolean" },
+            "panelCleaned": { "type": "boolean" },
+            "valveMovementTested": { "type": "boolean" },
+            "pressureChecked": { "type": "boolean" }
+          }
+        },
+        "observations": {
+          "type": "object",
+          "properties": {
+            "notes": { "type": "string" },
+            "photoUrl": { "type": "string", "format": "uri" }
+          }
+        },
+        "completedPercentage": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Submitted", "Requires Review"] }
+      },
+      "required": ["date", "operatorId", "panchayatId"]
     }
   },
   "auth": {
-    "providers": ["email", "google"]
+    "providers": ["email", "google", "phone"]
   },
   "firestore": {
     "/users/{userId}": {
@@ -410,6 +554,14 @@
     "/waterTanks/{tankId}": {
       "schema": { "$ref": "#/entities/waterTank" },
       "description": "Stores real-time data for water tanks."
+    },
+    "/sopLibrary/{sopId}": {
+      "schema": { "$ref": "#/entities/sopLibraryItem" },
+      "description": "Stores items for the SOP and micro-learning library."
+    },
+    "/panchayats/{panchayatId}/checklists/{checklistId}": {
+      "schema": { "$ref": "#/entities/dailyChecklist"},
+      "description": "Stores the daily O&M checklist for a panchayat."
     }
   }
 }
