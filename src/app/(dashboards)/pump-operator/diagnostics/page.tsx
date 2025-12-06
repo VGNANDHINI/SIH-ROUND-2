@@ -35,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { diagnoseWaterNetwork } from '@/ai/flows/diagnose-water-network';
 import { DiagnoseWaterNetworkInputSchema, type DiagnoseWaterNetworkInput, type DiagnoseWaterNetworkOutput } from '@/ai/flows/diagnose-water-network.types';
 import { Separator } from '@/components/ui/separator';
+import { z } from 'zod';
 
 const complaintTypes = [
   { id: 'low pressure', label: 'Low Pressure' },
@@ -70,10 +71,8 @@ export default function DiagnosticsPage() {
     setIsLoading(true);
     setResult(null);
 
-    const inputForApi: DiagnoseWaterNetworkInput = values;
-
     try {
-      const diagnosis = await diagnoseWaterNetwork(inputForApi);
+      const diagnosis = await diagnoseWaterNetwork(values);
       setResult(diagnosis);
     } catch (error: any) {
       console.error('Diagnostic analysis failed:', error);
@@ -145,7 +144,7 @@ export default function DiagnosticsPage() {
                <FormField
                 control={form.control}
                 name="complaint_types"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <div className="mb-4">
                       <FormLabel className="text-base">Complaint Types</FormLabel>
@@ -154,31 +153,40 @@ export default function DiagnosticsPage() {
                       </FormDescription>
                     </div>
                     {complaintTypes.map((item) => (
-                      <FormItem
+                      <FormField
                         key={item.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([
-                                    ...(field.value || []),
-                                    item.id,
-                                  ])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item.id
-                                    )
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          {item.label}
-                        </FormLabel>
-                      </FormItem>
+                        control={form.control}
+                        name="complaint_types"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={item.id}
+                              className="flex flex-row items-start space-x-3 space-y-0"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(item.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([
+                                          ...(field.value || []),
+                                          item.id,
+                                        ])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== item.id
+                                          )
+                                        );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                {item.label}
+                              </FormLabel>
+                            </FormItem>
+                          );
+                        }}
+                      />
                     ))}
                     <FormMessage />
                   </FormItem>
