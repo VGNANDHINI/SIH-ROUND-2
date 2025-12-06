@@ -143,20 +143,43 @@ export default function DiagnosticsPage() {
                 )}/>
               </div>
               
-              <FormField control={form.control} name="complaint_types" render={() => (
-                <FormItem>
-                    <div className="mb-4"> <FormLabel>Complaint Types</FormLabel> <FormDescription>Select all that apply.</FormDescription> </div>
+              <FormField
+                control={form.control}
+                name="complaint_types"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="mb-4">
+                      <FormLabel>Complaint Types</FormLabel>
+                      <FormDescription>Select all that apply.</FormDescription>
+                    </div>
                     {complaintTypes.map((item) => (
-                    <FormField key={item.id} control={form.control} name="complaint_types" render={({ field }) => {
-                        return ( <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl> <Checkbox checked={field.value?.includes(item.id)} onCheckedChange={(checked) => { return checked ? field.onChange([...field.value, item.id]) : field.onChange( field.value?.filter( (value) => value !== item.id ) ); }} /> </FormControl>
-                                <FormLabel className="font-normal">{item.label}</FormLabel>
-                            </FormItem> );
-                        }} />
+                      <FormItem
+                        key={item.id}
+                        className="flex flex-row items-start space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(item.id)}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...(field.value || []), item.id])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value) => value !== item.id
+                                    )
+                                  );
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          {item.label}
+                        </FormLabel>
+                      </FormItem>
                     ))}
                     <FormMessage />
-                </FormItem>
-              )}/>
+                  </FormItem>
+                )}
+              />
 
               <FormField control={form.control} name="sewage_line_nearby" render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
