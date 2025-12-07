@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MapPin } from "lucide-react";
 import React, { useState, useMemo, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers, useHabitations } from "@/firebase";
+import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers, useComplaints } from "@/firebase";
 import { Loader2 } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -40,11 +40,16 @@ export default function GisAtlasPage() {
         if (!complaints || !selectedPanchayat) return [];
         const panchayatDetails = panchayats?.find(p => p.id === selectedPanchayat);
         if (!panchayatDetails) return [];
+        
+        // This is a placeholder for real GPS data which should be in the complaint document
+        // A real app would get lat/lng from the complaint itself.
+        const panchayatCenter = panchayatDetails.center || { lat: 12.825, lng: 80.045 };
+
         return complaints.filter(c => c.status === 'Open' && c.userPanchayat === panchayatDetails.name).map(c => ({
             id: c.id,
-            type: 'Complaint',
+            type: 'Complaint' as const,
             label: c.issueType,
-            position: c.gpsLocation || { lat: 12.825 + Math.random() * 0.01, lng: 80.045 + Math.random() * 0.01 }, // Fallback random location
+            position: c.gpsLocation || { lat: panchayatCenter.lat + (Math.random() - 0.5) * 0.01, lng: panchayatCenter.lng + (Math.random() - 0.5) * 0.01 }, // Fallback random location
             data: c
         }));
     }, [complaints, selectedPanchayat, panchayats]);
