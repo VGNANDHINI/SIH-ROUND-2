@@ -2,6 +2,7 @@
 
 import { collection, writeBatch, getDocs, doc, getFirestore, Timestamp } from "firebase/firestore";
 import { app } from "@/firebase/config";
+import { states, districts, mandals, panchayats, pipelines, markers } from "./gis-data";
 
 // NOTE: This file is used to seed the database with initial data.
 // It is not used in the application otherwise.
@@ -273,8 +274,8 @@ export type TodoTask = {
 async function seedDatabase() {
     const db = getFirestore(app);
     
-    async function collectionIsEmpty(collectionName: string) {
-        const collectionRef = collection(db, collectionName);
+    async function collectionIsEmpty(collectionPath: string) {
+        const collectionRef = collection(db, collectionPath);
         const snapshot = await getDocs(collectionRef);
         return snapshot.empty;
     }
@@ -282,35 +283,45 @@ async function seedDatabase() {
     try {
         const batch = writeBatch(db);
 
+        // Seed GIS data
+        if (await collectionIsEmpty('states')) {
+            console.log('Seeding GIS data...');
+            // State
+            const stateRef = doc(db, 'states', states[0].id);
+            batch.set(stateRef, { name: states[0].name });
+
+            // District
+            const districtRef = doc(db, `states/${states[0].id}/districts`, districts[0].id);
+            batch.set(districtRef, { name: districts[0].name });
+
+            // Mandal
+            const mandalRef = doc(db, `states/${states[0].id}/districts/${districts[0].id}/mandals`, mandals[0].id);
+            batch.set(mandalRef, { name: mandals[0].name });
+            
+            // Panchayat
+            const panchayatRef = doc(db, `states/${states[0].id}/districts/${districts[0].id}/mandals/${mandals[0].id}/panchayats`, panchayats[0].id);
+            batch.set(panchayatRef, { name: panchayats[0].name });
+            
+            // Pipelines for Anjur
+            pipelines.forEach(p => {
+                const pipelineRef = doc(collection(db, `states/${states[0].id}/districts/${districts[0].id}/mandals/${mandals[0].id}/panchayats/${panchayats[0].id}/pipelines`));
+                batch.set(pipelineRef, p);
+            });
+
+            // Markers for Anjur
+            markers.forEach(m => {
+                const markerRef = doc(collection(db, `states/${states[0].id}/districts/${districts[0].id}/mandals/${mandals[0].id}/panchayats/${panchayats[0].id}/markers`));
+                batch.set(markerRef, m);
+            });
+        }
+
+
+        // Seed other initial data if needed
         if (await collectionIsEmpty('waterSchemes')) {
             console.log('Seeding waterSchemes...');
             waterSchemes.forEach((scheme) => {
                 const docRef = doc(db, "waterSchemes", scheme.id);
                 batch.set(docRef, scheme);
-            });
-        }
-
-        if (await collectionIsEmpty('pumpIssues')) {
-            console.log('Seeding pumpIssues...');
-            pumpIssues.forEach((issue) => {
-                const docRef = doc(db, "pumpIssues", issue.id);
-                batch.set(docRef, issue);
-            });
-        }
-
-        if (await collectionIsEmpty('bills')) {
-            console.log('Seeding bills...');
-            bills.forEach((bill) => {
-                const docRef = doc(db, "bills", bill.id);
-                batch.set(docRef, bill);
-            });
-        }
-
-        if (await collectionIsEmpty('waterSupply')) {
-            console.log('Seeding waterSupply...');
-            waterSupplyData.forEach((supply) => {
-                const docRef = doc(db, "waterSupply", supply.id);
-                batch.set(docRef, supply);
             });
         }
         
@@ -323,5 +334,4 @@ async function seedDatabase() {
 }
 
 // Call this function to seed the db when the app starts if needed,
-// but be careful not to call it on every render.
 // seedDatabase();

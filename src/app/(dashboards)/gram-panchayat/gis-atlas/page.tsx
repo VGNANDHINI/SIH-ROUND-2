@@ -1,49 +1,92 @@
 
 'use client';
 
-import Image from 'next/image';
+import { useState, useMemo } from 'react';
+import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers } from '@/firebase/firestore/gis-hooks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useUser, useDoc } from '@/firebase';
-import type { UserProfile } from '@/lib/data';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { PipelineMap } from '@/components/atlas/pipeline-map';
 
 export default function GisAtlasPage() {
-    const { user, loading: userLoading } = useUser();
-    const { data: profile, loading: profileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
+    const [selectedState, setSelectedState] = useState<string>('tamil_nadu');
+    const [selectedDistrict, setSelectedDistrict] = useState<string>('chengalpattu');
+    const [selectedMandal, setSelectedMandal] = useState<string>('kattankolathur');
+    const [selectedPanchayat, setSelectedPanchayat] = useState<string>('anjur');
+    const [showMap, setShowMap] = useState(false);
+
+    const { data: states, loading: statesLoading } = useStates();
+    const { data: districts, loading: districtsLoading } = useDistricts(selectedState);
+    const { data: mandals, loading: mandalsLoading } = useMandals(selectedState, selectedDistrict);
+    const { data: panchayats, loading: panchayatsLoading } = usePanchayats(selectedState, selectedDistrict, selectedMandal);
+
+    const pipelinePath = useMemo(() => showMap ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/pipelines` : null, [showMap, selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
+    const markerPath = useMemo(() => showMap ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/markers` : null, [showMap, selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
     
-    const gisMapImage = PlaceHolderImages.find(p => p.id === 'anjur-map');
-    const loading = userLoading || profileLoading;
+    const { data: pipelines, loading: pipelinesLoading } = usePipelines(pipelinePath);
+    const { data: markers, loading: markersLoading } = useMarkers(markerPath);
+
+    const handleShowMap = () => {
+        if(selectedPanchayat) {
+            setShowMap(true);
+        }
+    }
+    
+    const loading = statesLoading || districtsLoading || mandalsLoading || panchayatsLoading;
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>GIS Pipeline Atlas</CardTitle>
-                <CardDescription>
-                    {loading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                       `Showing pipeline network map for Anjur.`
-                    )}
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="relative w-full aspect-video border rounded-lg overflow-hidden bg-muted">
-                    {gisMapImage ? (
-                        <Image
-                            src={gisMapImage.imageUrl}
-                            alt="GIS map of a pipeline network"
-                            fill
-                            className="object-cover"
-                            data-ai-hint={gisMapImage.imageHint}
-                        />
-                    ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                            Map data not available.
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Atlas Assistant</CardTitle>
+                    <CardDescription>Select a location to view its pipeline network and assets.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <Select value={selectedState} onValueChange={setSelectedState} disabled>
+                            <SelectTrigger><SelectValue placeholder="Select State" /></SelectTrigger>
+                            <SelectContent>{states?.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+                        </Select>
+                         <Select value={selectedDistrict} onValueChange={setSelectedDistrict} disabled={!selectedState || districtsLoading}>
+                            <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+                            <SelectContent>{districts?.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <Select value={selectedMandal} onValueChange={setSelectedMandal} disabled={!selectedDistrict || mandalsLoading}>
+                            <SelectTrigger><SelectValue placeholder="Select Block/Mandal" /></SelectTrigger>
+                            <SelectContent>{mandals?.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <Select value={selectedPanchayat} onValueChange={setSelectedPanchayat} disabled={!selectedMandal || panchayatsLoading}>
+                            <SelectTrigger><SelectValue placeholder="Select Panchayat" /></SelectTrigger>
+                            <SelectContent>{panchayats?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                        </Select>
+                    </div>
+                    <Button onClick={handleShowMap} disabled={!selectedPanchayat || loading} className="w-full">
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                        Show Map for Anjur
+                    </Button>
+                </CardContent>
+            </Card>
+
+            {showMap && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pipeline Map: {panchayats?.find(p => p.id === selectedPanchayat)?.name}</CardTitle>
+                        <CardDescription>Interactive map of the water infrastructure.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         {(pipelinesLoading || markersLoading) ? (
+                            <div className="flex items-center justify-center h-96">
+                                <Loader2 className="h-8 w-8 animate-spin" />
+                            </div>
+                        ) : (
+                            <div className="relative w-full aspect-video border rounded-lg overflow-hidden bg-muted">
+                                <PipelineMap pipelines={pipelines || []} markers={markers || []} />
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
+        </div>
     );
 }
