@@ -1,0 +1,169 @@
+[33md5bc10f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m first commit
+[33m40c7c36[m remove this page only but keep the chat bubble and ai assistant feature
+[33m6661713[m place this on the top (_for element <Card>_)
+[33m20dabe2[m remove theis feature alone (_for element <LinkComponent>_)
+[33m417db44[m mke this at the top of the page (_for element <Card>_)
+[33m122eac4[m remove this feature only herein this portal (_for element <LinkComponent
+[33m2e6913d[m the user profile mut show all the personal details asked while login .en
+[33mad458e7[m dont change anything but add.i dont want the excat page ad pdf print .i
+[33m9e7e55b[m I want you to provide phone number via  authentication for all the four
+[33m7e38489[m the complaint raised by the one user must also be visible to another use
+[33mb086d28[m add a ai assistant chatbot for the village resident as a featuere using
+[33m1cc66ef[m below this tadd the tank level feature of the operator completely (for e
+[33m4c401b2[m like below the roles add jal jeevan mission guidelines and helpline (_fo
+[33m80c98ae[m from our conversation history.
+[33mb15e4a2[m place this on the top of the page (_for element <Card>_)
+[33m6428f46[m Below the operator profile I want you to create a water supply timing fo
+[33md3138cd[m center this (_for element header_)
+[33mcd9ebf2[m I want you to change this current what is status to water supply timings
+[33m0873042[m remove this card alone from here .dont change anything but add (_for ele
+[33m0216fa1[m remove this feature only here .dont change anything but add (_for elemen
+[33mb08982c[m dont cahnge anything but add. remove this feature alone (_for element <L
+[33m72994ac[m can u use unpkg forpump fault icon
+[33mc102451[m dont change anything just add this in operator WATER QUALITY SYSTEM SPEC
+[33mc2090fa[m in operator the submit mainteneance check is not woring porperly just ma
+[33mb31e906[m dont change anything just add this in operator 1st- Leakage Detection S
+[33ma789202[m Try fixing this error: `Build Error: Module not found: Can't resolve 're
+[33me63b926[m dont change anything just add this in the operator You will use this pro
+[33m5771972[m JalShakthi (_for element h1_)
+[33m7b8910c[m dont change anything just add lthis in operator 1 Leakage Detection Sys
+[33m667b960[m Remove that leakage-detection feature in the operator
+[33m45f9209[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m5569d74[m You are building a deterministic, rule-based leakage detection system fo
+[33m8e35cc5[m Try fixing this error: `Runtime Error: Error: Cannot read properties of
+[33mca44102[m remove thi alone (_for element <CardTitle>_)
+[33m599f9fe[m the complaint is not captured when i send sms to the twilio number. make
+[33mbcc7715[m USSD/SMS/IVR complaint capture and sync**     - Integrations with tele
+[33mb386e48[m Try fixing this error: `Runtime Error: Error: useComplaints is not defin
+[33m60c5fc3[m I WANT MY CODES TO BE IN THIS STRUCTURE.'use client';
+[33mc655b3d[m Here. in need the select state text to be shown (_for element <Primitive
+[33m80c58d8[m Make the atlas work with only leaflet js
+[33md6bd791[m Try fixing this error: `Runtime Error: Error: Map container is already i
+[33m1778d3b[m Try fixing this error: `Runtime Error: Error: Map container is already i
+[33me0a45d0[m The Atlas map must use Leaflet.js and OpenStreetMap (FREE, no Google bil
+[33md655bc9[m <!DOCTYPE html>   <!--    @license    Copyright 2023 Google LLC. All Rig
+[33m22dbd58[m When I pressure this i must get the state selection (_for element <Primi
+[33m4e46e68[m this is select state dropdown (_for element <Primitive.button>_)
+[33m494ca6b[m remove this i iwant only by slecting the each state ,district,block and
+[33maa18ae6[m Try fixing this error: `Runtime Error: Error: Cannot read properties of
+[33m243247d[m Let's dive deep into the technical architecture, data flow, and API inte
+[33mc7596a2[m add photo locator in user portal , where user take a leakage photo and u
+[33mc3dbf50[m no its not there
+[33m45fa1f3[m add anjur map in gis pepe line network other than dpnt change or rempve
+[33mf8db6cd[m The app isn't starting. Please investigate what could be wrong based on
+[33mf32f69a[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m7647015[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33mef8caee[m Set up the USSD/SMS/IVR complaint capture and sync
+[33m515c6d2[m Error: React.Children.only expected to receive a single React element ch
+[33m2a8564e[m Error: React.Children.only expected to receive a single React element ch
+[33mad7b383[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m460b73d[m Runtime Error
+[33m8d01455[m Try fixing this error: `Runtime Error: Error: A "use server" file can on
+[33m2492dd9[m Add a feature called leakage direction in the operator using the logic g
+[33mfa676a4[m mine is asking fr billing account as error while pressing send otp
+[33m9fd11b8[m set up Phone authentication .in sign in and sign up authentication
+[33ma336d6e[m Create an Operator-Side Water Network Diagnostic Engine that analyzes ma
+[33m3e0ebf8[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33mfb3b431[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m52c248d[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33mccafe3d[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m7c47e90[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m768e4dd[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m2985c22[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33m6050b3b[m The app isn't starting. Please investigate what could be wrong based on
+[33md6ceb99[m Try fixing this error: `Runtime Error: Error: React.Children.only expect
+[33ma67ab0a[m Try fixing this error: `Runtime Error: Error: A "use server" file can on
+[33mabdeaca[m add  this as  a tab in  operator portalm  :You are an expert Water Netwo
+[33me260053[m The app isn't starting. Please investigate what could be wrong based on
+[33m8638caf[m The app isn't starting. Please investigate what could be wrong based on
+[33m2c8fc4a[m The app isn't starting. Please investigate what could be wrong based on
+[33m690e21e[m The app isn't starting. Please investigate what could be wrong based on
+[33m9d77dd3[m Try fixing this error: `Runtime Error: FirebaseError: Invalid segment (p
+[33m25dc9a2[m create a health score section in the dashboard which takes data like pum
+[33m69dc7ef[m I want to download the whole report file in a structured format as a pdf
+[33m32946d0[m **“Develop a comprehensive Public Transparency Report module for the rur
+[33m5722bb6[m here add view complaints section which will go the view complaints secti
+[33mc8945a2[m remove the to do list (_for element <CardHeader>_)
+[33mf130c6a[m create a to do list for daily tasks where the gram panchayat can have ch
+[33mde878a6[m i have given a complaint in the village residents portal i want it to be
+[33me8cf154[m wehn a user complints it should be visible in the user complaint section
+[33m111f937[m in the complaints inbox in the gram panchayat dashboard i want you to ra
+[33m560bf73[m remove priority to-do list in the gram panchayat portal dashboard
+[33m5a0ddfc[m Try fixing this error: `Runtime Error: Error: useMemo is not defined. Er
+[33m738e363[m in the gram panchayat portal in the dashboard page i want you to add to
+[33m135fd24[m Create a complete Digital Daily O&M Checklist Engine for the Operator Da
+[33m659aae7[m Create a Micro-learning & SOP Library module inside the operator dashboa
+[33m76076e5[m add an atlas gis feature which will only show the pipeline maps of the p
+[33m7d8bbfc[m i want this to be an ml predictor which will trin itself over time based
+[33mfec0366[m i cant enter text .make sure i can enter the text so that i can have dif
+[33m3695d3d[m this must be entered by the operator  and only this level willl be shown
+[33m75c1f33[m above this  add a finput box named  tank name (_for element div_)
+[33md807a39[m add ne more feature like this called ump name (_for element <FormItem>_)
+[33m7437f45[m this ia an ai ml feature .which can predict the tank level based on the
+[33maccaaca[m make sure th run time is shown here and  the data is tahken from the opr
+[33mfd2c0c3[m The operator give the inputs of the details that has been asked in the p
+[33m89de1fd[m Try fixing this error: `Runtime Error: Error: ChartTooltip is not define
+[33mf4f89af[m ater Level Notifications
+[33m56bf82c[m Pump Control Start or stop the pump to log a new session. PUMP ON PUMP O
+[33m6a6f352[m Try fixing this error: `Runtime Error: Error: useState is not defined. E
+[33mb2e8304[m Operator Infrastructure Profile Set pump and tank parameters. These valu
+[33mca41e11[m below this add operator profile (_for element <LinkComponent>_)
+[33mdfe4c42[m below add a tank level feature (_for element <LinkComponent>_)
+[33m1ec7906[m below this add a pump status feature  (_for element <LinkComponent>_)
+[33md166e5f[m blow thisadd a feature called all water tank levels (_for element <LinkC
+[33mfe9b8b3[m all pump status  (_for element <LinkComponent>_)
+[33mc9b6e39[m change it to pump status (_for element span_)
+[33mb899365[m Try fixing this error: `Console Error: Encountered two children with the
+[33m68f45e9[m So in the water quality monitor stay press log evaluate data it's going
+[33m94242d6[m og Water Quality Enter results from the JJM Field Test Kit (FTK). Test L
+[33m6178c13[m Here is your FINAL, CLEAN, READY-TO-USE PROMPT to give to Firebase GenAI
+[33m81bdadd[m I only want the image submitted by the operator to be shown in the block
+[33m056115a[m If you check the database you have right now got complain which has been
+[33mf005c80[m Sir right now I have resolved when complain now send that complaint to t
+[33ma5e65e9[m Implement the above process in the block official user page
+[33mc1cb28b[m So like whenever the operator clicks and task he has to resolve the comp
+[33mf47bb91[m Once the gram panchayat complain to the particular operator that particu
+[33m81813da[m In registered complaints,any signed inusers can submit the complaint
+[33mb52441d[m Beside this on the left and side of this add a button feature name named
+[33mcd9f47a[m So add like an assigning feature where that person will Asha in the oper
+[33m8d384dd[m Try fixing this error: `Runtime Error: FirebaseError: Function addDoc()
+[33m9cf22be[m Try fixing this error: `Runtime Error: FirebaseError: Function doc() can
+[33m9d9fa5c[m Add future below this named complaints where they have to fill in the fo
+[33m5256a6d[m Add feature named operator management below this where the gram panchaya
+[33mcb10b76[m its coming failed to send alerts
+[33mc282a45[m Add alerts feature. So they can manually type the alerts and once a pres
+[33m9c3e3da[m Make sure you also ask for the phone number while signing up
+[33m6b72596[m How to send sms alerts canu give me step by step how to set it up
+[33md7eebda[m In the sign in and sign up make the user you said to fill in the state d
+[33mc41feb5[m Okay so if the block or district official has revolved means in the gram
+[33mc67de8c[m It's not coming
+[33mc67f2ea[m Here add approve or reject button for the gram block or district officia
+[33mdbd900c[m The schemes updated by the gram panchayat must be approved by the block
+[33m4218ef9[m Add a log button to logging the pump control center
+[33mf2b4d30[m Add a pump on off feature in gram Panchayat and I want it to connect to
+[33m6587559[m FirestorePermissionError: FirestoreError: Missing or insufficient permis
+[33m3d15b6c[m Try fixing this error: `Runtime Error: FirestorePermissionError: Firesto
+[33m5ab8952[m Main sure that the gram panchayat user all selector can write the databa
+[33m0d92af5[m Remove time stamp feature from pumplog and make it work
+[33mc5893dc[m Replace the forestore rules either this rules_version = '2'; service clo
+[33m0238f22[m You are getting this error because your Firestore Security Rules are blo
+[33mb79ee43[m Here is the same prompt rewritten as paragraphs and sentences in a smoot
+[33m09771eb[m I can't see my logged in name in the authentication database
+[33mbe19f56[m What is this errorToggle Sidebar Gram Panchayat - Log-book
+[33ma9f9b7e[m FirestorePermissionError: FirestoreError: Missing or insufficient permis
+[33med205c3[m Is not connected to fir 5 star authentication are the five star database
+[33mbcd27cc[m File changes
+[33ma1ba062[m When I log it should show her also.make it work (_for element <CardHeade
+[33mea6b956[m Try fixing this error: `Runtime Error: FirebaseError: Missing or insuffi
+[33mda4bb77[m Try fixing this error: `Console Error: `DialogContent` requires a `Dialo
+[33m1b4d078[m In gram panchayat add feature called log book where they will lock the p
+[33m336b5dc[m I need to seed the database uncomment it
+[33mb0fbe20[m I can't see the collections in the firestore
+[33mcecca79[m I un commented now run
+[33me16fc57[m Build i have to connect thi project to rel time data base or fir stor da
+[33m7841aff[m I want to download jalsaathi
+[33m60abab4[m Then how to convert this into an app and download
+[33mc26fa29[m i needthe role selection first and then the auth page
+[33mafe44af[m File changes
+[33mb687ede[m File changes
+[33meb3bfa1[m Initialized workspace with Firebase Studio
