@@ -81,13 +81,17 @@ export function PipelineMap({ pipelines, markers, onMarkAsResolved, panchayat }:
             <Popup>
                 <div className="space-y-2">
                     <h4 className="font-bold">{marker.label} ({marker.type})</h4>
-                    {marker.data && (
+                    {marker.data?.issueType && (
                         <>
-                            <p><b>Village:</b> {marker.data.villageName}</p>
-                            <p><b>Severity:</b> {marker.data.severity}</p>
+                            <p><b>Issue:</b> {marker.data.issueType}</p>
+                            <p><b>Address:</b> {marker.data.address}</p>
                             <p><b>Status:</b> {marker.data.status}</p>
-                            <p><b>Assigned To:</b> {marker.data.operatorAssigned || 'Unassigned'}</p>
                             <Button size="sm" className="w-full" onClick={() => onMarkAsResolved(marker.id)}>Mark as Resolved</Button>
+                        </>
+                    )}
+                     {!marker.data?.issueType && marker.data && (
+                        <>
+                            <p>Details not available for this marker type.</p>
                         </>
                     )}
                 </div>

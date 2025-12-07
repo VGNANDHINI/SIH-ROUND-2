@@ -42,15 +42,15 @@ export default function GisAtlasPage() {
     const { data: complaints, loading: complaintsLoading } = useComplaints();
 
     const complaintMarkers: Marker[] = useMemo(() => {
-        if (!complaints) return [];
-        return complaints.filter(c => c.status === 'Open' && c.gpsLocation).map(c => ({
+        if (!complaints || !selectedPanchayat) return [];
+        return complaints.filter(c => c.status === 'Open' && c.gpsLocation && c.userPanchayat === selectedPanchayat).map(c => ({
             id: c.id,
             type: c.issueType === 'Leakage' ? 'Alert' : 'Complaint',
             label: c.issueType,
             position: c.gpsLocation,
             data: c
         }));
-    }, [complaints]);
+    }, [complaints, selectedPanchayat]);
 
     const allMarkers = useMemo(() => {
         return [...(staticMarkers || []), ...complaintMarkers];
@@ -161,7 +161,7 @@ export default function GisAtlasPage() {
                         <CardDescription>Interactive map of water infrastructure and live alerts.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                         {(pipelinesLoading || markersLoading || complaintsLoading) && !selectedPanchayat ? (
+                         {!selectedPanchayat ? (
                             <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg">
                                 <p>Select a panchayat to view the map.</p>
                             </div>
