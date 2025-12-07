@@ -270,6 +270,21 @@ export type TodoTask = {
     panchayatId: string;
 };
 
+export type DailyLeakCheck = {
+  id: string;
+  timestamp: any;
+  gp_id: string;
+  pump_hours_today: number;
+  pump_hours_previous: number;
+  tank_level_change: "Increase" | "No change" | "Decrease";
+  pressure_level: "High" | "Normal" | "Low";
+  flow_rate: "Normal" | "Low";
+  complaints_count: number;
+  leak_score: number;
+  severity: "red" | "yellow" | "green";
+  result_message: string;
+};
+
 
 async function seedDatabase() {
     const db = getFirestore(app);
