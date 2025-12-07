@@ -94,7 +94,7 @@ export default function GisAtlasPage() {
                     </CardHeader>
                     <CardContent>
                          {(pipelinesLoading || markersLoading) ? (
-                            <div className="flex items-center justify-center h-96">
+                            <div className="flex items-center justify-center h-96 bg-muted rounded-lg">
                                 <Loader2 className="h-8 w-8 animate-spin" />
                             </div>
                         ) : (
