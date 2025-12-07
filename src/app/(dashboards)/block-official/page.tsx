@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,29 @@ export default function BlockOfficialDashboard() {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Welcome, Official</CardTitle>
+          <CardDescription>
+            Oversee regional water management, analyze data dashboards, and coordinate across panchayats.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>This dashboard provides a high-level overview of the water supply status in your block/district. You have schemes to review. Use the navigation to see details.</p>
+           <div className="flex gap-4 mt-4">
+              <Button asChild>
+                <Link href="/block-official/approvals">
+                  Review Schemes <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/block-official/analytics">
+                  View Analytics <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+        </CardContent>
+      </Card>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -61,29 +85,6 @@ export default function BlockOfficialDashboard() {
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome, Official</CardTitle>
-          <CardDescription>
-            Oversee regional water management, analyze data dashboards, and coordinate across panchayats.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>This dashboard provides a high-level overview of the water supply status in your block/district. You have schemes to review. Use the navigation to see details.</p>
-           <div className="flex gap-4 mt-4">
-              <Button asChild>
-                <Link href="/block-official/approvals">
-                  Review Schemes <ArrowUpRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary">
-                <Link href="/block-official/analytics">
-                  View Analytics <ArrowUpRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
