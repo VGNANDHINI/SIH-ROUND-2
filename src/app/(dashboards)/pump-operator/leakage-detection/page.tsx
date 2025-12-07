@@ -37,6 +37,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
 
 const checkSchema = z.object({
   pump_hours_today: z.coerce.number().min(0, 'Pump hours must be a positive number.'),
@@ -137,7 +140,8 @@ export default function LeakageDetectionPage() {
     }
 
     try {
-        await addDoc(collection(firestore, 'daily_leak_checks'), checkData);
+        const collectionRef = collection(firestore, 'daily_leak_checks');
+        await addDoc(collectionRef, checkData);
         setResult({ score, severity, message });
         toast({
             title: 'Daily Check Submitted',
@@ -145,11 +149,8 @@ export default function LeakageDetectionPage() {
         });
     } catch (error: any) {
         console.error('Failed to submit daily check:', error);
-        toast({
-            variant: 'destructive',
-            title: 'Submission Failed',
-            description: error.message || 'An unexpected error occurred.',
-        });
+        const permissionError = new FirestorePermissionError({ path: 'daily_leak_checks', operation: 'create', requestResourceData: checkData });
+        errorEmitter.emit('permission-error', permissionError);
     } finally {
         setIsLoading(false);
     }
@@ -218,42 +219,42 @@ export default function LeakageDetectionPage() {
                 <div className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="pressure_level" render={({ field }) => (
                         <FormItem className="space-y-3">
-                        <FormLabel>Pressure Level</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-2">
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                    <FormControl><RadioGroupItem value="High" /></FormControl>
-                                    <FormLabel className="font-normal">High</FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                    <FormControl><RadioGroupItem value="Normal" /></FormControl>
-                                    <FormLabel className="font-normal">Normal</FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                    <FormControl><RadioGroupItem value="Low" /></FormControl>
-                                    <FormLabel className="font-normal">Low</FormLabel>
-                                </FormItem>
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
+                            <FormLabel>Pressure Level</FormLabel>
+                            <FormControl>
+                                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-2">
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="High" /></FormControl>
+                                        <FormLabel className="font-normal">High</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="Normal" /></FormControl>
+                                        <FormLabel className="font-normal">Normal</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="Low" /></FormControl>
+                                        <FormLabel className="font-normal">Low</FormLabel>
+                                    </FormItem>
+                                </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="flow_rate" render={({ field }) => (
                         <FormItem className="space-y-3">
-                        <FormLabel>Flow Rate</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-2">
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                    <FormControl><RadioGroupItem value="Normal" /></FormControl>
-                                    <FormLabel className="font-normal">Normal</FormLabel>
-                                </FormItem>
-                                <FormItem className="flex items-center space-x-2 space-y-0">
-                                    <FormControl><RadioGroupItem value="Low" /></FormControl>
-                                    <FormLabel className="font-normal">Low</FormLabel>
-                                </FormItem>
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
+                            <FormLabel>Flow Rate</FormLabel>
+                            <FormControl>
+                                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-2">
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="Normal" /></FormControl>
+                                        <FormLabel className="font-normal">Normal</FormLabel>
+                                    </FormItem>
+                                    <FormItem className="flex items-center space-x-2 space-y-0">
+                                        <FormControl><RadioGroupItem value="Low" /></FormControl>
+                                        <FormLabel className="font-normal">Low</FormLabel>
+                                    </FormItem>
+                                </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}/>
                 </div>
