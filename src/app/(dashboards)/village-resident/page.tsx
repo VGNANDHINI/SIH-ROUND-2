@@ -9,8 +9,19 @@ import { WaterSchedule } from "./_components/water-schedule";
 export default function VillageResidentDashboard() {
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Welcome, Resident</CardTitle>
+          <CardDescription>
+            Your portal for all water-related services in your village.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>Here you can check water supply status, view the supply schedule, and receive important notifications.</p>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        
         <WaterSchedule />
 
         <Card>
@@ -22,24 +33,12 @@ export default function VillageResidentDashboard() {
             <Button asChild size="sm" variant="outline" className="w-full">
               <Link href="/village-resident/availability">Check Live Availability</Link>
             </Button>
-             <Button asChild size="sm" variant="default" className="w-full">
+            <Button asChild size="sm" variant="default" className="w-full">
               <Link href="/village-resident/complaints">Register Complaint</Link>
             </Button>
           </CardContent>
         </Card>
       </div>
-
-       <Card>
-        <CardHeader>
-          <CardTitle>Welcome, Resident</CardTitle>
-          <CardDescription>
-            Your portal for all water-related services in your village.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>Here you can check water supply status, view and pay your bills, and receive important notifications.</p>
-        </CardContent>
-      </Card>
     </div>
   );
 }
