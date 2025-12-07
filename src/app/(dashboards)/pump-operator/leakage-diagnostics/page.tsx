@@ -18,6 +18,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -139,7 +140,7 @@ export default function LeakageDiagnosticsPage() {
                   control={form.control}
                   name="past_leak_history"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -158,7 +159,7 @@ export default function LeakageDiagnosticsPage() {
                   control={form.control}
                   name="is_critical_zone"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
                       <FormControl>
                         <Checkbox
                           checked={field.value}
@@ -234,5 +235,3 @@ export default function LeakageDiagnosticsPage() {
     </div>
   );
 }
-
-    
