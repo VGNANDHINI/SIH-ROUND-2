@@ -127,24 +127,28 @@
       "description": "Represents a complaint filed by a resident.",
       "type": "object",
       "properties": {
-        "issueType": { "type": "string", "enum": ["No water", "Low pressure", "Dirty water", "Leakage", "Motor off", "Others"] },
+        "issueType": { "type": "string", "enum": ["Leakage", "Low Pressure", "Pump Failure", "Valve Stuck", "Dirty water", "No water", "Motor off", "Others"] },
         "address": { "type": "string" },
         "photoUrl": { "type": "string", "format": "uri" },
         "description": { "type": "string" },
         "contactNumber": { "type": "string" },
         "reportedAt": { "type": "string", "format": "date-time" },
-        "status": { "type": "string", "enum": ["Open", "In Progress", "Resolved"] },
+        "status": { "type": "string", "enum": ["Open", "Assigned", "Resolved", "In Progress", "Pending Verification"] },
         "userId": { "type": "string" },
+        "villageName": { "type": "string" },
         "userPanchayat": { "type": "string" },
         "userBlock": { "type": "string" },
         "userDistrict": { "type": "string" },
         "userState": { "type": "string" },
         "assignedTo": { "type": "string" },
+        "operatorAssigned": { "type": "string" },
         "assignedOperatorName": { "type": "string" },
         "operatorEmail": { "type": "string", "format": "email" },
         "taskStartedAt": { "type": "string", "format": "date-time" },
         "taskCompletedAt": { "type": "string", "format": "date-time" },
-        "actionTaken": { "type": "string" }
+        "actionTaken": { "type": "string" },
+        "gpsLocation": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "severity": { "type": "string", "enum": ["Low", "Medium", "High"] }
       },
       "required": ["issueType", "address", "description", "contactNumber", "reportedAt", "status", "userId", "userPanchayat", "userBlock", "userDistrict", "userState"]
     },
@@ -176,10 +180,10 @@
       },
       "required": ["date", "operatorId", "panchayatId"]
     },
-    "state": { "title": "State", "description": "Represents a state.", "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] },
-    "district": { "title": "District", "description": "Represents a district.", "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] },
-    "mandal": { "title": "Mandal", "description": "Represents a mandal/block.", "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] },
-    "panchayat": { "title": "Panchayat", "description": "Represents a panchayat.", "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] },
+    "state": { "title": "State", "description": "Represents a state.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
+    "district": { "title": "District", "description": "Represents a district.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
+    "mandal": { "title": "Mandal", "description": "Represents a mandal/block.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
+    "panchayat": { "title": "Panchayat", "description": "Represents a panchayat.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "habitation": { "title": "Habitation", "description": "Represents a habitation/village.", "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] },
     "pipeline": {
       "title": "Pipeline",
@@ -189,18 +193,21 @@
         "type": { "type": "string", "enum": ["Rising Main", "Distribution"] },
         "material": { "type": "string" },
         "diameter": { "type": "number" },
-        "path": { "type": "array", "items": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } } }
+        "path": { "type": "array", "items": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } } },
+        "length": { "type": "number"},
+        "villageServed": { "type": "string" }
       },
-      "required": ["type", "path"]
+      "required": ["type", "path", "length", "villageServed"]
     },
     "marker": {
       "title": "Marker",
       "description": "Represents a point of interest on the map.",
       "type": "object",
       "properties": {
-        "type": { "type": "string", "enum": ["Pump", "Tank", "Valve", "Alert"] },
+        "type": { "type": "string", "enum": ["Pump", "Tank", "Valve", "Alert", "Operator", "Complaint", "Pump Fault", "Leak Cluster"] },
         "label": { "type": "string" },
-        "position": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } }
+        "position": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "data": { "type": "object" }
       },
       "required": ["type", "label", "position"]
     }

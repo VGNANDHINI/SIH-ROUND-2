@@ -2,17 +2,26 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers } from '@/firebase/firestore/gis-hooks';
+import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers, useComplaints } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { PipelineMap } from '@/components/atlas/pipeline-map';
+import type { Marker } from '@/lib/gis-data';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { doc, setDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 export default function GisAtlasPage() {
     const [selectedState, setSelectedState] = useState<string | null>('tamil_nadu');
-    const [selectedDistrict, setSelectedDistrict] = useState<string | null>('chengalpattu');
-    const [selectedMandal, setSelectedMandal] = useState<string | null>('kattankolathur');
-    const [selectedPanchayat, setSelectedPanchayat] = useState<string | null>('anjur');
+    const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+    const [selectedMandal, setSelectedMandal] = useState<string | null>(null);
+    const [selectedPanchayat, setSelectedPanchayat] = useState<string | null>(null);
+    
+    const firestore = useFirestore();
+    const { toast } = useToast();
 
     const { data: states, loading: statesLoading } = useStates();
     const { data: districts, loading: districtsLoading } = useDistricts(selectedState);
@@ -23,7 +32,24 @@ export default function GisAtlasPage() {
     const markerPath = useMemo(() => selectedPanchayat ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/markers` : null, [selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
     
     const { data: pipelines, loading: pipelinesLoading } = usePipelines(pipelinePath);
-    const { data: markers, loading: markersLoading } = useMarkers(markerPath);
+    const { data: staticMarkers, loading: markersLoading } = useMarkers(markerPath);
+    const { data: complaints, loading: complaintsLoading } = useComplaints();
+
+    const complaintMarkers: Marker[] = useMemo(() => {
+        if (!complaints) return [];
+        return complaints.filter(c => c.status === 'Open' && c.gpsLocation).map(c => ({
+            id: c.id,
+            type: c.issueType === 'Leakage' ? 'Alert' : 'Complaint',
+            label: c.issueType,
+            position: c.gpsLocation,
+            data: c
+        }));
+    }, [complaints]);
+
+    const allMarkers = useMemo(() => {
+        return [...(staticMarkers || []), ...complaintMarkers];
+    }, [staticMarkers, complaintMarkers]);
+
 
     const handleStateChange = (stateId: string) => {
         setSelectedState(stateId);
@@ -43,17 +69,40 @@ export default function GisAtlasPage() {
         setSelectedPanchayat(null);
     }
     
-    const loading = statesLoading || districtsLoading || mandalsLoading || panchayatsLoading;
+    const loading = statesLoading || districtsLoading || mandalsLoading || panchayatsLoading || pipelinesLoading || markersLoading || complaintsLoading;
+
+    const panchayatDetails = useMemo(() => {
+        if (!selectedPanchayat || !panchayats) return null;
+        return panchayats.find(p => p.id === selectedPanchayat);
+    }, [selectedPanchayat, panchayats]);
+
+    const handleMarkAsResolved = async (complaintId: string) => {
+        if (!firestore) return;
+        const complaintRef = doc(firestore, 'complaints', complaintId);
+        try {
+            await setDoc(complaintRef, { status: 'Resolved' }, { merge: true });
+            toast({ title: "Complaint Resolved", description: "The complaint has been marked as resolved." });
+        } catch (error) {
+            toast({ title: "Error", description: "Could not update complaint status.", variant: 'destructive' });
+            console.error("Error resolving complaint: ", error);
+        }
+    };
+    
+    const openComplaintsCount = useMemo(() => complaints?.filter(c => c.status === 'Open').length ?? 0, [complaints]);
+    const leakComplaintsCount = useMemo(() => complaints?.filter(c => c.issueType === 'Leakage' && c.status === 'Open').length ?? 0, [complaints]);
+    const pumpIssuesCount = useMemo(() => complaints?.filter(c => c.issueType === 'Pump Failure' && c.status === 'Open').length ?? 0, [complaints]);
+    const valveIssuesCount = useMemo(() => complaints?.filter(c => c.issueType === 'Valve Stuck' && c.status === 'Open').length ?? 0, [complaints]);
+
 
     return (
-        <div className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Atlas Assistant</CardTitle>
-                    <CardDescription>Select a location to view its pipeline network and assets.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid lg:grid-cols-4 gap-6 items-start">
+            <div className="lg:col-span-1 space-y-6">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Atlas Assistant</CardTitle>
+                        <CardDescription>Select a location to view its assets.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                         <Select value={selectedState ?? ''} onValueChange={handleStateChange} disabled={statesLoading}>
                             <SelectTrigger>
                                 {statesLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
@@ -82,29 +131,47 @@ export default function GisAtlasPage() {
                             </SelectTrigger>
                             <SelectContent>{panchayats?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                         </Select>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {selectedPanchayat && (
+                    </CardContent>
+                </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Pipeline Map: {panchayats?.find(p => p.id === selectedPanchayat)?.name}</CardTitle>
-                        <CardDescription>Interactive map of the water infrastructure.</CardDescription>
+                        <CardTitle>Panchayat Dashboard</CardTitle>
+                        <CardDescription>Real-time complaint summary</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <div className="flex justify-between items-center"><span>Total Complaints:</span> <Badge>{complaints?.length ?? 0}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Open Complaints:</span> <Badge variant="destructive">{openComplaintsCount}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Leaks:</span> <Badge variant="secondary">{leakComplaintsCount}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Pump Issues:</span> <Badge variant="secondary">{pumpIssuesCount}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Valve Issues:</span> <Badge variant="secondary">{valveIssuesCount}</Badge></div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="lg:col-span-3">
+                <Card>
+                     <CardHeader>
+                        <CardTitle>Live GIS Map: {panchayatDetails?.name ?? '...'}</CardTitle>
+                        <CardDescription>Interactive map of water infrastructure and live alerts.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                         {(pipelinesLoading || markersLoading) ? (
-                            <div className="flex items-center justify-center h-96 bg-muted rounded-lg">
+                         {(pipelinesLoading || markersLoading || complaintsLoading) ? (
+                            <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg">
                                 <Loader2 className="h-8 w-8 animate-spin" />
                             </div>
                         ) : (
-                            <div className="relative w-full aspect-video border rounded-lg overflow-hidden bg-muted">
-                                <PipelineMap pipelines={pipelines || []} markers={markers || []} />
+                            <div className="relative w-full h-[70vh] border rounded-lg overflow-hidden bg-muted">
+                                <PipelineMap 
+                                    pipelines={pipelines || []} 
+                                    markers={allMarkers || []}
+                                    onMarkAsResolved={handleMarkAsResolved} 
+                                    panchayat={panchayatDetails}
+                                />
                             </div>
                         )}
                     </CardContent>
                 </Card>
-            )}
+            </div>
         </div>
     );
 }
