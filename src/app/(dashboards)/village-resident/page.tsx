@@ -2,37 +2,27 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useBills } from "@/firebase";
-import { ArrowUpRight, Droplet, FileText, IndianRupee, Loader2 } from "lucide-react";
+import { ArrowUpRight, FileText } from "lucide-react";
 import Link from "next/link";
+import { WaterSchedule } from "./_components/water-schedule";
 
 export default function VillageResidentDashboard() {
-  const { data: bills, loading } = useBills();
-  const dueBill = bills?.find(b => b.status === 'Due');
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Water Status</CardTitle>
-            <Droplet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Available</div>
-            <p className="text-xs text-muted-foreground">Supply is normal in your area</p>
-          </CardContent>
-        </Card>
         
+        <WaterSchedule />
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="flex flex-col space-y-2">
+          <CardContent className="flex flex-col space-y-2 pt-4">
             <Button asChild size="sm" variant="outline" className="w-full">
-              <Link href="/village-resident/availability">Check Availability</Link>
+              <Link href="/village-resident/availability">Check Live Availability</Link>
             </Button>
-             <Button asChild size="sm" variant="outline" className="w-full">
+             <Button asChild size="sm" variant="default" className="w-full">
               <Link href="/village-resident/complaints">Register Complaint</Link>
             </Button>
           </CardContent>
