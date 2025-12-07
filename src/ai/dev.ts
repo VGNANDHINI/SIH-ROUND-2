@@ -1,3 +1,4 @@
+
 'use server';
 
 import { config } from 'dotenv';
@@ -9,3 +10,4 @@ import '@/ai/flows/suggest-water-level.ts';
 import '@/ai/flows/diagnose-water-network.ts';
 import '@/ai/flows/leakage-detection-flow.ts';
 import '@/ai/flows/predict-leak-location.ts';
+import '@/ai/flows/get-aerial-view.ts';
