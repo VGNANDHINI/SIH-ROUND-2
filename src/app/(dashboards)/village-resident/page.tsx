@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowUpRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { WaterSchedule } from "./_components/water-schedule";
+import { AIAssistant } from "./_components/ai-assistant";
 
 export default function VillageResidentDashboard() {
   return (
@@ -39,6 +40,7 @@ export default function VillageResidentDashboard() {
           </CardContent>
         </Card>
       </div>
+      <AIAssistant />
     </div>
   );
 }
