@@ -5,7 +5,6 @@ import { useState, useMemo } from 'react';
 import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers } from '@/firebase/firestore/gis-hooks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { PipelineMap } from '@/components/atlas/pipeline-map';
 
@@ -13,26 +12,19 @@ export default function GisAtlasPage() {
     const [selectedState, setSelectedState] = useState<string>('tamil_nadu');
     const [selectedDistrict, setSelectedDistrict] = useState<string>('chengalpattu');
     const [selectedMandal, setSelectedMandal] = useState<string>('kattankolathur');
-    const [selectedPanchayat, setSelectedPanchayat] = useState<string>('anjur');
-    const [showMap, setShowMap] = useState(false);
+    const [selectedPanchayat, setSelectedPanchayat] = useState<string | null>(null);
 
     const { data: states, loading: statesLoading } = useStates();
     const { data: districts, loading: districtsLoading } = useDistricts(selectedState);
     const { data: mandals, loading: mandalsLoading } = useMandals(selectedState, selectedDistrict);
     const { data: panchayats, loading: panchayatsLoading } = usePanchayats(selectedState, selectedDistrict, selectedMandal);
 
-    const pipelinePath = useMemo(() => showMap ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/pipelines` : null, [showMap, selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
-    const markerPath = useMemo(() => showMap ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/markers` : null, [showMap, selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
+    const pipelinePath = useMemo(() => selectedPanchayat ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/pipelines` : null, [selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
+    const markerPath = useMemo(() => selectedPanchayat ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/markers` : null, [selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
     
     const { data: pipelines, loading: pipelinesLoading } = usePipelines(pipelinePath);
     const { data: markers, loading: markersLoading } = useMarkers(markerPath);
 
-    const handleShowMap = () => {
-        if(selectedPanchayat) {
-            setShowMap(true);
-        }
-    }
-    
     const loading = statesLoading || districtsLoading || mandalsLoading || panchayatsLoading;
 
     return (
@@ -44,7 +36,7 @@ export default function GisAtlasPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <Select value={selectedState} onValueChange={setSelectedState} disabled>
+                        <Select value={selectedState} onValueChange={setSelectedState} disabled={statesLoading}>
                             <SelectTrigger><SelectValue placeholder="Select State" /></SelectTrigger>
                             <SelectContent>{states?.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
                         </Select>
@@ -56,19 +48,15 @@ export default function GisAtlasPage() {
                             <SelectTrigger><SelectValue placeholder="Select Block/Mandal" /></SelectTrigger>
                             <SelectContent>{mandals?.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
                         </Select>
-                        <Select value={selectedPanchayat} onValueChange={setSelectedPanchayat} disabled={!selectedMandal || panchayatsLoading}>
-                            <SelectTrigger><SelectValue placeholder="Select Panchayat" /></SelectTrigger>
+                        <Select onValueChange={setSelectedPanchayat} disabled={!selectedMandal || panchayatsLoading}>
+                            <SelectTrigger>{loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}<SelectValue placeholder="Select Panchayat" /></SelectTrigger>
                             <SelectContent>{panchayats?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
-                    <Button onClick={handleShowMap} disabled={!selectedPanchayat || loading} className="w-full">
-                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
-                        Show Map for Anjur
-                    </Button>
                 </CardContent>
             </Card>
 
-            {showMap && (
+            {selectedPanchayat && (
                 <Card>
                     <CardHeader>
                         <CardTitle>Pipeline Map: {panchayats?.find(p => p.id === selectedPanchayat)?.name}</CardTitle>
