@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import * as React from 'react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 export function FirebaseErrorListener() {
-  useEffect(() => {
+  React.useEffect(() => {
     const handlePermissionError = (error: FirestorePermissionError) => {
       // In a real app, you might use a toast notification or a dedicated error UI.
       // For development, we'll throw it so Next.js can display its error overlay.
