@@ -61,10 +61,16 @@ export default function RegisterComplaintPage() {
   );
   const { data: allComplaints, loading: complaintsLoading } = useComplaints();
 
-  const userComplaints = useMemo(() => {
-    if (!user || !allComplaints) return [];
-    return allComplaints.filter(c => c.userId === user.uid).sort((a,b) => (b.reportedAt as any) - (a.reportedAt as any));
-  }, [user, allComplaints]);
+  const communityComplaints = useMemo(() => {
+    if (!userProfile || !allComplaints) return [];
+    // Show all complaints from the same panchayat, not just the user's own.
+    return allComplaints.filter(c => 
+        c.userState === userProfile.state &&
+        c.userDistrict === userProfile.district &&
+        c.userBlock === userProfile.block &&
+        c.userPanchayat === userProfile.panchayat
+    ).sort((a,b) => (b.reportedAt as any) - (a.reportedAt as any));
+  }, [userProfile, allComplaints]);
 
 
   const form = useForm<z.infer<typeof complaintSchema>>({
@@ -294,8 +300,8 @@ export default function RegisterComplaintPage() {
 
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle>My Complaint History</CardTitle>
-          <CardDescription>Track the status of your submitted complaints here.</CardDescription>
+          <CardTitle>Community Complaint History</CardTitle>
+          <CardDescription>Track the status of all submitted complaints in your panchayat.</CardDescription>
         </CardHeader>
         <CardContent>
           {complaintsLoading ? (
@@ -311,15 +317,15 @@ export default function RegisterComplaintPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {userComplaints.length === 0 ? (
+                {communityComplaints.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
-                      You have not submitted any complaints yet.
+                      No complaints have been submitted in your panchayat yet.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  userComplaints.map(complaint => (
-                    <TableRow key={complaint.id}>
+                  communityComplaints.map(complaint => (
+                    <TableRow key={complaint.id} className={complaint.userId === user?.uid ? 'bg-blue-50 dark:bg-blue-900/20' : ''}>
                       <TableCell>{complaint.reportedAt ? new Date((complaint.reportedAt as any).seconds * 1000).toLocaleDateString() : 'N/A'}</TableCell>
                       <TableCell className="font-medium">{complaint.issueType}</TableCell>
                       <TableCell>{complaint.address}</TableCell>
