@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers, Map, ClipboardCheck, HeartPulse, MapPin, Camera, Search, BarChart, Clock } from "lucide-react";
+import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers, Map, ClipboardCheck, HeartPulse, MapPin, Camera, Search, BarChart, Clock, HelpCircle } from "lucide-react";
 import React from "react";
 
 const navItems = {
@@ -48,6 +48,7 @@ const navItems = {
     { href: "/village-resident/photo-locator", label: "Photo Locator", icon: <MapPin /> },
     { href: "/village-resident/water-quality", label: "Water Quality", icon: <FlaskConical /> },
     { href: "/village-resident/report", label: "Public Report", icon: <Presentation /> },
+    { href: "/village-resident/help", label: "Help & Support", icon: <HelpCircle /> },
   ],
   "block-official": [
     { href: "/block-official", label: "Dashboard", icon: <LayoutDashboard /> },
