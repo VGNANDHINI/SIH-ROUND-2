@@ -241,6 +241,27 @@
       },
       "required": ["timestamp", "gp_id", "source_name", "ph", "tds", "turbidity", "chlorine", "bacteria_present", "location", "test_kit"]
     },
+    "waterSchedule": {
+        "title": "Water Supply Schedule",
+        "description": "Weekly water supply timings for a panchayat.",
+        "type": "object",
+        "properties": {
+            "monday_morning": { "type": "string" },
+            "monday_evening": { "type": "string" },
+            "tuesday_morning": { "type": "string" },
+            "tuesday_evening": { "type": "string" },
+            "wednesday_morning": { "type": "string" },
+            "wednesday_evening": { "type": "string" },
+            "thursday_morning": { "type": "string" },
+            "thursday_evening": { "type": "string" },
+            "friday_morning": { "type": "string" },
+            "friday_evening": { "type": "string" },
+            "saturday_morning": { "type": "string" },
+            "saturday_evening": { "type": "string" },
+            "sunday_morning": { "type": "string" },
+            "sunday_evening": { "type": "string" }
+        }
+    },
     "state": { "title": "State", "description": "Represents a state.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "district": { "title": "District", "description": "Represents a district.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "mandal": { "title": "Mandal", "description": "Represents a mandal/block.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
@@ -279,6 +300,7 @@
   "firestore": {
     "/users/{userId}": { "schema": { "$ref": "#/entities/userProfile" } },
     "/waterSchemes/{schemeId}": { "schema": { "$ref": "#/entities/waterScheme" } },
+    "/waterSchedules/{panchayatId}": { "schema": { "$ref": "#/entities/waterSchedule" } },
     "/pumpIssues/{issueId}": { "schema": { "$ref": "#/entities/pumpIssue" } },
     "/bills/{billId}": { "schema": { "$ref": "#/entities/bill" } },
     "/pumpLogs/{logId}": { "schema": { "$ref": "#/entities/pumpLog" } },

@@ -46,6 +46,11 @@ service cloud.firestore {
     match /waterSchemes/{schemeId} {
       allow read, write: if request.auth != null;
     }
+    
+    match /waterSchedules/{panchayatId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.panchayat == panchayatId;
+    }
 
     match /pumpIssues/{issueId} {
       allow read, write: if request.auth != null;

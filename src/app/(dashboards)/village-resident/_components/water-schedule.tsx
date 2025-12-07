@@ -1,37 +1,33 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Calendar } from "lucide-react";
-import { format, addDays } from "date-fns";
+import { useDoc, useUser } from "@/firebase";
+import { UserProfile } from "@/lib/data";
+import { Calendar, Loader2 } from "lucide-react";
+import { useMemo } from "react";
 
-const getWeeklySchedule = () => {
-    const today = new Date();
-    const schedule = [];
-    const timings = [
-        "6:00 AM - 9:00 AM",
-        "5:00 PM - 8:00 PM",
-        "6:30 AM - 9:30 AM",
-        "5:30 PM - 8:30 PM",
-        "7:00 AM - 10:00 AM",
-        "4:00 PM - 7:00 PM",
-        "No Morning Supply (Maintenance)",
-    ];
-
-    for (let i = 0; i < 7; i++) {
-        const date = addDays(today, i);
-        schedule.push({
-            day: format(date, 'EEEE'),
-            date: format(date, 'dd MMM'),
-            timing: timings[i % timings.length] 
-        });
-    }
-    return schedule;
-};
-
+type Schedule = {
+    [key: string]: string;
+}
 
 export function WaterSchedule() {
-  const schedule = getWeeklySchedule();
+  const { user } = useUser();
+  const { data: profile } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
+  const { data: scheduleData, loading: scheduleLoading } = useDoc<Schedule>(profile ? `waterSchedules/${profile.panchayat}` : null);
+
+  const schedule = useMemo(() => {
+    if (!scheduleData) return [];
+
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    return days.map(day => ({
+        day: day.charAt(0).toUpperCase() + day.slice(1),
+        timing: `${scheduleData[`${day}_morning`]} & ${scheduleData[`${day}_evening`]}`
+    }));
+  }, [scheduleData]);
+
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
   return (
     <Card className="lg:col-span-2">
@@ -41,30 +37,36 @@ export function WaterSchedule() {
                 <div>
                     <CardTitle>Weekly Water Supply Schedule</CardTitle>
                     <CardDescription>
-                        Planned water distribution timings for the upcoming week.
+                        Live water distribution timings for your area.
                     </CardDescription>
                 </div>
             </div>
         </CardHeader>
         <CardContent>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Day</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Supply Timings</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {schedule.map((day, index) => (
-                        <TableRow key={index} className={day.day === "Sunday" ? "bg-muted/50" : ""}>
-                            <TableCell className="font-medium">{day.day}</TableCell>
-                            <TableCell>{day.date}</TableCell>
-                            <TableCell>{day.timing}</TableCell>
+            {scheduleLoading ? (
+                <div className="flex items-center justify-center h-48">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+            ) : schedule.length > 0 ? (
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Day</TableHead>
+                            <TableHead>Supply Timings</TableHead>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {schedule.map((day, index) => (
+                            <TableRow key={index} className={day.day === today ? "bg-muted/80" : ""}>
+                                <TableCell className="font-medium">{day.day}</TableCell>
+                                <TableCell>{day.timing}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            ) : (
+                <p className="text-center text-muted-foreground py-10">Supply schedule has not been set by the operator yet.</p>
+            )}
         </CardContent>
     </Card>
   );
