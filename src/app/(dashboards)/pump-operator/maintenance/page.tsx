@@ -32,7 +32,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, AlertTriangle, ShieldCheck, CheckCircle } from 'lucide-react';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser, useDoc } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -41,6 +41,7 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import type { UserProfile } from '@/lib/data';
 
 const maintenanceCheckSchema = z.object({
   pump_age_years: z.coerce.number().min(0, 'Pump age cannot be negative.'),
@@ -70,6 +71,8 @@ export default function MaintenancePage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user } = useUser();
+  const { data: profile } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
+
 
   const form = useForm<MaintenanceCheckForm>({
     resolver: zodResolver(maintenanceCheckSchema),
@@ -120,8 +123,8 @@ export default function MaintenancePage() {
   };
 
   async function onSubmit(values: MaintenanceCheckForm) {
-    if (!firestore || !user?.uid) {
-        toast({ title: 'Error', description: 'User not authenticated.', variant: 'destructive'});
+    if (!firestore || !user?.uid || !profile) {
+        toast({ title: 'Error', description: 'User profile not loaded.', variant: 'destructive'});
         return;
     }
 
@@ -133,7 +136,7 @@ export default function MaintenancePage() {
     const logData = {
         ...values,
         ...checkResult,
-        gp_id: 'default_gp', // This should come from user profile
+        gp_id: profile.panchayat,
         timestamp: serverTimestamp(),
     };
 
