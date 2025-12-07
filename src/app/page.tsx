@@ -1,4 +1,4 @@
-import { Droplet, User, Wrench, BarChart, Home } from 'lucide-react';
+import { Droplet, User, Wrench, BarChart, Home, Book, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,6 +61,31 @@ export default function HomePage() {
             </Card>
           ))}
         </div>
+
+        <section className="mt-20 text-center">
+          <h3 className="text-2xl font-bold font-headline">Jal Jeevan Mission Support</h3>
+          <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
+            For official guidelines and support, please refer to the national resources provided by the Jal Jeevan Mission.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
+            <Button asChild variant="outline">
+              <Link href="https://jaljeevanmission.gov.in" target="_blank" rel="noopener noreferrer">
+                <Book className="mr-2 h-4 w-4" />
+                Read Guidelines
+              </Link>
+            </Button>
+            <div className="flex items-center gap-2">
+              <Phone className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <span className="text-sm text-muted-foreground">National Helpline</span>
+                <a href="tel:1800-121-1243" className="block font-bold text-lg text-primary hover:underline">
+                  1800-121-1243
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+        
       </main>
       <footer className="container mx-auto px-4 py-6 text-center text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} JalShakthi. All rights reserved.</p>
