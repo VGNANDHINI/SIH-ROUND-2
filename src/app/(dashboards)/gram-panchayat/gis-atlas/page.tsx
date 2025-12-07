@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -43,14 +42,16 @@ export default function GisAtlasPage() {
 
     const complaintMarkers: Marker[] = useMemo(() => {
         if (!complaints || !selectedPanchayat) return [];
-        return complaints.filter(c => c.status === 'Open' && c.gpsLocation && c.userPanchayat === selectedPanchayat).map(c => ({
+        const panchayatDetails = panchayats?.find(p => p.id === selectedPanchayat);
+        if (!panchayatDetails) return [];
+        return complaints.filter(c => c.status === 'Open' && c.gpsLocation && c.userPanchayat === panchayatDetails.name).map(c => ({
             id: c.id,
             type: c.issueType === 'Leakage' ? 'Alert' : 'Complaint',
             label: c.issueType,
             position: c.gpsLocation,
             data: c
         }));
-    }, [complaints, selectedPanchayat]);
+    }, [complaints, selectedPanchayat, panchayats]);
 
     const allMarkers = useMemo(() => {
         return [...(staticMarkers || []), ...complaintMarkers];
@@ -94,10 +95,15 @@ export default function GisAtlasPage() {
         }
     };
     
-    const openComplaintsCount = useMemo(() => complaints?.filter(c => c.status === 'Open').length ?? 0, [complaints]);
-    const leakComplaintsCount = useMemo(() => complaints?.filter(c => c.issueType === 'Leakage' && c.status === 'Open').length ?? 0, [complaints]);
-    const pumpIssuesCount = useMemo(() => complaints?.filter(c => c.issueType === 'Pump Failure' && c.status === 'Open').length ?? 0, [complaints]);
-    const valveIssuesCount = useMemo(() => complaints?.filter(c => c.issueType === 'Valve Stuck' && c.status === 'Open').length ?? 0, [complaints]);
+    const panchayatComplaints = useMemo(() => {
+        if (!panchayatDetails || !complaints) return [];
+        return complaints.filter(c => c.userPanchayat === panchayatDetails.name);
+    }, [panchayatDetails, complaints]);
+
+    const openComplaintsCount = useMemo(() => panchayatComplaints.filter(c => c.status === 'Open').length ?? 0, [panchayatComplaints]);
+    const leakComplaintsCount = useMemo(() => panchayatComplaints.filter(c => c.issueType === 'Leakage' && c.status === 'Open').length ?? 0, [panchayatComplaints]);
+    const pumpIssuesCount = useMemo(() => panchayatComplaints.filter(c => c.issueType === 'Pump Failure' && c.status === 'Open').length ?? 0, [panchayatComplaints]);
+    const valveIssuesCount = useMemo(() => panchayatComplaints.filter(c => c.issueType === 'Valve Stuck' && c.status === 'Open').length ?? 0, [panchayatComplaints]);
 
 
     return (
@@ -142,14 +148,14 @@ export default function GisAtlasPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Panchayat Dashboard</CardTitle>
-                        <CardDescription>Real-time complaint summary</CardDescription>
+                        <CardDescription>Real-time complaint summary for {panchayatDetails?.name}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <div className="flex justify-between items-center"><span>Total Complaints:</span> <Badge>{complaints?.length ?? 0}</Badge></div>
-                        <div className="flex justify-between items-center"><span>Open Complaints:</span> <Badge variant="destructive">{openComplaintsCount}</Badge></div>
-                        <div className="flex justify-between items-center"><span>Leaks:</span> <Badge variant="secondary">{leakComplaintsCount}</Badge></div>
-                        <div className="flex justify-between items-center"><span>Pump Issues:</span> <Badge variant="secondary">{pumpIssuesCount}</Badge></div>
-                        <div className="flex justify-between items-center"><span>Valve Issues:</span> <Badge variant="secondary">{valveIssuesCount}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Total Complaints:</span> <Badge>{loading ? <Loader2 className="h-3 w-3 animate-spin"/> : panchayatComplaints.length}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Open Complaints:</span> <Badge variant="destructive">{loading ? <Loader2 className="h-3 w-3 animate-spin"/> : openComplaintsCount}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Leaks:</span> <Badge variant="secondary">{loading ? <Loader2 className="h-3 w-3 animate-spin"/> : leakComplaintsCount}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Pump Issues:</span> <Badge variant="secondary">{loading ? <Loader2 className="h-3 w-3 animate-spin"/> : pumpIssuesCount}</Badge></div>
+                        <div className="flex justify-between items-center"><span>Valve Issues:</span> <Badge variant="secondary">{loading ? <Loader2 className="h-3 w-3 animate-spin"/> : valveIssuesCount}</Badge></div>
                     </CardContent>
                 </Card>
             </div>
@@ -166,14 +172,12 @@ export default function GisAtlasPage() {
                                 <p>Select a panchayat to view the map.</p>
                             </div>
                         ) : (
-                            <div className="relative w-full h-[70vh] border rounded-lg overflow-hidden bg-muted">
-                                <PipelineMap 
-                                    pipelines={pipelines || []} 
-                                    markers={allMarkers || []}
-                                    onMarkAsResolved={handleMarkAsResolved} 
-                                    panchayat={panchayatDetails}
-                                />
-                            </div>
+                             <PipelineMap 
+                                pipelines={pipelines || []} 
+                                markers={allMarkers || []}
+                                onMarkAsResolved={handleMarkAsResolved} 
+                                panchayat={panchayatDetails}
+                            />
                         )}
                     </CardContent>
                 </Card>
