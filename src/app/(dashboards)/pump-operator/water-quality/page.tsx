@@ -1,234 +1,325 @@
 
 'use client';
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useUser, useFirestore, useDoc, useWaterQualityTests } from "@/firebase";
-import { UserProfile, WaterTest } from "@/lib/data";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Send, ListCollapse } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useUser, useFirestore, useDoc } from '@/firebase';
+import type { UserProfile } from '@/lib/data';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, AlertTriangle, ShieldCheck, CheckCircle } from 'lucide-react';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 
 const testSchema = z.object({
-  ward: z.string().min(1, "Ward is required."),
-  locationType: z.enum(["source", "tank", "pipeline", "household"]),
-  pH: z.coerce.number().min(0).max(14),
-  turbidity: z.coerce.number().min(0),
-  chlorine: z.coerce.number().min(0),
-  tds: z.coerce.number().min(0),
-  iron: z.coerce.number().min(0),
-  fluoride: z.coerce.number().min(0),
-  nitrate: z.coerce.number().min(0),
-  coliform: z.enum(["true", "false"]).transform(val => val === "true"),
-  remarks: z.string().optional(),
+  source_name: z.string().min(1, 'Source name is required.'),
+  ph: z.coerce.number(),
+  tds: z.coerce.number(),
+  turbidity: z.coerce.number(),
+  chlorine: z.coerce.number(),
+  bacteria_present: z.boolean(),
+  location: z.string().min(1, 'Test location is required.'),
+  sample_by: z.string().optional(),
+  test_kit: z.enum(['Manual', 'Digital']),
+  remark: z.string().optional(),
 });
 
+type WaterQualityFormValues = z.infer<typeof testSchema>;
+
+type TestResult = {
+  qualityScore: number;
+  status: '✅ Safe Drinking Water' | '⚠ Needs Attention' | '❌ Unsafe';
+  recommendedAction: string;
+};
+
 export default function OperatorWaterQualityPage() {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const { toast } = useToast();
-    const { user, loading: userLoading } = useUser();
-    const { data: profile, loading: profileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
-    const firestore = useFirestore();
-    const { data: tests, loading: testsLoading } = useWaterQualityTests(profile?.panchayat || 'default');
-    
-    const loading = userLoading || profileLoading;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [result, setResult] = useState<TestResult | null>(null);
+  const { toast } = useToast();
+  const { user, loading: userLoading } = useUser();
+  const { data: profile, loading: profileLoading } = useDoc<UserProfile>(
+    user ? `users/${user.uid}` : null
+  );
+  const firestore = useFirestore();
+  const loading = userLoading || profileLoading;
 
-    const form = useForm<z.infer<typeof testSchema>>({
-        resolver: zodResolver(testSchema),
-        defaultValues: {
-            ward: "",
-            locationType: "household",
-            pH: 7.2,
-            turbidity: 0.5,
-            chlorine: 0.5,
-            tds: 250,
-            iron: 0.1,
-            fluoride: 0.5,
-            nitrate: 10,
-            coliform: false,
-        }
-    });
+  const form = useForm<WaterQualityFormValues>({
+    resolver: zodResolver(testSchema),
+    defaultValues: {
+      source_name: 'Main Borewell',
+      ph: 7.2,
+      tds: 350,
+      turbidity: 1.2,
+      chlorine: 0.5,
+      bacteria_present: false,
+      location: 'Village',
+      test_kit: 'Manual',
+      sample_by: '',
+      remark: '',
+    },
+  });
+  
+  const calculateResult = (data: WaterQualityFormValues): TestResult => {
+    let qualityScore = 0;
+    if (data.ph < 6.5 || data.ph > 8.5) qualityScore += 2;
+    if (data.tds > 500) qualityScore += 3;
+    if (data.turbidity > 5) qualityScore += 4;
+    if (data.chlorine < 0.2 || data.chlorine > 1) qualityScore += 2;
+    if (data.bacteria_present) qualityScore += 5;
 
-    const onSubmit = async (values: z.infer<typeof testSchema>) => {
-        if (!firestore || !user || !profile) {
-            toast({ title: "Error", description: "Not authenticated or profile missing.", variant: "destructive"});
-            return;
-        }
+    let status: TestResult['status'];
+    if (qualityScore >= 7) status = '❌ Unsafe';
+    else if (qualityScore >= 3) status = '⚠ Needs Attention';
+    else status = '✅ Safe Drinking Water';
 
-        setIsSubmitting(true);
-        try {
-            const testData = {
-                ...values,
-                panchayatId: profile.panchayat,
-                operatorId: user.uid,
-                testDate: serverTimestamp(),
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-                // These will be filled by the cloud function
-                status: 'attention-needed', 
-                flaggedParameters: [],
-                reviewedByGp: false,
-                reviewedByBe: false,
-            };
-
-            const collectionRef = collection(firestore, `panchayats/${profile.panchayat}/waterTests`);
-            await addDoc(collectionRef, testData);
-
-            toast({ title: "Success", description: "Water quality test submitted."});
-            form.reset();
-        } catch (error) {
-            console.error(error);
-            toast({ title: "Submission Failed", description: "Could not submit the test. Please try again.", variant: "destructive"});
-        } finally {
-            setIsSubmitting(false);
-        }
+    let recommendedAction = '';
+    if (data.bacteria_present) {
+        recommendedAction = "Immediate chlorination + stop supply + health alert";
+    } else if (data.chlorine < 0.2) {
+        recommendedAction = "Increase chlorination immediately";
+    } else if (data.turbidity > 5) {
+        recommendedAction = "Check sedimentation tank and clean filters";
+    } else if (qualityScore >= 7) {
+        recommendedAction = "Stop supply immediately and report to authority";
+    } else if (qualityScore >= 3) {
+        recommendedAction = "Apply corrective action and retest within 24–48 hours";
+    } else {
+        recommendedAction = "Water is safe — continue routine monitoring";
     }
     
-    const getStatusVariant = (status: WaterTest['status']) => {
-        switch (status) {
-            case 'safe': return 'success';
-            case 'unsafe': return 'destructive';
-            case 'attention-needed': return 'secondary';
-            default: return 'outline';
-        }
+    return { qualityScore, status, recommendedAction };
+  }
+
+  const onSubmit = async (values: WaterQualityFormValues) => {
+    if (!firestore || !user || !profile) {
+      toast({
+        title: 'Error',
+        description: 'Not authenticated or profile missing.',
+        variant: 'destructive',
+      });
+      return;
     }
 
-    return (
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Log New Water Quality Test</CardTitle>
-                    <CardDescription>Enter results from a JJM Field Test Kit (FTK).</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                               <div className="grid grid-cols-2 gap-4">
-                                     <FormField control={form.control} name="ward" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Ward</FormLabel>
-                                            <FormControl><Input placeholder="e.g., Ward 5" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                     <FormField control={form.control} name="locationType" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Location Type</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="source">Source</SelectItem>
-                                                    <SelectItem value="tank">Tank</SelectItem>
-                                                    <SelectItem value="pipeline">Pipeline</SelectItem>
-                                                    <SelectItem value="household">Household</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                               </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <FormField control={form.control} name="pH" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>pH</FormLabel>
-                                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                    <FormField control={form.control} name="turbidity" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Turbidity (NTU)</FormLabel>
-                                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                     <FormField control={form.control} name="chlorine" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Chlorine (mg/L)</FormLabel>
-                                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                     <FormField control={form.control} name="tds" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>TDS (mg/L)</FormLabel>
-                                            <FormControl><Input type="number" step="1" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )} />
-                                </div>
-                                <FormField control={form.control} name="coliform" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Coliform Bacteria</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
-                                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="false">Absent</SelectItem>
-                                                <SelectItem value="true">Present</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                                <Button type="submit" disabled={isSubmitting} className="w-full">
-                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                                    Submit Test
-                                </Button>
-                            </form>
-                        </Form>
-                    )}
-                </CardContent>
-            </Card>
+    setIsSubmitting(true);
+    setResult(null);
+    
+    const testResult = calculateResult(values);
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>My Recent Tests</CardTitle>
-                    <CardDescription>Your last 10 submitted water quality tests.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                {testsLoading ? (
-                    <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
+    const logData = {
+      ...values,
+      gp_id: profile.panchayat,
+      timestamp: serverTimestamp(),
+      bacteria_present: values.bacteria_present ? 'Yes' : 'No',
+      quality_score: testResult.qualityScore,
+      status: testResult.status,
+      recommended_action: testResult.recommendedAction
+    };
+
+    try {
+      const collectionRef = collection(firestore, 'water_quality_logs');
+      await addDoc(collectionRef, logData);
+      setResult(testResult);
+      toast({ title: 'Success', description: 'Water quality test submitted.' });
+    } catch (error) {
+      console.error(error);
+       const permissionError = new FirestorePermissionError({
+        path: 'water_quality_logs',
+        operation: 'create',
+        requestResourceData: logData,
+      });
+      errorEmitter.emit('permission-error', permissionError);
+      toast({
+        title: 'Submission Failed',
+        description: 'Could not submit the test. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+    const getResultIcon = (status?: string) => {
+        if (!status) return null;
+        if (status.includes('Unsafe')) return <AlertTriangle className="h-10 w-10 text-red-500" />;
+        if (status.includes('Attention')) return <ShieldCheck className="h-10 w-10 text-yellow-500" />;
+        return <CheckCircle className="h-10 w-10 text-green-500" />;
+    };
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-8 items-start">
+      <Card>
+        <CardHeader>
+          <CardTitle>Water Quality Test Log</CardTitle>
+          <CardDescription>
+            Enter results from your field test kit.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="source_name" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Source Name</FormLabel>
+                            <FormControl><Input placeholder="e.g., Main Borewell" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    <FormField control={form.control} name="location" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Test Location</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Village">Village</SelectItem>
+                                    <SelectItem value="Tank">Tank</SelectItem>
+                                    <SelectItem value="Tap">Tap</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                     <FormField control={form.control} name="ph" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>pH Level</FormLabel>
+                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                        </FormItem>
+                    )} />
+                     <FormField control={form.control} name="tds" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>TDS (ppm)</FormLabel>
+                            <FormControl><Input type="number" step="1" {...field} /></FormControl>
+                        </FormItem>
+                    )} />
+                     <FormField control={form.control} name="turbidity" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Turbidity (NTU)</FormLabel>
+                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                        </FormItem>
+                    )} />
+                </div>
+                 <div className="grid grid-cols-2 gap-4">
+                     <FormField control={form.control} name="chlorine" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Chlorine (ppm)</FormLabel>
+                            <FormControl><Input type="number" step="0.1" {...field} /></FormControl>
+                        </FormItem>
+                    )} />
+                     <FormField
+                        control={form.control}
+                        name="bacteria_present"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
+                                <div className="space-y-0.5">
+                                    <FormLabel>Bacteria Present</FormLabel>
+                                </div>
+                                <FormControl>
+                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                </FormControl>
+                            </FormItem>
+                        )}
+                        />
+                </div>
+                 <div className="grid grid-cols-2 gap-4">
+                      <FormField control={form.control} name="sample_by" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Sample Taken By</FormLabel>
+                            <FormControl><Input placeholder="Your name" {...field} /></FormControl>
+                        </FormItem>
+                    )} />
+                     <FormField control={form.control} name="test_kit" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Test Kit Type</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Manual">Manual</SelectItem>
+                                    <SelectItem value="Digital">Digital</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </FormItem>
+                    )} />
+                 </div>
+                 <FormField control={form.control} name="remark" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Remark</FormLabel>
+                        <FormControl><Textarea placeholder="Any additional observations..." {...field} /></FormControl>
+                    </FormItem>
+                )} />
+
+                <Button type="submit" disabled={isSubmitting} className="w-full">
+                  {isSubmitting && (<Loader2 className="mr-2 h-4 w-4 animate-spin" />)}
+                  Submit Water Test
+                </Button>
+              </form>
+            </Form>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="sticky top-24">
+        <CardHeader>
+            <CardTitle>Test Result</CardTitle>
+            <CardDescription>The analysis of your submitted data will appear here.</CardDescription>
+        </CardHeader>
+        <CardContent className="min-h-[300px] flex items-center justify-center">
+             {isSubmitting ? <Loader2 className="h-8 w-8 animate-spin text-primary"/> : (
+                result ? (
+                    <div className="text-center space-y-4">
+                        {getResultIcon(result.status)}
+                        <div>
+                            <p className="text-sm text-muted-foreground">Water Status</p>
+                            <p className="font-bold text-xl">{result.status}</p>
+                        </div>
+                         <div>
+                            <p className="text-sm text-muted-foreground">Quality Score</p>
+                            <p className="text-4xl font-bold">{result.qualityScore}</p>
+                        </div>
+                        <div>
+                             <p className="text-sm text-muted-foreground">Recommendation</p>
+                             <p className="font-semibold text-lg">{result.recommendedAction}</p>
+                        </div>
+                    </div>
                 ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Ward</TableHead>
-                                <TableHead>Status</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                           {tests && tests.filter(t => t.operatorId === user?.uid).slice(0, 10).map(test => (
-                               <TableRow key={test.id}>
-                                   <TableCell>{test.testDate ? new Date((test.testDate as any).seconds * 1000).toLocaleDateString() : 'N/A'}</TableCell>
-                                   <TableCell>{test.ward}</TableCell>
-                                   <TableCell><Badge variant={getStatusVariant(test.status)}>{test.status}</Badge></TableCell>
-                               </TableRow>
-                           ))}
-                           {tests?.filter(t => t.operatorId === user?.uid).length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={3} className="text-center h-24">You haven't submitted any tests yet.</TableCell>
-                                </TableRow>
-                           )}
-                        </TableBody>
-                    </Table>
-                )}
-                </CardContent>
-            </Card>
-        </div>
-    )
+                    <p className="text-muted-foreground">Submit the form to see the result.</p>
+                )
+            )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
-
-    

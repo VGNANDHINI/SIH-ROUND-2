@@ -218,6 +218,29 @@
       },
       "required": ["timestamp", "gp_id", "pump_age_years", "avg_running_hours", "breakdown_count_90_days", "repeat_issue", "flow_trend"]
     },
+     "waterQualityLog": {
+      "title": "Water Quality Log",
+      "description": "A log entry for a water quality test.",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "gp_id": { "type": "string" },
+        "source_name": { "type": "string" },
+        "ph": { "type": "number" },
+        "tds": { "type": "number" },
+        "turbidity": { "type": "number" },
+        "chlorine": { "type": "number" },
+        "bacteria_present": { "type": "string", "enum": ["Yes", "No"] },
+        "location": { "type": "string" },
+        "sample_by": { "type": "string" },
+        "test_kit": { "type": "string", "enum": ["Manual", "Digital"] },
+        "remark": { "type": "string" },
+        "quality_score": { "type": "number" },
+        "status": { "type": "string" },
+        "recommended_action": { "type": "string" }
+      },
+      "required": ["timestamp", "gp_id", "source_name", "ph", "tds", "turbidity", "chlorine", "bacteria_present", "location", "test_kit"]
+    },
     "state": { "title": "State", "description": "Represents a state.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "district": { "title": "District", "description": "Represents a district.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "mandal": { "title": "Mandal", "description": "Represents a mandal/block.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
@@ -266,6 +289,7 @@
     "/sopLibrary/{sopId}": { "schema": { "$ref": "#/entities/sopLibraryItem" } },
     "/predictive_maintenance_logs/{logId}": { "schema": { "$ref": "#/entities/predictiveMaintenanceLog" } },
     "/daily_leak_checks/{checkId}": { "schema": { "$ref": "#/entities/dailyLeakCheck" } },
+    "/water_quality_logs/{logId}": { "schema": { "$ref": "#/entities/waterQualityLog" } },
     "/panchayats/{panchayatId}/checklists/{checklistId}": { "schema": { "$ref": "#/entities/dailyChecklist" } },
     "/states/{stateId}": { "schema": { "$ref": "#/entities/state" } },
     "/states/{stateId}/districts/{districtId}": { "schema": { "$ref": "#/entities/district" } },
