@@ -34,6 +34,10 @@ service cloud.firestore {
     match /pumpLogs/{logId} {
       allow read, write: if request.auth != null;
     }
+    
+    match /predictive_maintenance_logs/{logId} {
+      allow read, create: if request.auth != null;
+    }
 
     match /waterSchemes/{schemeId} {
       allow read, write: if request.auth != null;
