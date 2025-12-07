@@ -134,7 +134,7 @@ export default function SignUpPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
           <CardDescription>
-            Join JalSaathi to manage your water resources
+            Join JalShakthi to manage your water resources
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -192,5 +192,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-
-    

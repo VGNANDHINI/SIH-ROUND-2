@@ -67,7 +67,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Droplet className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold text-foreground font-headline">JalSaathi</h1>
+              <h1 className="text-3xl font-bold text-foreground font-headline">JalShakthi</h1>
             </div>
           <CardDescription>Sign in to access your dashboard</CardDescription>
         </CardHeader>

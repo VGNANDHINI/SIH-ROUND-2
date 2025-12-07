@@ -75,7 +75,7 @@ export function SidebarNav() {
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
           <Droplet className="w-6 h-6 text-primary" />
-          <span className="font-semibold text-lg font-headline">JalSaathi</span>
+          <span className="font-semibold text-lg font-headline">JalShakthi</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>

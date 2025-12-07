@@ -36,7 +36,7 @@ export default function HomePage() {
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center gap-2">
           <Droplet className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground font-headline">JalSaathi</h1>
+          <h1 className="text-3xl font-bold text-foreground font-headline">JalShakthi</h1>
         </div>
         <p className="text-muted-foreground mt-2">Your companion for community water management.</p>
       </header>
@@ -63,7 +63,7 @@ export default function HomePage() {
         </div>
       </main>
       <footer className="container mx-auto px-4 py-6 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} JalSaathi. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} JalShakthi. All rights reserved.</p>
       </footer>
     </div>
   );
