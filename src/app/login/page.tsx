@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Chrome, Loader2 } from 'lucide-react';
+import { Chrome, Loader2, Droplet } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -65,7 +65,10 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Droplet className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold text-foreground font-headline">JalSaathi</h1>
+            </div>
           <CardDescription>Sign in to access your dashboard</CardDescription>
         </CardHeader>
         <CardContent>
@@ -105,5 +108,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
