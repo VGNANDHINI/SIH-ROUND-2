@@ -24,7 +24,7 @@ const getIcon = (type: MarkerType['type']) => {
         case 'Alert': return L.divIcon({ html: iconHtml('red', '🔴'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
         case 'Complaint': return L.divIcon({ html: iconHtml('red', '🔴'), className_:'', iconSize: [24, 24], iconAnchor: [12,12] });
         case 'Operator': return L.divIcon({ html: iconHtml('green', '🟢'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
-        case 'Pump Fault': return L.divIcon({ html: iconHtml('orange', '🟠'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
+        case 'Pump Fault': return new L.Icon({ iconUrl: 'https://unpkg.com/lucide-static@latest/icons/alert-triangle.svg', iconSize: [24, 24], iconAnchor: [12, 12], className: 'text-orange-500' });
         case 'Leak Cluster': return L.divIcon({ html: iconHtml('purple', '🟣'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
         default: return new L.Icon.Default();
     }
