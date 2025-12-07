@@ -12,7 +12,7 @@ export default function GisAtlasPage() {
     const { user, loading: userLoading } = useUser();
     const { data: profile, loading: profileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
     
-    const gisMapImage = PlaceHolderImages.find(p => p.id === 'gis-map-1');
+    const gisMapImage = PlaceHolderImages.find(p => p.id === 'anjur-map');
     const loading = userLoading || profileLoading;
 
     return (
@@ -23,7 +23,7 @@ export default function GisAtlasPage() {
                     {loading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                       `Showing pipeline network map for ${profile?.panchayat || 'your panchayat'}.`
+                       `Showing pipeline network map for Anjur.`
                     )}
                 </CardDescription>
             </CardHeader>
@@ -47,4 +47,3 @@ export default function GisAtlasPage() {
         </Card>
     );
 }
-
