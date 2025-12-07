@@ -43,7 +43,6 @@ const navItems = {
   "village-resident": [
     { href: "/village-resident", label: "Dashboard", icon: <LayoutDashboard /> },
     { href: "/village-resident/availability", label: "Water Availability", icon: <Droplet /> },
-    { href: "/village-resident/billing", label: "Pay Bills", icon: <FileText /> },
     { href: "/village-resident/complaints", label: "Register Complaint", icon: <FilePenLine /> },
     { href: "/village-resident/photo-locator", label: "Photo Locator", icon: <MapPin /> },
     { href: "/village-resident/water-quality", label: "Water Quality", icon: <FlaskConical /> },

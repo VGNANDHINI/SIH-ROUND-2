@@ -1,3 +1,4 @@
+
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,11 +44,11 @@ export default function VillageResidentDashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="flex flex-col space-y-2">
-            <Button asChild size="sm" className="w-full">
-              <Link href="/village-resident/billing">Pay Bill</Link>
-            </Button>
             <Button asChild size="sm" variant="outline" className="w-full">
               <Link href="/village-resident/availability">Check Availability</Link>
+            </Button>
+             <Button asChild size="sm" variant="outline" className="w-full">
+              <Link href="/village-resident/complaints">Register Complaint</Link>
             </Button>
           </CardContent>
         </Card>
