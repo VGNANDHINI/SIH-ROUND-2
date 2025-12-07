@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -20,7 +21,7 @@ const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then
 
 
 export default function GisAtlasPage() {
-    const [selectedState, setSelectedState] = useState<string | null>('tamil_nadu');
+    const [selectedState, setSelectedState] = useState<string | null>(null);
     const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
     const [selectedMandal, setSelectedMandal] = useState<string | null>(null);
     const [selectedPanchayat, setSelectedPanchayat] = useState<string | null>(null);
