@@ -45,7 +45,6 @@ const navItems = {
     { href: "/village-resident/photo-locator", label: "Photo Locator", icon: <MapPin /> },
     { href: "/village-resident/water-quality", label: "Water Quality", icon: <FlaskConical /> },
     { href: "/village-resident/report", label: "Public Report", icon: <Presentation /> },
-    { href: "/village-resident/ai-assistant", label: "AI Assistant", icon: <Sparkles /> },
     { href: "/village-resident/help", label: "Help & Support", icon: <HelpCircle /> },
   ],
   "block-official": [
