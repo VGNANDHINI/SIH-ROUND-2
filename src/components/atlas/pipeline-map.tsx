@@ -46,11 +46,12 @@ export function PipelineMap({ pipelines, markers }: PipelineMapProps) {
   }, [pipelines, markers]);
 
   const bounds = useMemo(() => {
+    if (!isLoaded) return null;
     const bounds = new window.google.maps.LatLngBounds();
     pipelines.forEach(p => p.path.forEach(point => bounds.extend(point)));
     markers.forEach(m => bounds.extend(m.position));
     return bounds;
-  }, [pipelines, markers]);
+  }, [isLoaded, pipelines, markers]);
 
   if (!isLoaded) return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div>;
 
@@ -60,7 +61,7 @@ export function PipelineMap({ pipelines, markers }: PipelineMapProps) {
       center={center}
       zoom={15}
       options={mapOptions}
-      onLoad={map => map.fitBounds(bounds)}
+      onLoad={map => bounds && map.fitBounds(bounds)}
     >
       {pipelines.map(pipeline => (
         <Polyline
