@@ -21,7 +21,6 @@ const navItems = {
     { href: "/gram-panchayat/complaints", label: "View Complaints", icon: <MessageSquareWarning /> },
     { href: "/gram-panchayat/pump-control", label: "All Pump Status", icon: <Power /> },
     { href: "/gram-panchayat/tank-levels", label: "All Water Tank Levels", icon: <Layers /> },
-    { href: "/gram-panchayat/log-book", label: "Log Book", icon: <BookMarked /> },
     { href: "/gram-panchayat/operator-management", label: "Operator Management", icon: <Users /> },
     { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
     { href: "/gram-panchayat/water-quality", label: "Water Quality", icon: <FlaskConical /> },
