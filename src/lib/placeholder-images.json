@@ -11,6 +11,12 @@
       "description": "An abstract GIS map of a water pipeline network.",
       "imageUrl": "https://images.unsplash.com/photo-1549492423-400259a565b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxHSVMlMjBtYXAlMjBwaXBlbGluZXxlbnwwfHx8fDE3NjM3NjM4NDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "gis map"
+    },
+    {
+      "id": "anjur-map",
+      "description": "GIS map for Anjur panchayat.",
+      "imageUrl": "https://images.unsplash.com/photo-1588859959601-12d5ecb1b354?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxnaXMlMjBtYXB8ZW58MHx8fHwxNzY1MDcxNzA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gis map"
     }
   ]
 }
