@@ -23,10 +23,10 @@ export async function POST(req: NextRequest) {
     const twiml = new MessagingResponse();
 
     if (result.success) {
-      twiml.message('Thank you! Your complaint has been registered.');
+      twiml.message(`Thank you! Your complaint for '${result.data.issueType}' has been registered. Your panchayat official will be notified.`);
     } else {
       const errorMessage = result.data.error || 'There was an error processing your request.';
-      twiml.message(`We could not process your complaint. Error: ${errorMessage}`);
+      twiml.message(`We could not process your complaint. Error: ${errorMessage}. Please try again.`);
     }
 
     return new NextResponse(twiml.toString(), {
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Error in Twilio webhook:', error);
     const twiml = new MessagingResponse();
-    twiml.message('An internal error occurred. Please try again later.');
+    twiml.message('An internal server error occurred while processing your request. Please try again later.');
 
     return new NextResponse(twiml.toString(), {
       status: 500,

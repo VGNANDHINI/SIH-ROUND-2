@@ -9,11 +9,57 @@ import {
   getDocs,
   addDoc,
   serverTimestamp,
-} from 'firebase-firestore-lite';
+} from 'firebase/firestore';
 import { app } from '@/firebase/config';
 import type { UserProfile, Complaint } from '@/lib/data';
 
 const db = getFirestore(app);
+
+// A simple parser to extract issue type and address from the SMS body.
+// Example format: "LEAKAGE at Near the market - water has been flowing for 2 hours"
+const parseSmsBody = (body: string): { issueType: Complaint['issueType']; address: string, description: string } => {
+    const defaultIssue: Complaint['issueType'] = 'Others';
+    
+    // Keywords for different issue types
+    const issueKeywords: Record<string, Complaint['issueType']> = {
+        'LEAK': 'Leakage',
+        'LEAKAGE': 'Leakage',
+        'NO WATER': 'No water',
+        'LOW PRESSURE': 'Low pressure',
+        'DIRTY': 'Dirty water',
+        'MOTOR': 'Motor off',
+    };
+
+    const bodyUpper = body.toUpperCase();
+    let issueType: Complaint['issueType'] = defaultIssue;
+    
+    for (const keyword in issueKeywords) {
+        if (bodyUpper.includes(keyword)) {
+            issueType = issueKeywords[keyword];
+            break;
+        }
+    }
+
+    const atIndex = body.toLowerCase().indexOf(' at ');
+    let address = 'Location not specified';
+    let description = body;
+
+    if (atIndex !== -1) {
+        const afterAtIndex = body.substring(atIndex + 4);
+        const separatorIndex = afterAtIndex.indexOf(' - ');
+
+        if (separatorIndex !== -1) {
+            address = afterAtIndex.substring(0, separatorIndex).trim();
+            description = afterAtIndex.substring(separatorIndex + 3).trim();
+        } else {
+            address = afterAtIndex.trim();
+            description = `${issueType} reported.`;
+        }
+    }
+
+    return { issueType, address, description };
+};
+
 
 /**
  * Parses an SMS message and creates a complaint in Firestore.
@@ -40,25 +86,17 @@ export async function createComplaintFromSms(from: string, body: string): Promis
     const userDoc = querySnapshot.docs[0];
     const userProfile = userDoc.data() as UserProfile;
 
-    // 2. Parse the SMS body
-    // We'll use a simple keyword-based parser. E.g., "COMPLAINT: Leakage near market"
-    const complaintKeyword = 'COMPLAINT:';
-    const keywordIndex = body.toUpperCase().indexOf(complaintKeyword);
-
-    if (keywordIndex === -1) {
-        return { success: false, data: { error: `Message must start with '${complaintKeyword}'.` } };
-    }
-
-    const description = body.substring(keywordIndex + complaintKeyword.length).trim();
+    // 2. Parse the SMS body for details
+    const { issueType, address, description } = parseSmsBody(body);
 
     if (description.length < 10) {
-        return { success: false, data: { error: 'Complaint description is too short.' } };
+        return { success: false, data: { error: 'Complaint description is too short. Please provide more detail.' } };
     }
 
     // 3. Create a new complaint document
     const complaintData: Omit<Complaint, 'id'> = {
-      issueType: 'Others', // Default type for SMS complaints
-      address: `Complaint from ${from}`, // Use phone number as a fallback address
+      issueType: issueType,
+      address: address,
       description: description,
       contactNumber: from,
       reportedAt: serverTimestamp(),
@@ -75,7 +113,7 @@ export async function createComplaintFromSms(from: string, body: string): Promis
 
     console.log(`New complaint created from SMS with ID: ${docRef.id}`);
 
-    return { success: true, data: { complaintId: docRef.id } };
+    return { success: true, data: { complaintId: docRef.id, issueType: issueType } };
 
   } catch (error: any) {
     console.error('Error creating complaint from SMS:', error);
