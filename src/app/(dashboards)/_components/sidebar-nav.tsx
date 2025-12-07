@@ -26,7 +26,6 @@ const navItems = {
     { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
     { href: "/gram-panchayat/water-quality", label: "Water Quality", icon: <FlaskConical /> },
     { href: "/gram-panchayat/gis-atlas", label: "GIS Atlas", icon: <Map /> },
-    { href: "/gram-panchayat/aerial-view", label: "Aerial View", icon: <Camera /> },
   ],
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
