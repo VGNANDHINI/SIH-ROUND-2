@@ -10,14 +10,12 @@ import { KpiCards } from './_components/kpi-cards';
 import { RepairIncidentsChart } from './_components/repair-incidents-chart';
 import { WaterQualitySummary } from './_components/water-quality-summary';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import 'jspdf-autotable';
 
 export default function PublicTransparencyReportPage() {
     const { user, loading: userLoading } = useUser();
     const { data: profile, loading: profileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
     
-    // In a real app, these hooks would be filtered by panchayat on the backend.
-    // Here we fetch all and will rely on profile data to filter, which is not ideal for scale but works for the prototype.
     const { data: allComplaints, loading: complaintsLoading } = useComplaints();
     const { data: allPumpLogs, loading: pumpLogsLoading } = usePumpLogs();
     const { data: allWaterTests, loading: testsLoading } = useWaterQualityTests(profile?.panchayat ?? 'default');
@@ -28,61 +26,82 @@ export default function PublicTransparencyReportPage() {
 
     const loading = userLoading || profileLoading || complaintsLoading || pumpLogsLoading || testsLoading;
 
-    // The filtering logic will be improved once backend filtering is in place.
-    // For now, we assume all fetched data belongs to the user's panchayat.
-    
     const handleDownloadPdf = () => {
-        const input = reportRef.current;
-        if (!input) {
+        if (loading || !allComplaints) {
             return;
         }
-
         setIsDownloading(true);
 
-        html2canvas(input, { scale: 2 })
-            .then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const canvasWidth = canvas.width;
-                const canvasHeight = canvas.height;
-                const ratio = canvasWidth / canvasHeight;
-                const width = pdfWidth;
-                const height = width / ratio;
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 15;
 
-                // If height is bigger than a page, split it
-                let position = 0;
-                let remainingHeight = canvasHeight;
+        // 1. Header
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('JalShakthi Public Report', pageWidth / 2, margin, { align: 'center' });
 
-                while (remainingHeight > 0) {
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvasWidth;
-                    
-                    // A4 ratio to determine how much of the canvas fits on one page
-                    const pageHeight = canvasWidth / (pdfWidth / pdfHeight);
-                    pageCanvas.height = Math.min(pageHeight, remainingHeight);
-                    
-                    const pageCtx = pageCanvas.getContext('2d');
-                    pageCtx?.drawImage(canvas, 0, position, canvasWidth, pageCanvas.height, 0, 0, canvasWidth, pageCanvas.height);
-                    
-                    const pageImgData = pageCanvas.toDataURL('image/png');
-                    const pageImgHeight = pageCanvas.height * pdfWidth / pageCanvas.width;
-                    
-                    if (position > 0) {
-                        pdf.addPage();
-                    }
-                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pageImgHeight);
-                    
-                    remainingHeight -= pageHeight;
-                    position += pageHeight;
-                }
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Panchayat: ${profile?.panchayat || 'N/A'}`, margin, margin + 10);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth - margin, margin + 10, { align: 'right' });
+        doc.text(`Time Period: This Month`, margin, margin + 15);
+        doc.line(margin, margin + 20, pageWidth - margin, margin + 20);
 
-                pdf.save('JalSaathi-Public-Report.pdf');
-            })
-            .finally(() => {
-                setIsDownloading(false);
-            });
+        // 2. Summary Section
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Monthly Summary', margin, margin + 30);
+
+        const totalComplaints = allComplaints.length;
+        const resolved = allComplaints.filter(c => c.status === 'Resolved').length;
+        const pending = totalComplaints - resolved;
+        const waterSuppliedKL = (allPumpLogs?.reduce((acc, log) => acc + (log.waterSupplied || 0), 0) || 0) / 1000;
+        
+        const summaryText = `Total Complaints: ${totalComplaints}\nResolved: ${resolved}\nPending: ${pending}\nTotal Water Supplied: ${waterSuppliedKL.toFixed(2)} kL`;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(summaryText, margin, margin + 36);
+
+        // 3. Detailed Table
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Detailed Complaint Table', margin, margin + 60);
+
+        const tableColumn = ["ID", "Issue Type", "Address", "Status", "Reported On"];
+        const tableRows: (string | null)[][] = [];
+
+        allComplaints.slice(0, 20).forEach(complaint => { // Limit rows for visibility
+            const complaintData = [
+                complaint.id.substring(0, 5) + '...',
+                complaint.issueType,
+                complaint.address,
+                complaint.status,
+                complaint.reportedAt ? new Date((complaint.reportedAt as any).seconds * 1000).toLocaleDateString() : 'N/A'
+            ];
+            tableRows.push(complaintData);
+        });
+
+        (doc as any).autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: margin + 66,
+            theme: 'striped',
+            headStyles: { fillColor: [22, 163, 74] },
+        });
+        
+        // 4. Footer
+        const pageCount = (doc as any).internal.getNumberOfPages();
+        for(let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(10);
+            doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+            doc.text(`Printed by: ${user?.displayName || 'N/A'}`, margin, pageHeight - 10);
+        }
+
+        doc.save('JalShakthi-Public-Report.pdf');
+        setIsDownloading(false);
     };
 
 
