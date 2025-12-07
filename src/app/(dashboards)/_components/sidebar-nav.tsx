@@ -80,27 +80,43 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {currentNavItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={getSubPath(pathname, 2) === item.href}
-                tooltip={{ children: item.label }}
-              >
-                <Link href={item.href}>
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {currentNavItems.map((item) => {
+            // The pump-operator/profile link should be handled separately
+            if (role === 'pump-operator' && item.href === '/pump-operator/profile') {
+              return null;
+            }
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={getSubPath(pathname, 2) === item.href}
+                  tooltip={{ children: item.label }}
+                >
+                  <Link href={item.href}>
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+           {role === 'pump-operator' && (
+             <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip={{ children: "Operator Profile" }} isActive={pathname === '/pump-operator/operator-profile'}>
+                    <Link href="/pump-operator/operator-profile">
+                      <Wrench/>
+                      <span>Operator Profile</span>
+                    </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+           )}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={{ children: "Profile" }}>
-                <Link href="#">
+            <SidebarMenuButton asChild tooltip={{ children: "User Profile" }} isActive={pathname.endsWith('/profile')}>
+                <Link href={`/${role}/profile`}>
                   <User/>
                   <span>User Profile</span>
                 </Link>
