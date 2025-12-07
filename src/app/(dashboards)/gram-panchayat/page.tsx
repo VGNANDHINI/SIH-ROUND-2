@@ -24,6 +24,20 @@ export default function GramPanchayatDashboard() {
   
   return (
     <div className="space-y-6">
+      <div className="grid gap-6 md:grid-cols-1">
+        <Card>
+            <CardHeader>
+            <CardTitle>Welcome, Panchayat Member</CardTitle>
+            <CardDescription>
+                This is your dashboard to manage and monitor water supply schemes in your area. Use the navigation on the left to access different modules.
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+            <p>You can manage water schemes, view reports, and monitor the overall health of the water supply infrastructure.</p>
+            </CardContent>
+        </Card>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -52,21 +66,6 @@ export default function GramPanchayatDashboard() {
       </div>
 
       <HealthScore />
-
-      <div className="grid gap-6 md:grid-cols-1">
-        <Card>
-            <CardHeader>
-            <CardTitle>Welcome, Panchayat Member</CardTitle>
-            <CardDescription>
-                This is your dashboard to manage and monitor water supply schemes in your area. Use the navigation on the left to access different modules.
-            </CardDescription>
-            </CardHeader>
-            <CardContent>
-            <p>You can manage water schemes, view reports, and monitor the overall health of the water supply infrastructure.</p>
-            </CardContent>
-        </Card>
-      </div>
-
     </div>
   );
 }
