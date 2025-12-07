@@ -91,5 +91,22 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if false; // Only admins can write
     }
+    
+    // GIS Data Rules
+    match /states/{stateId} {
+      allow read: if request.auth != null;
+    }
+    match /states/{stateId}/districts/{districtId} {
+        allow read: if request.auth != null;
+    }
+    match /states/{stateId}/districts/{districtId}/mandals/{mandalId} {
+        allow read: if request.auth != null;
+    }
+    match /states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId} {
+        allow read: if request.auth != null;
+    }
+    match /states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/{collection}/{docId} {
+        allow read: if request.auth != null;
+    }
   }
 }

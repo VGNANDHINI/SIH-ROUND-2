@@ -32,7 +32,7 @@ export const states: Omit<State, 'id'>[] = [
 ];
 
 export const districts: { [key: string]: Omit<District, 'id'>[] } = {
-    'tamil_nadu': [
+    'tamil-nadu': [
         { name: 'Chengalpattu', center: { lat: 12.684, lng: 79.983 }, zoom: 11 },
         { name: 'Chennai', center: { lat: 13.0827, lng: 80.2707 }, zoom: 11 },
         { name: 'Coimbatore', center: { lat: 11.0168, lng: 76.9558 }, zoom: 11 },
@@ -56,6 +56,7 @@ export const panchayats: { [key: string]: Omit<Panchayat, 'id'>[] } = {
 
 export const pipelines: Omit<Pipeline, 'id'>[] = [
     {
+        id: 'anjur-rm-01',
         type: 'Rising Main',
         material: 'DI',
         diameter: 150,
@@ -68,6 +69,7 @@ export const pipelines: Omit<Pipeline, 'id'>[] = [
         villageServed: 'Anjur'
     },
     {
+        id: 'anjur-dist-01',
         type: 'Distribution',
         material: 'HDPE',
         diameter: 90,
@@ -80,6 +82,7 @@ export const pipelines: Omit<Pipeline, 'id'>[] = [
         villageServed: 'Anjur'
     },
     {
+        id: 'anjur-dist-02',
         type: 'Distribution',
         material: 'HDPE',
         diameter: 90,
@@ -95,16 +98,19 @@ export const pipelines: Omit<Pipeline, 'id'>[] = [
 
 export const markers: Omit<Marker, 'id'>[] = [
     {
+        id: 'anjur-pump-01',
         type: 'Pump',
         label: 'Main Pumping Station',
         position: { lat: 12.824, lng: 80.038 }
     },
     {
+        id: 'anjur-tank-01',
         type: 'Tank',
         label: 'OHT - Anjur',
         position: { lat: 12.826, lng: 80.045 }
     },
     {
+        id: 'anjur-valve-01',
         type: 'Valve',
         label: 'V01',
         position: { lat: 12.825, lng: 80.042 }

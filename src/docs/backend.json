@@ -227,12 +227,12 @@
     "/waterTanks/{tankId}": { "schema": { "$ref": "#/entities/waterTank" } },
     "/sopLibrary/{sopId}": { "schema": { "$ref": "#/entities/sopLibraryItem" } },
     "/panchayats/{panchayatId}/checklists/{checklistId}": { "schema": { "$ref": "#/entities/dailyChecklist" } },
-    "/states": { "schema": { "$ref": "#/entities/state" } },
-    "/states/{stateId}/districts": { "schema": { "$ref": "#/entities/district" } },
-    "/states/{stateId}/districts/{districtId}/mandals": { "schema": { "$ref": "#/entities/mandal" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats": { "schema": { "$ref": "#/entities/panchayat" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/habitations": { "schema": { "$ref": "#/entities/habitation" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/pipelines": { "schema": { "$ref": "#/entities/pipeline" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/markers": { "schema": { "$ref": "#/entities/marker" } }
+    "/states/{stateId}": { "schema": { "$ref": "#/entities/state" } },
+    "/states/{stateId}/districts/{districtId}": { "schema": { "$ref": "#/entities/district" } },
+    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}": { "schema": { "$ref": "#/entities/mandal" } },
+    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}": { "schema": { "$ref": "#/entities/panchayat" } },
+    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/habitations/{habitationId}": { "schema": { "$ref": "#/entities/habitation" } },
+    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/pipeline" } },
+    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/markers/{markerId}": { "schema": { "$ref": "#/entities/marker" } }
   }
 }

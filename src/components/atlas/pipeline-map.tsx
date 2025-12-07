@@ -1,9 +1,9 @@
+
 'use client';
 import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Pipeline, Marker as MarkerType, Panchayat } from '@/lib/gis-data';
-import { Button } from '@/components/ui/button';
 
 // Fix for default icon not showing in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -106,6 +106,7 @@ export function PipelineMap({ pipelines, markers, onMarkAsResolved, panchayat }:
 
         layer.clearLayers();
         markers.forEach(marker => {
+            if (!marker.position) return;
             const leafletMarker = L.marker([marker.position.lat, marker.position.lng], { icon: getIcon(marker.type) });
             
             let popupContent = `<div class="space-y-2">
