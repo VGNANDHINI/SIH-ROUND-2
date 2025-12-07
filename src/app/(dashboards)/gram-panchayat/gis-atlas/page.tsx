@@ -1,18 +1,24 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers, useComplaints } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import { PipelineMap } from '@/components/atlas/pipeline-map';
 import type { Marker } from '@/lib/gis-data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { doc, setDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import dynamic from 'next/dynamic';
+
+const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then(mod => mod.PipelineMap), {
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg"><Loader2 className="h-8 w-8 animate-spin" /></div>
+});
+
 
 export default function GisAtlasPage() {
     const [selectedState, setSelectedState] = useState<string | null>('tamil_nadu');
@@ -155,9 +161,9 @@ export default function GisAtlasPage() {
                         <CardDescription>Interactive map of water infrastructure and live alerts.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                         {(pipelinesLoading || markersLoading || complaintsLoading) ? (
+                         {(pipelinesLoading || markersLoading || complaintsLoading) && !selectedPanchayat ? (
                             <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg">
-                                <Loader2 className="h-8 w-8 animate-spin" />
+                                <p>Select a panchayat to view the map.</p>
                             </div>
                         ) : (
                             <div className="relative w-full h-[70vh] border rounded-lg overflow-hidden bg-muted">
