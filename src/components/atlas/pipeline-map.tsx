@@ -173,7 +173,7 @@ export function PipelineMap({ panchayat, pipelines, pumps, tanks, valves, compla
                         <span>Tank</span>
                     </li>
                     <li className="flex items-center gap-2">
-                        <div style="font-size: 16px; color: red; width: 16px; text-align: center;">★</div>
+                        <div style={{ fontSize: '16px', color: 'red', width: '16px', textAlign: 'center' }}>★</div>
                         <span>Valve</span>
                     </li>
                      <li className="flex items-center gap-2">
