@@ -28,10 +28,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#f0f9ff" />
       </head>
       <body className="font-body antialiased">
-        <FirebaseClientProvider>
-          {children}
-          <Toaster />
-        </FirebaseClientProvider>
+        <LanguageProvider>
+          <FirebaseClientProvider>
+            {children}
+            <Toaster />
+          </FirebaseClientProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from '@/hooks/use-translation';
-import { LanguageProvider } from '@/context/language-context';
 
 const roles = [
   {
@@ -36,7 +35,7 @@ const roles = [
   },
 ];
 
-function HomePageContent() {
+export default function HomePage() {
   const { t, setLanguage, language } = useTranslation();
 
   return (
@@ -54,10 +53,10 @@ function HomePageContent() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">English</SelectItem>
-                <SelectItem value="hi">हिन्दी</SelectItem>
-                <SelectItem value="ta">தமிழ்</SelectItem>
-                <SelectItem value="te">తెలుగు</SelectItem>
-                <SelectItem value="bn">বাংলা</SelectItem>
+                <SelectItem value="hi">हिन्दी (Hindi)</SelectItem>
+                <SelectItem value="ta">தமிழ் (Tamil)</SelectItem>
+                <SelectItem value="te">తెలుగు (Telugu)</SelectItem>
+                <SelectItem value="bn">বাংলা (Bengali)</SelectItem>
               </SelectContent>
             </Select>
         </div>
@@ -115,13 +114,4 @@ function HomePageContent() {
       </footer>
     </div>
   );
-}
-
-
-export default function HomePage() {
-  return (
-    <LanguageProvider>
-      <HomePageContent />
-    </LanguageProvider>
-  )
 }
