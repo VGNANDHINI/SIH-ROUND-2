@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -13,44 +14,45 @@ import {
 } from "@/components/ui/sidebar";
 import { Droplet, LayoutDashboard, Droplets, FileQuestion, Wrench, Home, FileText, Presentation, User, BookMarked, Power, CheckSquare, Megaphone, Users, MessageSquareWarning, FilePenLine, ShieldCheck, FlaskConical, Layers, Map, ClipboardCheck, HeartPulse, MapPin, Camera, Search, BarChart, Clock, HelpCircle, Sparkles } from "lucide-react";
 import React from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
 const navItems = {
   "gram-panchayat": [
-    { href: "/gram-panchayat", label: "Dashboard", icon: <LayoutDashboard /> },
-    { href: "/gram-panchayat/complaints", label: "View Complaints", icon: <MessageSquareWarning /> },
-    { href: "/gram-panchayat/pump-control", label: "All Pump Status", icon: <Power /> },
-    { href: "/gram-panchayat/tank-levels", label: "All Water Tank Levels", icon: <Layers /> },
-    { href: "/gram-panchayat/operator-management", label: "Operator Management", icon: <Users /> },
-    { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
-    { href: "/gram-panchayat/water-quality", label: "Water Quality", icon: <FlaskConical /> },
-    { href: "/gram-panchayat/gis-atlas", label: "Village Pipeline Map", icon: <Map /> },
+    { href: "/gram-panchayat", labelKey: "sidebar_gp_dashboard", icon: <LayoutDashboard /> },
+    { href: "/gram-panchayat/complaints", labelKey: "sidebar_gp_complaints", icon: <MessageSquareWarning /> },
+    { href: "/gram-panchayat/pump-control", labelKey: "sidebar_gp_pump_control", icon: <Power /> },
+    { href: "/gram-panchayat/tank-levels", labelKey: "sidebar_gp_tank_levels", icon: <Layers /> },
+    { href: "/gram-panchayat/operator-management", labelKey: "sidebar_gp_operator_management", icon: <Users /> },
+    { href: "/gram-panchayat/alerts", labelKey: "sidebar_gp_alerts", icon: <Megaphone /> },
+    { href: "/gram-panchayat/water-quality", labelKey: "sidebar_gp_water_quality", icon: <FlaskConical /> },
+    { href: "/gram-panchayat/gis-atlas", labelKey: "sidebar_gp_gis_atlas", icon: <Map /> },
   ],
   "pump-operator": [
-    { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
-    { href: "/pump-operator/supply-schedule", label: "Set Supply Schedule", icon: <Clock /> },
-    { href: "/pump-operator/checklist", label: "Daily Checklist", icon: <ClipboardCheck /> },
-    { href: "/pump-operator/pump-status", label: "Pump & Tank Control", icon: <Power /> },
-    { href: "/pump-operator/report", label: "Report Issue", icon: <FileQuestion /> },
-    { href: "/pump-operator/maintenance", label: "Maintenance", icon: <Wrench /> },
-    { href: "/pump-operator/leakage-detection", label: "Leakage Detection", icon: <Search /> },
-    { href: "/pump-operator/sop-library", label: "SOP Library", icon: <BookMarked /> },
-    { href: "/pump-operator/water-quality", label: "Water Quality", icon: <FlaskConical /> },
+    { href: "/pump-operator", labelKey: "sidebar_po_dashboard", icon: <LayoutDashboard /> },
+    { href: "/pump-operator/supply-schedule", labelKey: "sidebar_po_supply_schedule", icon: <Clock /> },
+    { href: "/pump-operator/checklist", labelKey: "sidebar_po_checklist", icon: <ClipboardCheck /> },
+    { href: "/pump-operator/pump-status", labelKey: "sidebar_po_pump_status", icon: <Power /> },
+    { href: "/pump-operator/report", labelKey: "sidebar_po_report_issue", icon: <FileQuestion /> },
+    { href: "/pump-operator/maintenance", labelKey: "sidebar_po_maintenance", icon: <Wrench /> },
+    { href: "/pump-operator/leakage-detection", labelKey: "sidebar_po_leakage_detection", icon: <Search /> },
+    { href: "/pump-operator/sop-library", labelKey: "sidebar_po_sop_library", icon: <BookMarked /> },
+    { href: "/pump-operator/water-quality", labelKey: "sidebar_po_water_quality", icon: <FlaskConical /> },
   ],
   "village-resident": [
-    { href: "/village-resident", label: "Dashboard", icon: <LayoutDashboard /> },
-    { href: "/village-resident/availability", label: "Water Availability", icon: <Droplet /> },
-    { href: "/village-resident/complaints", label: "Register Complaint", icon: <FilePenLine /> },
-    { href: "/village-resident/photo-locator", label: "Photo Locator", icon: <MapPin /> },
-    { href: "/village-resident/water-quality", label: "Water Quality", icon: <FlaskConical /> },
-    { href: "/village-resident/report", label: "Public Report", icon: <Presentation /> },
-    { href: "/village-resident/help", label: "Help & Support", icon: <HelpCircle /> },
+    { href: "/village-resident", labelKey: "sidebar_vr_dashboard", icon: <LayoutDashboard /> },
+    { href: "/village-resident/availability", labelKey: "sidebar_vr_availability", icon: <Droplet /> },
+    { href: "/village-resident/complaints", labelKey: "sidebar_vr_complaints", icon: <FilePenLine /> },
+    { href: "/village-resident/photo-locator", labelKey: "sidebar_vr_photo_locator", icon: <MapPin /> },
+    { href: "/village-resident/water-quality", labelKey: "sidebar_vr_water_quality", icon: <FlaskConical /> },
+    { href: "/village-resident/report", labelKey: "sidebar_vr_report", icon: <Presentation /> },
+    { href: "/village-resident/help", labelKey: "sidebar_vr_help", icon: <HelpCircle /> },
   ],
   "block-official": [
-    { href: "/block-official", label: "Dashboard", icon: <LayoutDashboard /> },
-    { href: "/block-official/approvals", label: "Scheme Approvals", icon: <CheckSquare /> },
-    { href: "/block-official/analytics", label: "Analytics", icon: <Presentation /> },
-    { href: "/block-official/work-verification", label: "Work Verification", icon: <ShieldCheck /> },
-    { href: "/block-official/water-quality", label: "Water Quality", icon: <FlaskConical /> },
+    { href: "/block-official", labelKey: "sidebar_bo_dashboard", icon: <LayoutDashboard /> },
+    { href: "/block-official/approvals", labelKey: "sidebar_bo_approvals", icon: <CheckSquare /> },
+    { href: "/block-official/analytics", labelKey: "sidebar_bo_analytics", icon: <Presentation /> },
+    { href: "/block-official/work-verification", labelKey: "sidebar_bo_work_verification", icon: <ShieldCheck /> },
+    { href: "/block-official/water-quality", labelKey: "sidebar_bo_water_quality", icon: <FlaskConical /> },
   ],
 };
 
@@ -58,6 +60,7 @@ type Role = keyof typeof navItems;
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const { t } = useTranslation();
   const role = pathname.split("/")[1] as Role;
   const currentNavItems = navItems[role] || [];
   
@@ -70,7 +73,7 @@ export function SidebarNav() {
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
           <Droplet className="w-6 h-6 text-primary" />
-          <span className="font-semibold text-lg font-headline">JalShakthi</span>
+          <span className="font-semibold text-lg font-headline">{t('sidebar_jalshakthi')}</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -80,11 +83,11 @@ export function SidebarNav() {
               <SidebarMenuButton
                 asChild
                 isActive={getSubPath(pathname, 2) === item.href}
-                tooltip={{ children: item.label }}
+                tooltip={{ children: t(item.labelKey) }}
               >
                 <Link href={item.href}>
                   {item.icon}
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -94,10 +97,10 @@ export function SidebarNav() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={{ children: "User Profile" }} isActive={pathname.endsWith('/profile')}>
+            <SidebarMenuButton asChild tooltip={{ children: t('sidebar_user_profile') }} isActive={pathname.endsWith('/profile')}>
                 <Link href={`/${role}/profile`}>
                   <User/>
-                  <span>User Profile</span>
+                  <span>{t('sidebar_user_profile')}</span>
                 </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

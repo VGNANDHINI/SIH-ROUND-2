@@ -1,3 +1,4 @@
+
 "use client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
@@ -6,12 +7,13 @@ import { useAuth, useUser } from "@/firebase";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
-const roleTitles: { [key: string]: string } = {
-  "gram-panchayat": "Gram Panchayat Dashboard",
-  "pump-operator": "Pump Operator Dashboard",
-  "village-resident": "Resident Dashboard",
-  "block-official": "Block / District Official Dashboard",
+const roleTitleKeys: { [key: string]: string } = {
+  "gram-panchayat": "header_role_gp",
+  "pump-operator": "header_role_po",
+  "village-resident": "header_role_vr",
+  "block-official": "header_role_bo",
 };
 
 export function DashboardHeader() {
@@ -19,11 +21,14 @@ export function DashboardHeader() {
   const router = useRouter();
   const auth = useAuth();
   const { user } = useUser();
+  const { t } = useTranslation();
 
   const segments = pathname.split('/');
   const role = segments[1];
   
-  let title = roleTitles[role] || "Dashboard";
+  const titleKey = roleTitleKeys[role] || "header_dashboard";
+  let title = t(titleKey);
+
   if(segments[2]) {
     const subPage = segments[2].charAt(0).toUpperCase() + segments[2].slice(1);
     title = `${title.split(' Dashboard')[0]} - ${subPage}`;
@@ -37,7 +42,7 @@ export function DashboardHeader() {
   };
   
   const getInitials = (email?: string | null) => {
-    if (!email) return role.charAt(0).toUpperCase();
+    if (!email) return role ? role.charAt(0).toUpperCase() : 'U';
     return email.charAt(0).toUpperCase();
   }
 
@@ -68,7 +73,7 @@ export function DashboardHeader() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span>{t('header_logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
