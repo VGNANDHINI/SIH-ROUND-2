@@ -8,12 +8,23 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useComplaints, usePipelines, usePumps, useTanks, useValves } from "@/firebase";
 import { Loader2 } from 'lucide-react';
 import dynamic from "next/dynamic";
 import { useToast } from "@/hooks/use-toast";
-import type { Panchayat } from '@/lib/gis-data';
-import { panchayatDetails } from "@/lib/gis-data";
+
+// Import the new detailed dummy data
+import detailedGisData from '@/lib/dummy-gis-data-detailed.json';
+
+// Define types based on the new JSON structure
+type Pipeline = { id: string; path: { lat: number; lng: number }[]; color: string; };
+type PointAsset = { id: string; name?: string; location: { lat: number; lng: number }; icon: string; [key: string]: any; };
+
+const panchayatDetails = {
+    id: 'anjur',
+    name: 'Anjur',
+    center: { lat: 12.71, lng: 80.22 },
+    zoom: 15
+};
 
 // Lazy-load the map component to prevent SSR issues with Leaflet
 const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then(mod => mod.PipelineMap), {
@@ -24,51 +35,42 @@ const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then
 export default function GisAtlasPage() {
     const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
+    
+    // Updated layers state to match the new detailed dataset
     const [layers, setLayers] = useState({
-        pipelines: true,
+        main_pipeline: true,
+        distribution_pipeline: true,
+        lateral_pipeline: true,
+        pump_houses: true,
+        overhead_tanks: true,
         valves: true,
-        tanks: true,
-        pumps: true,
-        complaints: true,
+        public_taps: true,
+        leakage_alerts: true,
+        live_alerts: true,
     });
     
-    // For now, we hardcode the village. In a real app, this would come from user selection.
-    const villageId = panchayatDetails.id;
-
     const handleLayerToggle = (layer: keyof typeof layers) => {
         setLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
     };
 
-    // Fetching data for all layers for the specific village
-    const { data: pipelines, loading: pipelinesLoading } = usePipelines(villageId);
-    const { data: pumps, loading: pumpsLoading } = usePumps(villageId);
-    const { data: tanks, loading: tanksLoading } = useTanks(villageId);
-    const { data: valves, loading: valvesLoading } = useValves(villageId);
-    const { data: allComplaints, loading: complaintsLoading } = useComplaints(); // Complaints are global for now
+    // No longer fetching from firebase, using the imported JSON
+    const loading = false;
 
-    const complaintFeatures = useMemo(() => {
-        if (!allComplaints) return [];
-        return allComplaints
-            .filter(c => c.status !== 'Resolved' && c.userPanchayat === panchayatDetails.name && c.gpsLocation)
-            .map(c => ({
-                id: c.id,
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [c.gpsLocation!.lng, c.gpsLocation!.lat]
-                },
-                properties: { ...c, asset_type: 'complaint' as const }
-            }));
-    }, [allComplaints]);
+    // Prepare data for the map component
+    const allPipelines = useMemo(() => [
+        ...(layers.main_pipeline ? detailedGisData.main_pipeline : []),
+        ...(layers.distribution_pipeline ? detailedGisData.distribution_pipeline : []),
+        ...(layers.lateral_pipeline ? detailedGisData.lateral_pipeline : [])
+    ], [layers.main_pipeline, layers.distribution_pipeline, layers.lateral_pipeline]);
 
-    const loading = pipelinesLoading || pumpsLoading || tanksLoading || valvesLoading || complaintsLoading;
-
-    // Filter logic can be enhanced later
-    const filteredPipelines = useMemo(() => pipelines || [], [pipelines]);
-    const filteredPumps = useMemo(() => pumps || [], [pumps]);
-    const filteredTanks = useMemo(() => tanks || [], [tanks]);
-    const filteredValves = useMemo(() => valves || [], [valves]);
-    const filteredComplaints = useMemo(() => complaintFeatures, [complaintFeatures]);
+    const allMarkers = useMemo(() => [
+        ...(layers.pump_houses ? detailedGisData.pump_houses : []),
+        ...(layers.overhead_tanks ? detailedGisData.overhead_tanks : []),
+        ...(layers.valves ? detailedGisData.valves : []),
+        ...(layers.public_taps ? detailedGisData.public_taps : []),
+        ...(layers.leakage_alerts ? detailedGisData.leakage_alerts : []),
+        ...(layers.live_alerts ? detailedGisData.live_alerts : [])
+    ], [layers.pump_houses, layers.overhead_tanks, layers.valves, layers.public_taps, layers.leakage_alerts, layers.live_alerts]);
 
     return (
         <div className="grid lg:grid-cols-4 gap-6 items-start">
@@ -92,7 +94,7 @@ export default function GisAtlasPage() {
                              <Label>Asset Layers</Label>
                             {Object.keys(layers).map((layerKey) => (
                                 <div key={layerKey} className="flex items-center justify-between">
-                                    <Label htmlFor={layerKey} className="capitalize font-normal text-sm">{layerKey}</Label>
+                                    <Label htmlFor={layerKey} className="capitalize font-normal text-sm">{layerKey.replace(/_/g, ' ')}</Label>
                                     <Switch
                                         id={layerKey}
                                         checked={layers[layerKey as keyof typeof layers]}
@@ -133,11 +135,8 @@ export default function GisAtlasPage() {
                         ): (
                              <PipelineMap 
                                 panchayat={panchayatDetails}
-                                pipelines={layers.pipelines ? filteredPipelines : []} 
-                                pumps={layers.pumps ? filteredPumps : []}
-                                tanks={layers.tanks ? filteredTanks : []}
-                                valves={layers.valves ? filteredValves : []}
-                                complaints={layers.complaints ? filteredComplaints : []}
+                                pipelines={allPipelines} 
+                                markers={allMarkers}
                             />
                         )}
                     </CardContent>

@@ -1,0 +1,210 @@
+
+{
+  "main_pipeline": [
+    {
+      "id": "mp_001",
+      "path": [
+        { "lat": 12.7050, "lng": 80.2200 },
+        { "lat": 12.7080, "lng": 80.2220 },
+        { "lat": 12.7120, "lng": 80.2240 }
+      ],
+      "diameter_mm": 200,
+      "material": "DI",
+      "status": "Active",
+      "color": "#005BBB"
+    },
+    {
+      "id": "mp_002",
+      "path": [
+        { "lat": 12.7120, "lng": 80.2240 },
+        { "lat": 12.7150, "lng": 80.2260 },
+        { "lat": 12.7180, "lng": 80.2280 }
+      ],
+      "diameter_mm": 200,
+      "material": "DI",
+      "status": "Active",
+      "color": "#005BBB"
+    }
+  ],
+  "distribution_pipeline": [
+    {
+      "id": "dp_001",
+      "path": [
+        { "lat": 12.7080, "lng": 80.2220 },
+        { "lat": 12.7090, "lng": 80.2200 }
+      ],
+      "diameter_mm": 150,
+      "material": "HDPE",
+      "status": "Active",
+      "color": "#28A745"
+    },
+    {
+      "id": "dp_002",
+      "path": [
+        { "lat": 12.7120, "lng": 80.2240 },
+        { "lat": 12.7130, "lng": 80.2225 }
+      ],
+      "diameter_mm": 150,
+      "material": "HDPE",
+      "status": "Active",
+      "color": "#28A745"
+    },
+    {
+      "id": "dp_003",
+      "path": [
+        { "lat": 12.7150, "lng": 80.2260 },
+        { "lat": 12.7160, "lng": 80.2245 }
+      ],
+      "diameter_mm": 150,
+      "material": "HDPE",
+      "status": "Active",
+      "color": "#28A745"
+    }
+  ],
+  "lateral_pipeline": [
+    {
+      "id": "lp_001",
+      "path": [
+        { "lat": 12.7090, "lng": 80.2200 },
+        { "lat": 12.7095, "lng": 80.2190 }
+      ],
+      "diameter_mm": 90,
+      "material": "PVC",
+      "status": "Active",
+      "color": "#F39C12"
+    },
+    {
+      "id": "lp_002",
+      "path": [
+        { "lat": 12.7130, "lng": 80.2225 },
+        { "lat": 12.7135, "lng": 80.2215 }
+      ],
+      "diameter_mm": 90,
+      "material": "PVC",
+      "status": "Active",
+      "color": "#F39C12"
+    },
+    {
+      "id": "lp_003",
+      "path": [
+        { "lat": 12.7160, "lng": 80.2245 },
+        { "lat": 12.7165, "lng": 80.2235 }
+      ],
+      "diameter_mm": 90,
+      "material": "PVC",
+      "status": "Active",
+      "color": "#F39C12"
+    }
+  ],
+  "pump_houses": [
+    {
+      "id": "ph_001",
+      "name": "Main Pumping Station",
+      "location": { "lat": 12.7045, "lng": 80.2195 },
+      "status": "Running",
+      "water_level_percent": 85,
+      "load_kW": 7.5,
+      "temperature_C": 55,
+      "icon": "pump_house"
+    },
+    {
+      "id": "ph_002",
+      "name": "Booster Pump - North",
+      "location": { "lat": 12.7185, "lng": 80.2285 },
+      "status": "Stopped",
+      "water_level_percent": 0,
+      "load_kW": 0,
+      "temperature_C": 35,
+      "icon": "pump_house"
+    }
+  ],
+  "overhead_tanks": [
+    {
+      "id": "oht_001",
+      "name": "Central OHT",
+      "location": { "lat": 12.7125, "lng": 80.2245 },
+      "capacity_liters": 500000,
+      "current_level_percent": 75,
+      "icon": "oh_tank"
+    }
+  ],
+  "valves": [
+    {
+      "id": "v_001",
+      "location": { "lat": 12.7080, "lng": 80.2220 },
+      "type": "Gate",
+      "status": "Open",
+      "icon": "valve"
+    },
+    {
+      "id": "v_002",
+      "location": { "lat": 12.7120, "lng": 80.2240 },
+      "type": "Gate",
+      "status": "Open",
+      "icon": "valve"
+    },
+    {
+      "id": "v_003",
+      "location": { "lat": 12.7150, "lng": 80.2260 },
+      "type": "Ball",
+      "status": "Closed",
+      "icon": "valve"
+    }
+  ],
+  "public_taps": [
+    {
+      "id": "pt_001",
+      "location": { "lat": 12.7095, "lng": 80.2190 },
+      "working": true,
+      "icon": "public_tap"
+    },
+    {
+      "id": "pt_002",
+      "location": { "lat": 12.7135, "lng": 80.2215 },
+      "working": true,
+      "icon": "public_tap"
+    },
+    {
+      "id": "pt_003",
+      "location": { "lat": 12.7165, "lng": 80.2235 },
+      "working": false,
+      "icon": "public_tap"
+    }
+  ],
+  "leakage_alerts": [
+    {
+      "id": "la_001",
+      "location": { "lat": 12.7110, "lng": 80.2230 },
+      "severity": "High",
+      "timestamp": "2024-05-23T10:00:00Z",
+      "pipeline_type": "main",
+      "icon": "leakage"
+    },
+    {
+      "id": "la_002",
+      "location": { "lat": 12.7170, "lng": 80.2240 },
+      "severity": "Medium",
+      "timestamp": "2024-05-22T14:30:00Z",
+      "pipeline_type": "distribution",
+      "icon": "leakage"
+    }
+  ],
+  "live_alerts": [
+    {
+      "id": "lva_001",
+      "location": { "lat": 12.7050, "lng": 80.2200 },
+      "type": "Low Flow",
+      "timestamp": "2024-05-23T11:00:00Z",
+      "severity": "Medium",
+      "icon": "live_alert"
+    },
+    {
+      "id": "lva_002",
+      "location": { "lat": 12.7185, "lng": 80.2285 },
+      "type": "Pump Fault",
+      "timestamp": "2024-05-23T11:05:00Z",
+      "severity": "High",
+      "icon": "live_alert"
+    }
+  ]
+}
