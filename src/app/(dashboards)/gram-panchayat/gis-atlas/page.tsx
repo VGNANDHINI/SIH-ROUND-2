@@ -118,7 +118,7 @@ export default function GisAtlasPage() {
                         <Select onValueChange={handleStateChange} value={selectedState ?? ''} disabled={statesLoading}>
                             <SelectTrigger>
                                 {statesLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
-                                <SelectValue placeholder="show the the selct state text here" />
+                                <SelectValue placeholder="Select State" />
                             </SelectTrigger>
                             <SelectContent>{states?.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
                         </Select>
