@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "userProfile": {
@@ -206,6 +205,25 @@
         },
         "required": ["panchayatId", "operatorId", "ward", "testDate", "status"]
     },
+    "dailyLeakCheck": {
+      "title": "Daily Leak Check",
+      "description": "A daily log for the leakage detection system.",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "gp_id": { "type": "string" },
+        "pump_hours_today": { "type": "number" },
+        "pump_hours_previous": { "type": "number" },
+        "tank_level_change": { "type": "string", "enum": ["Increase", "No change", "Decrease"] },
+        "pressure_level": { "type": "string", "enum": ["High", "Normal", "Low"] },
+        "flow_rate": { "type": "string", "enum": ["Normal", "Low"] },
+        "complaints_count": { "type": "number" },
+        "leak_score": { "type": "number" },
+        "severity": { "type": "string", "enum": ["red", "yellow", "green"] },
+        "result_message": { "type": "string" }
+      },
+      "required": ["timestamp", "gp_id", "leak_score", "severity"]
+    },
     "state": { "title": "State", "description": "Represents a state.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "district": { "title": "District", "description": "Represents a district.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "mandal": { "title": "Mandal", "description": "Represents a mandal/block.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
@@ -251,6 +269,7 @@
     "/complaints/{complaintId}": { "schema": { "$ref": "#/entities/complaint" } },
     "/waterTanks/{tankId}": { "schema": { "$ref": "#/entities/waterTank" } },
     "/sopLibrary/{sopId}": { "schema": { "$ref": "#/entities/sopLibraryItem" } },
+    "/daily_leak_checks/{checkId}": { "schema": { "$ref": "#/entities/dailyLeakCheck" } },
     "/panchayats/{panchayatId}/checklists/{checklistId}": { "schema": { "$ref": "#/entities/dailyChecklist" } },
     "/panchayats/{panchayatId}/waterTests/{testId}": { "schema": { "$ref": "#/entities/waterTest" } },
     "/states/{stateId}": { "schema": { "$ref": "#/entities/state" } },
@@ -261,5 +280,3 @@
     "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/markers/{markerId}": { "schema": { "$ref": "#/entities/marker" } }
   }
 }
-
-    

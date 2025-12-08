@@ -1,4 +1,3 @@
-
 'use client';
 import { useCollection } from './use-collection';
 import type { WaterScheme, PumpIssue, Bill, PumpLog, Operator, Complaint, WaterTest, SopLibraryItem, DailyChecklist, DailyLeakCheck } from '@/lib/data';

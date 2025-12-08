@@ -355,5 +355,3 @@ async function seedDatabase() {
 
 // Call this function to seed the db when the app starts if needed,
 // seedDatabase();
-
-    

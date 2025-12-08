@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -28,7 +27,6 @@ const navItems = {
   ],
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
-    { href: "/pump-operator/profile", label: "Operator Profile", icon: <User /> },
     { href: "/pump-operator/supply-schedule", label: "Set Supply Schedule", icon: <Clock /> },
     { href: "/pump-operator/checklist", label: "Daily Checklist", icon: <ClipboardCheck /> },
     { href: "/pump-operator/pump-status", label: "Pump & Tank Control", icon: <Power /> },
@@ -77,40 +75,24 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {currentNavItems.map((item) => {
-            // The pump-operator/profile link should be handled separately
-            if (role === 'pump-operator' && item.href === '/pump-operator/profile') {
-              return null;
-            }
-            return (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getSubPath(pathname, 2) === item.href}
-                  tooltip={{ children: item.label }}
-                >
-                  <Link href={item.href}>
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
+          {currentNavItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton
+                asChild
+                isActive={getSubPath(pathname, 2) === item.href}
+                tooltip={{ children: item.label }}
+              >
+                <Link href={item.href}>
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-           {role === 'pump-operator' && (
-             <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip={{ children: "Operator Profile" }} isActive={pathname === '/pump-operator/operator-profile'}>
-                    <Link href="/pump-operator/operator-profile">
-                      <Wrench/>
-                      <span>Operator Profile</span>
-                    </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-           )}
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip={{ children: "User Profile" }} isActive={pathname.endsWith('/profile')}>
                 <Link href={`/${role}/profile`}>
@@ -124,5 +106,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-
-    
