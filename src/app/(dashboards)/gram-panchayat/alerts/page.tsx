@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -82,7 +83,7 @@ export default function AlertsPage() {
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Send Bulk SMS Alerts</CardTitle>
+        <CardTitle>Notification Center</CardTitle>
         <CardDescription>
           Compose a message and send it as an SMS to all registered users with a
           phone number.
