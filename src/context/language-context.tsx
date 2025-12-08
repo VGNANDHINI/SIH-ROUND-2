@@ -5,8 +5,8 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import en from '@/locales/en.json';
 import hi from '@/locales/hi.json';
 import ta from '@/locales/ta.json';
-// import te from '@/locales/te.json';
-// import bn from '@/locales/bn.json';
+import te from '@/locales/te.json';
+import bn from '@/locales/bn.json';
 
 type Translations = {
     [key: string]: string;
@@ -16,8 +16,8 @@ const translations: { [key: string]: Translations } = {
     en,
     hi,
     ta,
-    // te,
-    // bn,
+    te,
+    bn,
 };
 
 interface LanguageContextType {
