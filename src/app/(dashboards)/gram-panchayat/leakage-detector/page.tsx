@@ -32,18 +32,6 @@ const getAlertInfo = (alert: LeakageAlert) => {
     return { variant: 'success', icon: <CheckCircle className="h-4 w-4" />, label: 'Normal' };
 };
 
-const KpiCard = ({ title, value, icon, loading }: { title: string, value: number, icon: React.ReactNode, loading: boolean }) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            {icon}
-        </CardHeader>
-        <CardContent>
-            {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{value}</div>}
-        </CardContent>
-    </Card>
-);
-
 export default function LeakageDetectorPage() {
   const { data: alerts, loading } = useLeakageAlerts();
   const [analysis, setAnalysis] = useState<DiagnoseWaterNetworkOutput | null>(null);
@@ -199,12 +187,34 @@ export default function LeakageDetectorPage() {
             <CardDescription>A summary of all alerts received from the sensor network.</CardDescription>
         </CardHeader>
         <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <KpiCard title="Confirmed Leakages" value={stats.leakages} icon={<AlertTriangle className="h-4 w-4 text-muted-foreground" />} loading={loading} />
-                <KpiCard title="Pipeline Bursts" value={stats.bursts} icon={<ShieldAlert className="h-4 w-4 text-muted-foreground" />} loading={loading} />
-                <KpiCard title="Low-Pressure Warnings" value={stats.warnings} icon={<Signal className="h-4 w-4 text-muted-foreground" />} loading={loading} />
-                <KpiCard title="Normal Readings" value={stats.normal} icon={<CheckCircle className="h-4 w-4 text-muted-foreground" />} loading={loading} />
-            </div>
+           {loading ? <div className="flex justify-center items-center h-24"><Loader2 className="h-8 w-8 animate-spin" /></div> : (
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Alert Type</TableHead>
+                        <TableHead className="text-right">Total Count</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                        <TableCell className="font-medium flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-destructive" /> Confirmed Leakages</TableCell>
+                        <TableCell className="text-right text-lg font-bold">{stats.leakages}</TableCell>
+                    </TableRow>
+                     <TableRow>
+                        <TableCell className="font-medium flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-destructive" /> Pipeline Bursts</TableCell>
+                        <TableCell className="text-right text-lg font-bold">{stats.bursts}</TableCell>
+                    </TableRow>
+                     <TableRow>
+                        <TableCell className="font-medium flex items-center gap-2"><Signal className="h-4 w-4 text-yellow-500" /> Low-Pressure Warnings</TableCell>
+                        <TableCell className="text-right text-lg font-bold">{stats.warnings}</TableCell>
+                    </TableRow>
+                     <TableRow>
+                        <TableCell className="font-medium flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> Normal Readings</TableCell>
+                        <TableCell className="text-right text-lg font-bold">{stats.normal}</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+           )}
         </CardContent>
       </Card>
     </div>
