@@ -1,7 +1,9 @@
-import { Droplet, User, Wrench, BarChart, Home, Book, Phone } from 'lucide-react';
+
+import { Droplet, User, Wrench, BarChart, Home, Book, Phone, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const roles = [
   {
@@ -33,16 +35,31 @@ const roles = [
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="container mx-auto px-4 py-6 flex flex-col items-center text-center">
+      <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Droplet className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold text-foreground font-headline">JalShakthi</h1>
         </div>
-        <p className="text-muted-foreground mt-2">Your companion for community water management.</p>
+        <div className="flex items-center gap-4">
+            <Select defaultValue="en">
+              <SelectTrigger className="w-auto md:w-[150px] text-sm">
+                  <Globe className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline"><SelectValue /></span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="hi">हिन्दी</SelectItem>
+                <SelectItem value="ta">தமிழ்</SelectItem>
+                <SelectItem value="te">తెలుగు</SelectItem>
+                <SelectItem value="bn">বাংলা</SelectItem>
+              </SelectContent>
+            </Select>
+        </div>
       </header>
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold tracking-tight font-headline">Who are you?</h2>
+          <p className="text-muted-foreground mt-2 text-lg">Your companion for community water management.</p>
+          <h2 className="text-4xl font-bold tracking-tight font-headline mt-8">Who are you?</h2>
           <p className="mt-4 text-lg text-muted-foreground">Select your role to proceed to your personalized dashboard.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
