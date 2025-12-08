@@ -72,7 +72,6 @@ export default function GisAtlasPage() {
     const filteredMarkers = useMemo(() => {
         return allMarkers.filter(marker => {
             switch (marker.type) {
-                case 'Pipeline': return layers.pipelines;
                 case 'Valve': return layers.valves;
                 case 'Tank': return layers.tanks;
                 case 'Pump': return layers.pumps;
