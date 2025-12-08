@@ -194,29 +194,22 @@
         },
         "required": ["panchayatId", "operatorId", "ward", "testDate", "status"]
     },
-    "gisFeature": {
-      "title": "GIS Feature (GeoJSON)",
-      "description": "A generic GeoJSON feature representing a GIS asset.",
+    "leakageSensorReading": {
+      "title": "Leakage Sensor Reading",
+      "description": "A single reading from a water network sensor.",
       "type": "object",
       "properties": {
-        "type": { "type": "string", "enum": ["Feature"] },
-        "geometry": { 
-            "type": "object",
-            "description": "GeoJSON geometry object (Point, LineString, Polygon)."
-        },
-        "properties": { 
-            "type": "object",
-            "properties": {
-                "asset_id": { "type": "string" },
-                "name": { "type": "string" },
-                "asset_type": { "type": "string", "enum": ["pipeline", "valve", "pump", "tank"] },
-                "village": { "type": "string" },
-                "status": { "type": "string" },
-                "last_updated": { "type": "string", "format": "date-time" }
-            }
-        }
+        "timestamp": { "type": "string", "format": "date-time" },
+        "sensor_id": { "type": "string" },
+        "pressure": { "type": "number" },
+        "flow_rate": { "type": "number" },
+        "location": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "turbidity": { "type": "number" },
+        "pH": { "type": "number" },
+        "chlorine": { "type": "number" },
+        "leakage_status": { "type": "string", "enum": ["Normal", "Leak Detected", "Critical Leakage / Pipe Burst"] }
       },
-      "required": ["type", "geometry", "properties"]
+      "required": ["timestamp", "sensor_id", "pressure", "flow_rate", "location"]
     }
   },
   "auth": {
@@ -237,6 +230,7 @@
     "/gis_assets/{villageId}/pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/gisFeature" } },
     "/gis_assets/{villageId}/valves/{valveId}": { "schema": { "$ref": "#/entities/gisFeature" } },
     "/gis_assets/{villageId}/pumps/{pumpId}": { "schema": { "$ref": "#/entities/gisFeature" } },
-    "/gis_assets/{villageId}/tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } }
+    "/gis_assets/{villageId}/tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/test_connection/{readingId}": { "schema": { "$ref": "#/entities/leakageSensorReading" }}
   }
 }
