@@ -50,7 +50,7 @@ export default function LeakageDetectorPage() {
   const stats = useMemo(() => {
     if (!alerts) return { leakages: 0, bursts: 0, warnings: 0, normal: 0 };
     return {
-      leakages: alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length,
+      leakages: alerts.filter(a => a.Leakage_Alerts === '🔴 Confirmed Leakage from Sensor').length,
       bursts: alerts.filter(a => a.Burst_Status === 1).length,
       warnings: alerts.filter(a => a.Leakage_Alerts.includes('Possible Leakage')).length,
       normal: alerts.filter(a => a.Leakage_Alerts.includes('No leakage')).length,
