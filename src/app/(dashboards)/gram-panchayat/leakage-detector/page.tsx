@@ -47,26 +47,29 @@ export default function LeakageDetectorPage() {
     });
   }, [alerts]);
 
-  const stats = useMemo(() => {
-    if (!alerts) return { leakages: 0, bursts: 0, warnings: 0, normal: 0 };
-    return {
-      leakages: alerts.filter(a => a.Leakage_Alerts === '🔴 Confirmed Leakage from Sensor').length,
-      bursts: alerts.filter(a => a.Burst_Status === 1).length,
-      warnings: alerts.filter(a => a.Leakage_Alerts.includes('Possible Leakage')).length,
-      normal: alerts.filter(a => a.Leakage_Alerts.includes('No leakage')).length,
-    };
+  const alertCounts = useMemo(() => {
+    if (!alerts) return [];
+    
+    const counts = alerts.reduce((acc, alert) => {
+        const message = alert.Leakage_Alerts;
+        acc[message] = (acc[message] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(counts).sort(([, countA], [, countB]) => countB - countA);
+
   }, [alerts]);
 
   useEffect(() => {
     if(sortedAlerts && sortedAlerts.length > 0) {
-        setAnalysisLoading(true);
         const latestAlert = sortedAlerts[0];
-        if (!latestAlert) {
-            setAnalysisLoading(false);
+        if (!latestAlert || !latestAlert.Pressure || !latestAlert.Flow_Rate) {
             return;
         }
+        
+        setAnalysisLoading(true);
 
-        const leakComplaints = alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length;
+        const leakComplaints = alerts.filter(a => a.Leak_Status == 1).length;
 
         diagnoseWaterNetwork({
             pressure_value: latestAlert.Pressure,
@@ -201,22 +204,12 @@ export default function LeakageDetectorPage() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    <TableRow>
-                        <TableCell className="font-medium flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-destructive" /> Confirmed Leakages</TableCell>
-                        <TableCell className="text-right text-lg font-bold">{stats.leakages}</TableCell>
-                    </TableRow>
-                     <TableRow>
-                        <TableCell className="font-medium flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-destructive" /> Pipeline Bursts</TableCell>
-                        <TableCell className="text-right text-lg font-bold">{stats.bursts}</TableCell>
-                    </TableRow>
-                     <TableRow>
-                        <TableCell className="font-medium flex items-center gap-2"><Signal className="h-4 w-4 text-yellow-500" /> Low-Pressure Warnings</TableCell>
-                        <TableCell className="text-right text-lg font-bold">{stats.warnings}</TableCell>
-                    </TableRow>
-                     <TableRow>
-                        <TableCell className="font-medium flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500" /> Normal Readings</TableCell>
-                        <TableCell className="text-right text-lg font-bold">{stats.normal}</TableCell>
-                    </TableRow>
+                    {alertCounts.map(([message, count]) => (
+                         <TableRow key={message}>
+                            <TableCell className="font-medium">{message}</TableCell>
+                            <TableCell className="text-right text-lg font-bold">{count}</TableCell>
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
            )}
