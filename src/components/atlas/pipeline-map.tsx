@@ -4,8 +4,11 @@ import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Pipeline, Marker as MarkerType, Panchayat } from '@/lib/gis-data';
+import Image from 'next/image';
 
-// Fix for default icon not showing in Leaflet
+// --- Custom Icon Definitions ---
+
+// Fix for default Leaflet icon path issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -13,13 +16,29 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+// Custom Water Tank Icon
+const waterTankIcon = L.icon({
+    iconUrl: '/assets/icons/water_tank.png',
+    iconSize: [32, 32], // size of the icon
+    iconAnchor: [16, 32], // point of the icon which will correspond to marker's location
+    popupAnchor: [0, -32] // point from which the popup should open relative to the iconAnchor
+});
+
+// Custom Pump House Icon
+const pumpHouseIcon = L.icon({
+    iconUrl: '/assets/icons/pump_house.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+});
+
 
 const getIcon = (type: MarkerType['type']) => {
     const iconHtml = (color: string, symbol: string) => `<div style="font-size: 24px; color: ${color};">${symbol}</div>`;
 
     switch(type) {
-        case 'Tank': return L.divIcon({ html: iconHtml('blue', '🔵'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
-        case 'Pump': return L.divIcon({ html: iconHtml('gold', '🟡'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
+        case 'Tank': return waterTankIcon;
+        case 'Pump': return pumpHouseIcon;
         case 'Valve': return L.divIcon({ html: iconHtml('grey', '⚙️'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
         case 'Alert': return L.divIcon({ html: iconHtml('red', '🔴'), className: '', iconSize: [24, 24], iconAnchor: [12, 12] });
         case 'Complaint': return L.divIcon({ html: iconHtml('red', '🔴'), className_:'', iconSize: [24, 24], iconAnchor: [12,12] });
@@ -117,6 +136,8 @@ export function PipelineMap({ pipelines, markers, onMarkAsResolved, panchayat }:
                                <p><b>Address:</b> ${marker.data.address}</p>
                                <p><b>Status:</b> ${marker.data.status}</p>
                                <div id="resolve-btn-container-${marker.id}"></div>`;
+            } else if (marker.data?.capacity) {
+                popupContent += `<p><b>Capacity:</b> ${marker.data.capacity} Liters</p>`;
             } else if (marker.data) {
                 popupContent += `<p>Details not available for this marker type.</p>`;
             }
@@ -150,14 +171,30 @@ export function PipelineMap({ pipelines, markers, onMarkAsResolved, panchayat }:
             <div className="leaflet-control leaflet-bar bg-white p-2 rounded-md shadow">
                 <h4 className="font-bold text-sm mb-2">Legend</h4>
                 <ul className="text-xs space-y-1">
-                    <li className="flex items-center gap-2">🔵<span className="font-bold">Blue Line:</span> Water Pipeline</li>
-                    <li className="flex items-center gap-2">🔵<span className="font-bold">Blue Marker:</span> Overhead Tank</li>
-                    <li className="flex items-center gap-2">🟡<span className="font-bold">Yellow Marker:</span> Pump House</li>
-                    <li className="flex items-center gap-2">⚙️<span className="font-bold">Grey Marker:</span> Valve</li>
-                    <li className="flex items-center gap-2">🔴<span className="font-bold">Red Marker:</span> Leak/Complaint</li>
-                    <li className="flex items-center gap-2">🟢<span className="font-bold">Green Marker:</span> Operator</li>
-                    <li className="flex items-center gap-2">🟠<span className="font-bold">Orange Marker:</span> Pump Fault</li>
-                    <li className="flex items-center gap-2">🟣<span className="font-bold">Purple Marker:</span> Suspected Leak Cluster</li>
+                    <li className="flex items-center gap-2">
+                        <div className="w-4 h-0.5 bg-blue-600"></div>
+                        <span className="font-bold">Water Pipeline</span>
+                    </li>
+                     <li className="flex items-center gap-2">
+                        <Image src="/assets/icons/water_tank.png" alt="tank icon" width={16} height={16} />
+                        <span className="font-bold">Overhead Tank</span>
+                    </li>
+                     <li className="flex items-center gap-2">
+                        <Image src="/assets/icons/pump_house.png" alt="pump icon" width={16} height={16} />
+                        <span className="font-bold">Pump House</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                        <span className="text-lg">⚙️</span>
+                        <span className="font-bold">Valve</span>
+                    </li>
+                     <li className="flex items-center gap-2">
+                        <span className="text-lg">🔴</span>
+                        <span className="font-bold">Leak/Complaint</span>
+                    </li>
+                     <li className="flex items-center gap-2">
+                        <span className="text-lg">🟢</span>
+                        <span className="font-bold">Operator</span>
+                    </li>
                 </ul>
             </div>
         </div>

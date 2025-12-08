@@ -1,4 +1,5 @@
 
+
 import { Timestamp } from "firebase/firestore";
 
 export type State = { id: string; name: string; center: { lat: number; lng: number; }; zoom: number; };
@@ -107,7 +108,8 @@ export const markers: Omit<Marker, 'id'>[] = [
         id: 'anjur-tank-01',
         type: 'Tank',
         label: 'OHT - Anjur',
-        position: { lat: 12.826, lng: 80.045 }
+        position: { lat: 12.826, lng: 80.045 },
+        data: { capacity: 50000 }
     },
     {
         id: 'anjur-valve-01',
