@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from 'react';
@@ -120,15 +121,15 @@ export default function LeakageDetectorPage() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex items-center justify-end gap-3 text-muted-foreground">
-                                  <Gauge className="h-4 w-4" /><span>{alert.Pressure.toFixed(2)} bar</span>
-                                  <Droplets className="h-4 w-4" /><span>{alert.Flow_Rate.toFixed(2)} L/s</span>
-                                  <Thermometer className="h-4 w-4" /><span>{alert.Temperature.toFixed(2)}°C</span>
+                                  <Gauge className="h-4 w-4" /><span>{typeof alert.Pressure === 'number' ? `${alert.Pressure.toFixed(2)} bar` : 'N/A'}</span>
+                                  <Droplets className="h-4 w-4" /><span>{typeof alert.Flow_Rate === 'number' ? `${alert.Flow_Rate.toFixed(2)} L/s` : 'N/A'}</span>
+                                  <Thermometer className="h-4 w-4" /><span>{typeof alert.Temperature === 'number' ? `${alert.Temperature.toFixed(2)}°C` : 'N/A'}</span>
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Pressure: {alert.Pressure.toFixed(2)} bar</p>
-                                <p>Flow Rate: {alert.Flow_Rate.toFixed(2)} L/s</p>
-                                <p>Temperature: {alert.Temperature.toFixed(2)}°C</p>
+                                <p>Pressure: {typeof alert.Pressure === 'number' ? `${alert.Pressure.toFixed(2)} bar` : 'N/A'}</p>
+                                <p>Flow Rate: {typeof alert.Flow_Rate === 'number' ? `${alert.Flow_Rate.toFixed(2)} L/s` : 'N/A'}</p>
+                                <p>Temperature: {typeof alert.Temperature === 'number' ? `${alert.Temperature.toFixed(2)}°C` : 'N/A'}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
