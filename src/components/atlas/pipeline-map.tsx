@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import type { Pipeline, Marker as MarkerType, Panchayat } from '@/lib/gis-data';
+import type { Panchayat, Pipeline, Valve, Pump, Tank, ComplaintMarker } from '@/lib/gis-data';
 import Image from 'next/image';
 
 // --- Custom Icon Definitions ---
@@ -16,47 +16,53 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Custom Water Tank Icon
-const waterTankIcon = L.icon({
-    iconUrl: '/assets/icons/water_tank.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
+// Custom Icons
+const createDivIcon = (content: string, className: string = '') => L.divIcon({ 
+    html: content, 
+    className: `bg-transparent border-0 ${className}`, 
+    iconSize: [24, 24], 
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
 });
 
-// Custom Pump House Icon
-const pumpHouseIcon = L.icon({
-    iconUrl: '/assets/icons/pump_house.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
-});
+const pumpIcon = createDivIcon('P', 'w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm');
+const valveIcon = createDivIcon('V', 'w-6 h-6 bg-gray-500 text-white rounded-full flex items-center justify-center font-bold text-sm');
+const tankIcon = createDivIcon('T', 'w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold text-sm');
+const complaintIcon = createDivIcon('!', 'w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-lg');
 
-const getIcon = (type: MarkerType['type']) => {
-    const iconHtml = (color: string, symbol: string) => `<div style="font-size: 24px; color: ${color};">${symbol}</div>`;
 
+const getIconForFeature = (type: string) => {
     switch(type) {
-        case 'Tank': return waterTankIcon;
-        case 'Pump': return pumpHouseIcon;
-        case 'Valve': return L.divIcon({ html: iconHtml('grey', '⚙️'), className: 'bg-transparent border-0', iconSize: [24, 24], iconAnchor: [12, 12] });
-        case 'Complaint': return L.divIcon({ html: iconHtml('red', '🔴'), className: 'bg-transparent border-0', iconSize: [24, 24], iconAnchor: [12,12] });
+        case 'pump': return pumpIcon;
+        case 'valve': return valveIcon;
+        case 'tank': return tankIcon;
+        case 'complaint': return complaintIcon;
         default: return new L.Icon.Default();
     }
 }
 
 interface PipelineMapProps {
-  pipelines: Pipeline[];
-  markers: MarkerType[];
-  onMarkAsResolved: (complaintId: string) => void;
   panchayat: Panchayat | null;
+  pipelines: Pipeline[];
+  pumps: Pump[];
+  tanks: Tank[];
+  valves: Valve[];
+  complaints: ComplaintMarker[];
+  onMarkAsResolved: (complaintId: string) => void;
 }
 
-export function PipelineMap({ pipelines, markers, onMarkAsResolved, panchayat }: PipelineMapProps) {
+export function PipelineMap({ panchayat, pipelines, pumps, tanks, valves, complaints, onMarkAsResolved }: PipelineMapProps) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<L.Map | null>(null);
-    const pipelineLayerRef = useRef<L.LayerGroup | null>(null);
-    const markerLayerRef = useRef<L.LayerGroup | null>(null);
+    
+    // Using refs for layer groups to avoid re-adding them on every render
+    const pipelineLayerRef = useRef<L.FeatureGroup | null>(null);
+    const pumpLayerRef = useRef<L.FeatureGroup | null>(null);
+    const tankLayerRef = useRef<L.FeatureGroup | null>(null);
+    const valveLayerRef = useRef<L.FeatureGroup | null>(null);
+    const complaintLayerRef = useRef<L.FeatureGroup | null>(null);
 
+    // Initialize map
     useEffect(() => {
         if (mapContainerRef.current && !mapRef.current) {
             const center = panchayat?.center || { lat: 12.825, lng: 80.045 };
@@ -71,69 +77,63 @@ export function PipelineMap({ pipelines, markers, onMarkAsResolved, panchayat }:
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            pipelineLayerRef.current = L.layerGroup().addTo(map);
-            markerLayerRef.current = L.layerGroup().addTo(map);
+            // Initialize layer groups and add them to the map
+            pipelineLayerRef.current = L.featureGroup().addTo(map);
+            pumpLayerRef.current = L.featureGroup().addTo(map);
+            tankLayerRef.current = L.featureGroup().addTo(map);
+            valveLayerRef.current = L.featureGroup().addTo(map);
+            complaintLayerRef.current = L.featureGroup().addTo(map);
             
             mapRef.current = map;
         }
-    }, []); // Only run once on mount
-
-    useEffect(() => {
-        if (mapRef.current && panchayat) {
-            mapRef.current.setView([panchayat.center.lat, panchayat.center.lng], panchayat.zoom);
-        }
     }, [panchayat]);
 
-
-    useEffect(() => {
-        const layer = pipelineLayerRef.current;
+    // Generic function to update layers
+    const updateLayer = <T extends { id: string; geometry: any; properties: any; }>(
+        features: T[],
+        layerGroupRef: React.MutableRefObject<L.FeatureGroup | null>
+    ) => {
+        const layer = layerGroupRef.current;
         if (!layer) return;
 
         layer.clearLayers();
-        pipelines.forEach(pipeline => {
-            const polyline = L.polyline(pipeline.path, { color: '#2196f3', weight: 3 });
-            const popupContent = `<b>Pipeline ID:</b> ${pipeline.id} <br/>
-                                <b>Type:</b> ${pipeline.type} <br/>
-                                <b>Material:</b> ${pipeline.material}`;
-            polyline.bindPopup(popupContent);
-            layer.addLayer(polyline);
-        });
-    }, [pipelines]);
 
-
-    useEffect(() => {
-        const layer = markerLayerRef.current;
-        if (!layer) return;
-
-        layer.clearLayers();
-        markers.forEach(marker => {
-            if (!marker.position) return;
-            const leafletMarker = L.marker([marker.position.lat, marker.position.lng], { icon: getIcon(marker.type) });
+        features.forEach(feature => {
+            const { geometry, properties } = feature;
+            let leafletLayer: L.Layer | null = null;
             
-            let popupContent = `<div class="space-y-2">
-                                <h4 class="font-bold">${marker.label} (${marker.type})</h4>`;
-            
-            if (marker.type === 'Complaint' && marker.data) {
-                 popupContent += `<p><b>Issue:</b> ${marker.data.issueType}</p>
-                               <p><b>Address:</b> ${marker.data.address}</p>
-                               <p><b>Status:</b> ${marker.data.status}</p>`;
-            } else if (marker.data?.capacity) {
-                popupContent += `<p><b>Capacity:</b> ${marker.data.capacity} Liters</p><p><b>Condition:</b> Good</p>`;
-            } else if (marker.type === 'Pump') {
-                 popupContent += `<p><b>Condition:</b> Good</p><p><b>Last Service:</b> 2024-01-15</p>`;
-            }
-             else if (marker.type === 'Valve') {
-                 popupContent += `<p><b>Condition:</b> Average</p><p><b>Last Updated:</b> 2024-03-10</p>`;
+            if (geometry.type === 'LineString') {
+                 // Leaflet uses [lat, lng], GeoJSON uses [lng, lat]
+                const latLngs = geometry.coordinates.map(coord => L.latLng(coord[1], coord[0]));
+                leafletLayer = L.polyline(latLngs, { color: '#1E90FF', weight: 3 });
+            } else if (geometry.type === 'Point') {
+                 // Leaflet uses [lat, lng], GeoJSON uses [lng, lat]
+                const latLng = L.latLng(geometry.coordinates[1], geometry.coordinates[0]);
+                leafletLayer = L.marker(latLng, { icon: getIconForFeature(properties.asset_type) });
             }
             
-            popupContent += `</div>`;
-            
-            leafletMarker.bindPopup(popupContent);
-
-            layer.addLayer(leafletMarker);
+            if (leafletLayer) {
+                const popupContent = `
+                    <div class="space-y-1 text-sm">
+                        <h4 class="font-bold text-base">${properties.name || properties.issueType || `Asset ${properties.asset_id}`}</h4>
+                        <p><strong>Type:</strong> ${properties.asset_type || 'N/A'}</p>
+                        ${properties.installation_date ? `<p><strong>Installed:</strong> ${properties.installation_date}</p>` : ''}
+                        ${properties.last_maintenance ? `<p><strong>Last Service:</strong> ${properties.last_maintenance}</p>` : ''}
+                        <p><strong>Status:</strong> ${properties.status || 'N/A'}</p>
+                        ${properties.complaints !== undefined ? `<p><strong>Complaints:</strong> ${properties.complaints}</p>` : ''}
+                    </div>
+                `;
+                leafletLayer.bindPopup(popupContent);
+                layer.addLayer(leafletLayer);
+            }
         });
-    }, [markers]);
+    };
 
+    useEffect(() => updateLayer(pipelines, pipelineLayerRef), [pipelines]);
+    useEffect(() => updateLayer(pumps, pumpLayerRef), [pumps]);
+    useEffect(() => updateLayer(tanks, tankLayerRef), [tanks]);
+    useEffect(() => updateLayer(valves, valveLayerRef), [valves]);
+    useEffect(() => updateLayer(complaints, complaintLayerRef), [complaints]);
 
   return (
     <div className="relative w-full h-[70vh] border rounded-lg overflow-hidden bg-muted">
@@ -143,24 +143,24 @@ export function PipelineMap({ pipelines, markers, onMarkAsResolved, panchayat }:
                 <h4 className="font-bold text-sm mb-2">Legend</h4>
                 <ul className="text-xs space-y-1">
                     <li className="flex items-center gap-2">
-                        <div className="w-4 h-0.5 bg-blue-600"></div>
-                        <span>Water Pipeline</span>
+                        <div className="w-4 h-0.5 bg-[#1E90FF]"></div>
+                        <span>Pipeline</span>
                     </li>
                      <li className="flex items-center gap-2">
-                        <Image src="/assets/icons/water_tank.png" alt="tank icon" width={16} height={16} />
-                        <span>Overhead Tank</span>
-                    </li>
-                     <li className="flex items-center gap-2">
-                        <Image src="/assets/icons/pump_house.png" alt="pump icon" width={16} height={16} />
+                        <div className="w-4 h-4 rounded-full bg-green-500"></div>
                         <span>Pump House</span>
                     </li>
+                     <li className="flex items-center gap-2">
+                         <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+                        <span>Tank</span>
+                    </li>
                     <li className="flex items-center gap-2">
-                        <span className="text-lg">⚙️</span>
+                        <div className="w-4 h-4 rounded-full bg-gray-500"></div>
                         <span>Valve</span>
                     </li>
                      <li className="flex items-center gap-2">
-                        <span className="text-lg">🔴</span>
-                        <span>Leak/Complaint</span>
+                        <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                        <span>Complaint</span>
                     </li>
                 </ul>
             </div>

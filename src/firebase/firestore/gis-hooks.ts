@@ -1,7 +1,7 @@
 
 'use client';
 import { useCollection } from './use-collection';
-import type { State, District, Mandal, Panchayat, Habitation, Pipeline, Marker } from '@/lib/gis-data';
+import type { State, District, Mandal, Panchayat, Habitation, Pipeline, Valve, Pump, Tank } from '@/lib/gis-data';
 
 export function useStates() {
   return useCollection<State>('states');
@@ -27,10 +27,22 @@ export function useHabitations(stateId: string | null, districtId: string | null
     return useCollection<Habitation>(path);
 }
 
-export function usePipelines(pipelinePath: string | null) {
-    return useCollection<Pipeline>(pipelinePath);
+const getAssetPath = (basePath: string | null, asset: string) => {
+    return basePath ? `${basePath}/${asset}` : null;
 }
 
-export function useMarkers(markerPath: string | null) {
-    return useCollection<Marker>(markerPath);
+export function usePipelines(panchayatPath: string | null) {
+    return useCollection<Pipeline>(getAssetPath(panchayatPath, 'pipelines'));
+}
+
+export function useValves(panchayatPath: string | null) {
+    return useCollection<Valve>(getAssetPath(panchayatPath, 'valves'));
+}
+
+export function usePumps(panchayatPath: string | null) {
+    return useCollection<Pump>(getAssetPath(panchayatPath, 'pumps'));
+}
+
+export function useTanks(panchayatPath: string | null) {
+    return useCollection<Tank>(getAssetPath(panchayatPath, 'tanks'));
 }
