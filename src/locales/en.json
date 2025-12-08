@@ -1,0 +1,19 @@
+
+{
+    "homepage_subtitle": "Your companion for community water management.",
+    "who_are_you": "Who are you?",
+    "select_your_role": "Select your role to proceed to your personalized dashboard.",
+    "gp_members_title": "Gram Panchayat Members",
+    "gp_members_desc": "Access administrative tools, manage water supply schemes, and monitor village-level data.",
+    "pump_operators_title": "Pump Operators / Technicians",
+    "pump_operators_desc": "View operational data, report issues, and manage maintenance schedules for water pumps.",
+    "village_residents_title": "Village Residents",
+    "village_residents_desc": "Check water availability, pay bills, and get updates on water supply in your area.",
+    "block_officials_title": "Block / District Officials",
+    "block_officials_desc": "Oversee regional water management, analyze data dashboards, and coordinate across panchayats.",
+    "proceed_to_dashboard": "Proceed to Dashboard",
+    "jjm_support_title": "Jal Jeevan Mission Support",
+    "jjm_support_desc": "For official guidelines and support, please refer to the national resources provided by the Jal Jeevan Mission.",
+    "read_guidelines": "Read Guidelines",
+    "national_helpline": "National Helpline"
+}
