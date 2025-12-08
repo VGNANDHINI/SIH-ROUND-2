@@ -1,6 +1,6 @@
 'use client';
 import { useCollection } from './use-collection';
-import type { WaterScheme, PumpIssue, Bill, PumpLog, Operator, Complaint, WaterTest, SopLibraryItem, DailyChecklist } from '@/lib/data';
+import type { WaterScheme, PumpIssue, Bill, PumpLog, Operator, Complaint, WaterTest, SopLibraryItem, DailyChecklist, LeakageAlert } from '@/lib/data';
 import { sopLibraryItems } from '@/lib/sop-data';
 
 export function useWaterSchemes() {
@@ -35,6 +35,10 @@ export function useWaterQualityTests(panchayatId?: string) {
 export function useDailyChecklists(panchayatId?: string) {
     const path = panchayatId ? `panchayats/${panchayatId}/checklists` : null;
     return useCollection<DailyChecklist>(path);
+}
+
+export function useLeakageAlerts() {
+    return useCollection<LeakageAlert>('leakageAlerts');
 }
 
 // NOTE: This hook uses static data for the prototype.

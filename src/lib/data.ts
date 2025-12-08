@@ -269,3 +269,15 @@ export type WaterTank = {
   currentLevel: number;
   lastUpdated: any;
 }
+
+export type LeakageAlert = {
+    id: string;
+    Timestamp: any;
+    Sensor_ID: string;
+    Pressure: number;
+    Flow_Rate: number;
+    Temperature: number;
+    Leak_Status: 0 | 1;
+    Burst_Status: 0 | 1;
+    Leakage_Alerts: string;
+};

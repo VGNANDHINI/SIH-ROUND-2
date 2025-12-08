@@ -1,3 +1,4 @@
+
 // src/app/(dashboards)/_components/sidebar-nav.tsx
 "use client";
 
@@ -17,7 +18,7 @@ import {
   Bell, FlaskConical, Map, Clock, ClipboardCheck, 
   AlertCircle, Wrench, Search, BookOpen, FilePenLine,
   Camera, BarChart, HelpCircle, CheckSquare,
-  Presentation, ShieldCheck, User, Sparkles
+  Presentation, ShieldCheck, User, Sparkles, Signal
 } from "lucide-react";
 import React from "react";
 import { useTranslation } from "@/hooks/use-translation";
@@ -81,6 +82,14 @@ const navItems = {
       color: "text-teal-600",
       bgColor: "bg-teal-50 dark:bg-teal-900/20",
       description: "गुणवत्ता"
+    },
+    { 
+      href: "/gram-panchayat/leakage-detector", 
+      labelKey: "sidebar_gp_leakage_detector", 
+      icon: <Signal className="w-5 h-5" />, 
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+      description: "रिसाव सेंसर"
     },
     { 
       href: "/gram-panchayat/gis-atlas", 

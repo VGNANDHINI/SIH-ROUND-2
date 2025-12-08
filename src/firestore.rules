@@ -67,6 +67,13 @@ service cloud.firestore {
     match /operators/{operatorId} {
       allow read, write: if request.auth != null;
     }
+    
+    match /leakageAlerts/{alertId} {
+      // Allow Colab backend to write, and authenticated users to read.
+      allow read: if request.auth != null;
+      // In production, you would secure this with a service account or API key check
+      allow write: if true; 
+    }
 
     match /complaints/{complaintId} {
       // Allow client-side creation if user is creating their own complaint.
