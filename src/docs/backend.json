@@ -196,12 +196,25 @@
     },
     "gisFeature": {
       "title": "GIS Feature (GeoJSON)",
-      "description": "A generic GeoJSON feature.",
+      "description": "A generic GeoJSON feature representing a GIS asset.",
       "type": "object",
       "properties": {
         "type": { "type": "string", "enum": ["Feature"] },
-        "geometry": { "type": "object" },
-        "properties": { "type": "object" }
+        "geometry": { 
+            "type": "object",
+            "description": "GeoJSON geometry object (Point, LineString, Polygon)."
+        },
+        "properties": { 
+            "type": "object",
+            "properties": {
+                "asset_id": { "type": "string" },
+                "name": { "type": "string" },
+                "asset_type": { "type": "string", "enum": ["pipeline", "valve", "pump", "tank"] },
+                "village": { "type": "string" },
+                "status": { "type": "string" },
+                "last_updated": { "type": "string", "format": "date-time" }
+            }
+        }
       },
       "required": ["type", "geometry", "properties"]
     }
@@ -221,11 +234,9 @@
     "/sopLibrary/{sopId}": { "schema": { "$ref": "#/entities/sopLibraryItem" } },
     "/panchayats/{panchayatId}/checklists/{checklistId}": { "schema": { "$ref": "#/entities/dailyChecklist" } },
     "/panchayats/{panchayatId}/waterTests/{testId}": { "schema": { "$ref": "#/entities/waterTest" } },
-    "/assets_pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/gisFeature" } },
-    "/assets_valves/{valveId}": { "schema": { "$ref": "#/entities/gisFeature" } },
-    "/assets_pumps/{pumpId}": { "schema": { "$ref": "#/entities/gisFeature" } },
-    "/assets_tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } }
+    "/gis_assets/{villageId}/pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/gis_assets/{villageId}/valves/{valveId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/gis_assets/{villageId}/pumps/{pumpId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/gis_assets/{villageId}/tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } }
   }
 }
-
-    

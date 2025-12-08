@@ -11,22 +11,15 @@ import { Input } from "@/components/ui/input";
 import { useComplaints, usePipelines, usePumps, useTanks, useValves } from "@/firebase";
 import { Loader2 } from 'lucide-react';
 import dynamic from "next/dynamic";
-import type { Complaint } from '@/lib/data';
-import type { Panchayat, PipelineFeature, ValveFeature, PumpFeature, TankFeature, ComplaintFeature } from '@/lib/gis-data';
 import { useToast } from "@/hooks/use-toast";
+import type { Panchayat } from '@/lib/gis-data';
+import { panchayatDetails } from "@/lib/gis-data";
 
 // Lazy-load the map component to prevent SSR issues with Leaflet
 const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then(mod => mod.PipelineMap), {
     ssr: false,
     loading: () => <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg"><Loader2 className="h-8 w-8 animate-spin" /></div>
 });
-
-const panchayatDetails: Panchayat = {
-    id: 'anjur',
-    name: 'Anjur',
-    center: { lat: 12.828, lng: 80.051 },
-    zoom: 16
-};
 
 export default function GisAtlasPage() {
     const { toast } = useToast();
@@ -38,57 +31,44 @@ export default function GisAtlasPage() {
         pumps: true,
         complaints: true,
     });
+    
+    // For now, we hardcode the village. In a real app, this would come from user selection.
+    const villageId = panchayatDetails.id;
 
     const handleLayerToggle = (layer: keyof typeof layers) => {
         setLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
     };
 
-    // Fetching data for all layers
-    const { data: pipelines, loading: pipelinesLoading } = usePipelines();
-    const { data: pumps, loading: pumpsLoading } = usePumps();
-    const { data: tanks, loading: tanksLoading } = useTanks();
-    const { data: valves, loading: valvesLoading } = useValves();
-    const { data: allComplaints, loading: complaintsLoading } = useComplaints();
+    // Fetching data for all layers for the specific village
+    const { data: pipelines, loading: pipelinesLoading } = usePipelines(villageId);
+    const { data: pumps, loading: pumpsLoading } = usePumps(villageId);
+    const { data: tanks, loading: tanksLoading } = useTanks(villageId);
+    const { data: valves, loading: valvesLoading } = useValves(villageId);
+    const { data: allComplaints, loading: complaintsLoading } = useComplaints(); // Complaints are global for now
 
-    const complaintMarkers = useMemo((): ComplaintFeature[] => {
+    const complaintFeatures = useMemo(() => {
         if (!allComplaints) return [];
         return allComplaints
             .filter(c => c.status !== 'Resolved' && c.userPanchayat === panchayatDetails.name && c.gpsLocation)
-            .map((c: Complaint): ComplaintFeature => ({
+            .map(c => ({
                 id: c.id,
-                type: 'Feature',
+                type: 'Feature' as const,
                 geometry: {
-                    type: 'Point',
+                    type: 'Point' as const,
                     coordinates: [c.gpsLocation!.lng, c.gpsLocation!.lat]
                 },
-                properties: c
+                properties: { ...c, asset_type: 'complaint' as const }
             }));
     }, [allComplaints]);
 
     const loading = pipelinesLoading || pumpsLoading || tanksLoading || valvesLoading || complaintsLoading;
 
-    // Filter logic based on search term
-    const filterData = <T extends { properties: { name?: string, asset_id?: string } }>(data: T[] | null): T[] => {
-        if (!data) return [];
-        if (!searchTerm) return data;
-        return data.filter(item => 
-            item.properties.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.properties.asset_id?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    };
-
-    const filteredPipelines = useMemo(() => filterData(pipelines), [pipelines, searchTerm]);
-    const filteredPumps = useMemo(() => filterData(pumps), [pumps, searchTerm]);
-    const filteredTanks = useMemo(() => filterData(tanks), [tanks, searchTerm]);
-    const filteredValves = useMemo(() => filterData(valves), [valves, searchTerm]);
-    const filteredComplaints = useMemo(() => {
-        if (!complaintMarkers) return [];
-        if (!searchTerm) return complaintMarkers;
-         return complaintMarkers.filter(item => 
-            item.properties.issueType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.properties.address?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [complaintMarkers, searchTerm]);
+    // Filter logic can be enhanced later
+    const filteredPipelines = useMemo(() => pipelines || [], [pipelines]);
+    const filteredPumps = useMemo(() => pumps || [], [pumps]);
+    const filteredTanks = useMemo(() => tanks || [], [tanks]);
+    const filteredValves = useMemo(() => valves || [], [valves]);
+    const filteredComplaints = useMemo(() => complaintFeatures, [complaintFeatures]);
 
     return (
         <div className="grid lg:grid-cols-4 gap-6 items-start">
@@ -166,5 +146,3 @@ export default function GisAtlasPage() {
         </div>
     );
 }
-
-    

@@ -1,5 +1,4 @@
 
-
 import type { Complaint } from "./data";
 
 export type Panchayat = { id: string; name: string; center: { lat: number; lng: number; }; zoom: number; };
@@ -22,7 +21,7 @@ export interface LineString {
 }
 
 export interface GisProperties {
-    asset_id: string;
+    asset_id?: string;
     name: string;
     asset_type: "pipeline" | "valve" | "pump" | "tank" | "complaint";
     village: string;
@@ -34,7 +33,7 @@ export type PipelineFeature = GeoJsonFeature<LineString, GisProperties>;
 export type ValveFeature = GeoJsonFeature<Point, GisProperties>;
 export type PumpFeature = GeoJsonFeature<Point, GisProperties>;
 export type TankFeature = GeoJsonFeature<Point, GisProperties>;
-export type ComplaintFeature = GeoJsonFeature<Point, Complaint>;
+export type ComplaintFeature = GeoJsonFeature<Point, Complaint & { asset_type: 'complaint' }>;
 
 // Seed Data
 export const panchayatDetails: Panchayat = {
@@ -60,7 +59,7 @@ export const samplePipeline: Omit<PipelineFeature, 'id'> = {
         asset_id: 'pipeline_001',
         asset_type: "pipeline",
         name: "Main Distribution Pipeline",
-        village": "Anjur",
+        village: "Anjur",
         status: "active",
         last_updated: "2025-12-08T10:00:00Z"
     }
@@ -99,10 +98,8 @@ export const sampleTank: Omit<TankFeature, 'id'> = {
         asset_id: 'tank_001',
         asset_type: "tank",
         name: "Overhead Tank",
-        village": "Anjur",
+        village: "Anjur",
         status: "active",
         last_updated: new Date().toISOString()
     }
 };
-
-    
