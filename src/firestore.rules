@@ -118,3 +118,5 @@ service cloud.firestore {
     match /assets_tanks/{tankId} { allow read: if request.auth != null; }
   }
 }
+
+    

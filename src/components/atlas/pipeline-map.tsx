@@ -8,6 +8,7 @@ import Image from 'next/image';
 
 // --- Custom Icon Definitions ---
 
+// Reset default icon path
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -15,6 +16,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+// Helper for creating custom HTML-based icons
 const createDivIcon = (content: string, className: string = '') => L.divIcon({ 
     html: content, 
     className: `bg-transparent border-0 ${className}`, 
@@ -23,9 +25,10 @@ const createDivIcon = (content: string, className: string = '') => L.divIcon({
     popupAnchor: [0, -12]
 });
 
-const pumpIcon = createDivIcon('P', 'w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-sm');
-const valveIcon = createDivIcon('V', 'w-6 h-6 bg-gray-500 text-white rounded-full flex items-center justify-center font-bold text-sm');
-const tankIcon = createDivIcon('T', 'w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold text-sm');
+// Define specific icons for each asset type
+const pumpIcon = createDivIcon('<div class="w-6 h-6 bg-green-500 rounded-full border-2 border-white shadow-md"></div>', 'pump-icon');
+const valveIcon = createDivIcon('<div class="w-6 h-6 bg-gray-500 rounded-full border-2 border-white shadow-md flex items-center justify-center text-white font-bold text-xs">V</div>', 'valve-icon');
+const tankIcon = createDivIcon('<div class="w-6 h-6 bg-purple-500 rounded-sm border-2 border-white shadow-md"></div>', 'tank-icon');
 
 // A pulsing icon for complaints
 const complaintIcon = L.divIcon({
@@ -103,12 +106,14 @@ export function PipelineMap({ panchayat, pipelines, pumps, tanks, valves, compla
             const { geometry, properties } = feature;
             let leafletLayer: L.Layer | null = null;
             
+            const assetType = properties.asset_type || (properties.issueType ? 'complaint' : 'unknown');
+
             if (geometry.type === 'LineString') {
                 const latLngs = geometry.coordinates.map((coord: [number, number]) => L.latLng(coord[1], coord[0]));
-                leafletLayer = L.polyline(latLngs, { color: '#0094FF', weight: 3 });
+                leafletLayer = L.polyline(latLngs, { color: '#1E90FF', weight: 4 });
             } else if (geometry.type === 'Point') {
                 const latLng = L.latLng(geometry.coordinates[1], geometry.coordinates[0]);
-                leafletLayer = L.marker(latLng, { icon: getIconForFeature(properties.asset_type || 'complaint') });
+                leafletLayer = L.marker(latLng, { icon: getIconForFeature(assetType) });
             }
             
             if (leafletLayer) {
@@ -156,7 +161,7 @@ export function PipelineMap({ panchayat, pipelines, pumps, tanks, valves, compla
                 <h4 className="font-bold text-sm mb-2">Legend</h4>
                 <ul className="text-xs space-y-1">
                     <li className="flex items-center gap-2">
-                        <div className="w-4 h-0.5 bg-[#0094FF]"></div>
+                        <div className="w-4 h-0.5 bg-[#1E90FF]"></div>
                         <span>Pipeline</span>
                     </li>
                      <li className="flex items-center gap-2">
@@ -164,7 +169,7 @@ export function PipelineMap({ panchayat, pipelines, pumps, tanks, valves, compla
                         <span>Pump House</span>
                     </li>
                      <li className="flex items-center gap-2">
-                         <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+                         <div className="w-4 h-4 rounded-sm bg-purple-500"></div>
                         <span>Tank</span>
                     </li>
                     <li className="flex items-center gap-2">
@@ -181,3 +186,5 @@ export function PipelineMap({ panchayat, pipelines, pumps, tanks, valves, compla
     </div>
   );
 }
+
+    

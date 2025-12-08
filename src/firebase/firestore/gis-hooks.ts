@@ -3,18 +3,20 @@
 import { useCollection } from './use-collection';
 import type { PipelineFeature, ValveFeature, PumpFeature, TankFeature } from '@/lib/gis-data';
 
-export function usePipelines(village?: string) {
+export function usePipelines() {
   return useCollection<PipelineFeature>('assets_pipelines');
 }
 
-export function useValves(village?: string) {
+export function useValves() {
   return useCollection<ValveFeature>('assets_valves');
 }
 
-export function usePumps(village?: string) {
+export function usePumps() {
     return useCollection<PumpFeature>('assets_pumps');
 }
 
-export function useTanks(village?: string) {
+export function useTanks() {
     return useCollection<TankFeature>('assets_tanks');
 }
+
+    

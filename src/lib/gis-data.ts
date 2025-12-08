@@ -49,28 +49,33 @@ export const samplePipeline: Omit<PipelineFeature, 'id'> = {
     type: "Feature",
     geometry: {
         type: "LineString",
-        coordinates: [ [80.04990, 12.82701], [80.05055, 12.82780], [80.05132, 12.82890] ]
+        coordinates: [
+          [80.04990, 12.82701],
+          [80.05060, 12.82775],
+          [80.05145, 12.82852],
+          [80.05210, 12.82910]
+        ]
     },
     properties: {
-        asset_id: 'pipe-main-01',
+        asset_id: 'pipeline_001',
         asset_type: "pipeline",
-        name: "Main Supply Line",
+        name: "Main Distribution Pipeline",
         village": "Anjur",
         status: "active",
-        last_updated: new Date().toISOString()
+        last_updated: "2025-12-08T10:00:00Z"
     }
 };
 
 export const sampleValve: Omit<ValveFeature, 'id'> = {
     type: "Feature",
-    geometry: { type: "Point", coordinates: [80.05055, 12.82780] },
+    geometry: { type: "Point", coordinates: [80.05145, 12.82852] },
     properties: {
-        asset_id: 'valve-01',
+        asset_id: 'valve_001',
         asset_type: "valve",
-        name: "Control Valve V-01",
+        name: "Control Valve 1",
         village: "Anjur",
         status: "operational",
-        last_updated: new Date().toISOString()
+        last_updated: "2025-12-08T10:00:00Z"
     }
 };
 
@@ -78,7 +83,7 @@ export const samplePump: Omit<PumpFeature, 'id'> = {
     type: "Feature",
     geometry: { type: "Point", coordinates: [80.05220, 12.82950] },
     properties: {
-        asset_id: 'pump-01',
+        asset_id: 'pump_001',
         asset_type: "pump",
         name: "Primary Booster Pump",
         village: "Anjur",
@@ -91,7 +96,7 @@ export const sampleTank: Omit<TankFeature, 'id'> = {
     type: "Feature",
     geometry: { type: "Point", coordinates: [80.05310, 12.83010] },
     properties: {
-        asset_id: 'tank-01',
+        asset_id: 'tank_001',
         asset_type: "tank",
         name: "Overhead Tank",
         village": "Anjur",
@@ -99,3 +104,5 @@ export const sampleTank: Omit<TankFeature, 'id'> = {
         last_updated: new Date().toISOString()
     }
 };
+
+    

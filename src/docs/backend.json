@@ -227,3 +227,5 @@
     "/assets_tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } }
   }
 }
+
+    
