@@ -50,7 +50,7 @@ export default function LeakageDetectorPage() {
   const stats = useMemo(() => {
     if (!alerts) return { leakages: 0, bursts: 0, warnings: 0, normal: 0 };
     return {
-      leakages: alerts.filter(a => a.Leak_Status == 1).length,
+      leakages: alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length,
       bursts: alerts.filter(a => a.Burst_Status === 1).length,
       warnings: alerts.filter(a => a.Leakage_Alerts.includes('Possible Leakage')).length,
       normal: alerts.filter(a => a.Leakage_Alerts.includes('No leakage')).length,
@@ -58,10 +58,15 @@ export default function LeakageDetectorPage() {
   }, [alerts]);
 
   useEffect(() => {
-    if(alerts && alerts.length > 0) {
+    if(sortedAlerts && sortedAlerts.length > 0) {
         setAnalysisLoading(true);
         const latestAlert = sortedAlerts[0];
-        const leakComplaints = alerts.filter(a => a.Leak_Status === 1).length;
+        if (!latestAlert) {
+            setAnalysisLoading(false);
+            return;
+        }
+
+        const leakComplaints = alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length;
 
         diagnoseWaterNetwork({
             pressure_value: latestAlert.Pressure,
