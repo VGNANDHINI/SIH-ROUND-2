@@ -116,3 +116,5 @@ export const markers: Omit<Marker, 'id'>[] = [
         position: { lat: 12.825, lng: 80.042 }
     }
 ];
+
+    

@@ -24,7 +24,7 @@ const navItems = {
     { href: "/gram-panchayat/operator-management", label: "Operator Management", icon: <Users /> },
     { href: "/gram-panchayat/alerts", label: "Send Alerts", icon: <Megaphone /> },
     { href: "/gram-panchayat/water-quality", label: "Water Quality", icon: <FlaskConical /> },
-    { href: "/gram-panchayat/gis-atlas", label: "GIS Atlas", icon: <Map /> },
+    { href: "/gram-panchayat/gis-atlas", label: "Village Pipeline Map", icon: <Map /> },
   ],
   "pump-operator": [
     { href: "/pump-operator", label: "Dashboard", icon: <LayoutDashboard /> },
@@ -124,3 +124,5 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
+
+    

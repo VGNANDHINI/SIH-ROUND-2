@@ -5,10 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MapPin } from "lucide-react";
 import React, { useState, useMemo, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers, useComplaints } from "@/firebase";
+import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers, useComplaints, useFirestore } from "@/firebase";
 import { Loader2 } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import type { Complaint } from '@/lib/data';
+import { doc, setDoc } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
 
 const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then(mod => mod.PipelineMap), {
     ssr: false,
@@ -23,6 +28,8 @@ export default function GisAtlasPage() {
     const [selectedPanchayat, setSelectedPanchayat] = useState<string | null>('anjur');
     
     const router = useRouter();
+    const firestore = useFirestore();
+    const { toast } = useToast();
 
     const { data: states, loading: statesLoading } = useStates();
     const { data: districts, loading: districtsLoading } = useDistricts(selectedState);
@@ -41,11 +48,9 @@ export default function GisAtlasPage() {
         const panchayatDetails = panchayats?.find(p => p.id === selectedPanchayat);
         if (!panchayatDetails) return [];
         
-        // This is a placeholder for real GPS data which should be in the complaint document
-        // A real app would get lat/lng from the complaint itself.
         const panchayatCenter = panchayatDetails.center || { lat: 12.825, lng: 80.045 };
 
-        return complaints.filter(c => c.status === 'Open' && c.userPanchayat === panchayatDetails.name).map(c => ({
+        return complaints.filter(c => c.status === 'Open' && c.userPanchayat === panchayatDetails.name).map((c: Complaint) => ({
             id: c.id,
             type: 'Complaint' as const,
             label: c.issueType,
@@ -85,8 +90,20 @@ export default function GisAtlasPage() {
     }, [selectedPanchayat, panchayats]);
     
     const handleMarkAsResolved = (complaintId: string) => {
-        console.log("Marking as resolved:", complaintId);
-        // In a real app, you would call a Firestore update function here.
+        if (!firestore) return;
+        const complaint = complaints?.find(c => c.id === complaintId);
+        if (!complaint) return;
+
+        const docRef = doc(firestore, 'complaints', complaintId);
+        const { id, ...complaintData } = complaint;
+        const updatedData = { ...complaintData, status: 'Resolved' as const };
+        
+        setDoc(docRef, updatedData, { merge: true })
+            .then(() => toast({ title: "Complaint Resolved", description: `Complaint ID ${complaintId.substring(0,5)}... marked as resolved.` }))
+            .catch(err => {
+                const permissionError = new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: updatedData });
+                errorEmitter.emit('permission-error', permissionError);
+            });
     };
 
     return (
@@ -94,7 +111,7 @@ export default function GisAtlasPage() {
             <div className="lg:col-span-1 space-y-6">
                  <Card>
                     <CardHeader>
-                        <CardTitle>Atlas Assistant</CardTitle>
+                        <CardTitle>Map Controls</CardTitle>
                         <CardDescription>Select a location to view its assets.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -133,7 +150,7 @@ export default function GisAtlasPage() {
             <div className="lg:col-span-3">
                 <Card>
                      <CardHeader>
-                        <CardTitle>Live GIS Map: {panchayatDetails?.name ?? '...'}</CardTitle>
+                        <CardTitle>Village Pipeline Map: {panchayatDetails?.name ?? '...'}</CardTitle>
                         <CardDescription>Interactive map of water infrastructure and live alerts.</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -155,3 +172,5 @@ export default function GisAtlasPage() {
         </div>
     );
 }
+
+    

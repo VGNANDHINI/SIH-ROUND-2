@@ -143,6 +143,7 @@ export type Complaint = {
   actionTaken?: string;
   verifiedBy?: string;
   rejectionReason?: string;
+  gpsLocation?: { lat: number; lng: number };
 };
 
 export type UserProfile = {
@@ -261,14 +262,14 @@ export type DailyChecklist = {
   status: 'Pending' | 'Submitted' | 'Requires Review';
 }
 
-export type TodoTask = {
-    id: string;
-    title: string;
-    completed: boolean;
-    dueDate: any;
-    isRecurring: boolean;
-    panchayatId: string;
-};
+export type WaterTank = {
+  id: string;
+  tankId: string;
+  name: string;
+  capacity: number;
+  currentLevel: number;
+  lastUpdated: any;
+}
 
 export type DailyLeakCheck = {
   id: string;
@@ -302,30 +303,34 @@ async function seedDatabase() {
         if (await collectionIsEmpty('states')) {
             console.log('Seeding GIS data...');
             // State
-            const stateRef = doc(db, 'states', states[0].id);
-            batch.set(stateRef, { name: states[0].name });
+            const stateData = states[0];
+            const stateRef = doc(db, 'states', stateData.name.toLowerCase().replace(/\s+/g, '_'));
+            batch.set(stateRef, stateData);
 
             // District
-            const districtRef = doc(db, `states/${states[0].id}/districts`, districts[0].id);
-            batch.set(districtRef, { name: districts[0].name });
+            const districtData = districts['tamil-nadu'][0];
+            const districtRef = doc(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts`, districtData.name.toLowerCase());
+            batch.set(districtRef, districtData);
 
             // Mandal
-            const mandalRef = doc(db, `states/${states[0].id}/districts/${districts[0].id}/mandals`, mandals[0].id);
-            batch.set(mandalRef, { name: mandals[0].name });
+            const mandalData = mandals['chengalpattu'][0];
+            const mandalRef = doc(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals`, mandalData.name.toLowerCase());
+            batch.set(mandalRef, mandalData);
             
             // Panchayat
-            const panchayatRef = doc(db, `states/${states[0].id}/districts/${districts[0].id}/mandals/${mandals[0].id}/panchayats`, panchayats[0].id);
-            batch.set(panchayatRef, { name: panchayats[0].name });
+            const panchayatData = panchayats['kattankolathur'][0];
+            const panchayatRef = doc(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals/${mandalData.name.toLowerCase()}/panchayats`, panchayatData.name.toLowerCase());
+            batch.set(panchayatRef, panchayatData);
             
             // Pipelines for Anjur
             pipelines.forEach(p => {
-                const pipelineRef = doc(collection(db, `states/${states[0].id}/districts/${districts[0].id}/mandals/${mandals[0].id}/panchayats/${panchayats[0].id}/pipelines`));
+                const pipelineRef = doc(collection(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals/${mandalData.name.toLowerCase()}/panchayats/${panchayatData.name.toLowerCase()}/pipelines`));
                 batch.set(pipelineRef, p);
             });
 
             // Markers for Anjur
             markers.forEach(m => {
-                const markerRef = doc(collection(db, `states/${states[0].id}/districts/${districts[0].id}/mandals/${mandals[0].id}/panchayats/${panchayats[0].id}/markers`));
+                const markerRef = doc(collection(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals/${mandalData.name.toLowerCase()}/panchayats/${panchayatData.name.toLowerCase()}/markers`));
                 batch.set(markerRef, m);
             });
         }
@@ -350,3 +355,5 @@ async function seedDatabase() {
 
 // Call this function to seed the db when the app starts if needed,
 // seedDatabase();
+
+    
