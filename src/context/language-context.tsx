@@ -1,6 +1,6 @@
 
 'use client';
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, ReactNode } from 'react';
 
 // Use require for server-side compatibility and to avoid async issues with imports
 const translations: Record<string, Record<string, string>> = {
@@ -20,10 +20,10 @@ interface LanguageContextType {
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-    const [language, setLanguageState] = useState<string>('en');
-    const [isInitialized, setIsInitialized] = useState(false);
+    const [language, setLanguageState] = React.useState<string>('en');
+    const [isInitialized, setIsInitialized] = React.useState(false);
 
-    useEffect(() => {
+    React.useEffect(() => {
         const savedLanguage = localStorage.getItem('jalsaathi-lang');
         if (savedLanguage && translations[savedLanguage]) {
             setLanguageState(savedLanguage);
