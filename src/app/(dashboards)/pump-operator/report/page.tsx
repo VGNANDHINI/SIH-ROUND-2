@@ -48,8 +48,11 @@ export default function ReportIssuePage() {
         }
         setIsLoading(true);
         
+        // Destructure to separate the image from the rest of the values
+        const { image, ...restOfValues } = values;
+
         const issueData = {
-            ...values,
+            ...restOfValues,
             reportedAt: new Date().toISOString().split('T')[0],
             status: 'Open'
         };
