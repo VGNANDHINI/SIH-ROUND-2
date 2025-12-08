@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
@@ -27,12 +28,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#f0f9ff" />
       </head>
       <body className="font-body antialiased">
-        <LanguageProvider>
-          <FirebaseClientProvider>
-            {children}
-            <Toaster />
-          </FirebaseClientProvider>
-        </LanguageProvider>
+        <FirebaseClientProvider>
+          {children}
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );
