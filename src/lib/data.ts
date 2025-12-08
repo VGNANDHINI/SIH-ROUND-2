@@ -279,7 +279,7 @@ export type DailyLeakCheck = {
   pump_hours_previous: number;
   tank_level_change: "Increase" | "No change" | "Decrease";
   pressure_level: "High" | "Normal" | "Low";
-  flow_rate: "Normal" | "Low";
+  flow_rate: "High" | "Normal" | "Low";
   complaints_count: number;
   leak_score: number;
   severity: "red" | "yellow" | "green";

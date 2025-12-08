@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "userProfile": {
@@ -205,54 +206,59 @@
         },
         "required": ["panchayatId", "operatorId", "ward", "testDate", "status"]
     },
-    "dailyLeakCheck": {
-      "title": "Daily Leak Check",
-      "description": "A daily log for the leakage detection system.",
-      "type": "object",
-      "properties": {
-        "timestamp": { "type": "string", "format": "date-time" },
-        "gp_id": { "type": "string" },
-        "pump_hours_today": { "type": "number" },
-        "pump_hours_previous": { "type": "number" },
-        "tank_level_change": { "type": "string", "enum": ["Increase", "No change", "Decrease"] },
-        "pressure_level": { "type": "string", "enum": ["High", "Normal", "Low"] },
-        "flow_rate": { "type": "string", "enum": ["Normal", "Low"] },
-        "complaints_count": { "type": "number" },
-        "leak_score": { "type": "number" },
-        "severity": { "type": "string", "enum": ["red", "yellow", "green"] },
-        "result_message": { "type": "string" }
-      },
-      "required": ["timestamp", "gp_id", "leak_score", "severity"]
+    "leakage_report": {
+        "title": "Leakage Report",
+        "description": "Stores the output of the leakage detection and localization engine.",
+        "type": "object",
+        "properties": {
+            "status": { "type": "string" },
+            "leakageScore": { "type": "number" },
+            "predictedLocation": { "type": "string" },
+            "confidenceLevel": { "type": "string", "enum": ["High", "Medium", "Low"] },
+            "supportingIndicators": {
+                "type": "object",
+                "properties": {
+                    "tankLevelChange": { "type": "string" },
+                    "pumpHoursDifference": { "type": "number" },
+                    "pressure": { "type": "string" },
+                    "flowRate": { "type": "string" },
+                    "complaintClusterDetected": { "type": "boolean" }
+                }
+            },
+            "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["status", "leakageScore", "timestamp"]
     },
     "state": { "title": "State", "description": "Represents a state.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "district": { "title": "District", "description": "Represents a district.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "mandal": { "title": "Mandal", "description": "Represents a mandal/block.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
     "panchayat": { "title": "Panchayat", "description": "Represents a panchayat.", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
-    "pipeline": {
-      "title": "Pipeline",
-      "description": "Represents a water pipeline segment.",
+    "pipeline_route": {
+      "title": "Pipeline Route",
+      "description": "Represents a water pipeline segment as a GeoJSON object.",
       "type": "object",
       "properties": {
-        "type": { "type": "string", "enum": ["Rising Main", "Distribution"] },
-        "material": { "type": "string" },
-        "diameter": { "type": "number" },
-        "path": { "type": "array", "items": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } } },
-        "length": { "type": "number"},
-        "villageServed": { "type": "string" }
+        "gp_id": { "type": "string" },
+        "route_geojson": { "type": "object" },
+        "created_by": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
       },
-      "required": ["type", "path", "length", "villageServed"]
+      "required": ["gp_id", "route_geojson", "created_by", "timestamp"]
     },
-    "marker": {
-      "title": "Marker",
-      "description": "Represents a point of interest on the map.",
-      "type": "object",
-      "properties": {
-        "type": { "type": "string", "enum": ["Pump", "Tank", "Valve", "Alert", "Operator", "Complaint", "Pump Fault", "Leak Cluster"] },
-        "label": { "type": "string" },
-        "position": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
-        "data": { "type": "object" }
-      },
-      "required": ["type", "label", "position"]
+    "leakage_point": {
+        "title": "Leakage Point",
+        "description": "A specific point on the map where a leak is suspected or confirmed.",
+        "type": "object",
+        "properties": {
+            "gp_id": { "type": "string" },
+            "lat": { "type": "number" },
+            "lng": { "type": "number" },
+            "operator_id": { "type": "string" },
+            "severity": { "type": "string", "enum": ["low", "medium", "high"]},
+            "status": { "type": "string", "enum": ["open", "verified", "resolved"]},
+            "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["gp_id", "lat", "lng", "operator_id", "severity", "status", "timestamp"]
     }
   },
   "auth": {
@@ -269,14 +275,14 @@
     "/complaints/{complaintId}": { "schema": { "$ref": "#/entities/complaint" } },
     "/waterTanks/{tankId}": { "schema": { "$ref": "#/entities/waterTank" } },
     "/sopLibrary/{sopId}": { "schema": { "$ref": "#/entities/sopLibraryItem" } },
-    "/daily_leak_checks/{checkId}": { "schema": { "$ref": "#/entities/dailyLeakCheck" } },
+    "/leakage_report/{reportId}": { "schema": { "$ref": "#/entities/leakage_report" } },
     "/panchayats/{panchayatId}/checklists/{checklistId}": { "schema": { "$ref": "#/entities/dailyChecklist" } },
     "/panchayats/{panchayatId}/waterTests/{testId}": { "schema": { "$ref": "#/entities/waterTest" } },
     "/states/{stateId}": { "schema": { "$ref": "#/entities/state" } },
     "/states/{stateId}/districts/{districtId}": { "schema": { "$ref": "#/entities/district" } },
     "/states/{stateId}/districts/{districtId}/mandals/{mandalId}": { "schema": { "$ref": "#/entities/mandal" } },
     "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}": { "schema": { "$ref": "#/entities/panchayat" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/pipeline" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/markers/{markerId}": { "schema": { "$ref": "#/entities/marker" } }
+    "/village_geo_data/{gp_id}/pipeline_routes/{routeId}": { "schema": { "$ref": "#/entities/pipeline_route" } },
+    "/village_geo_data/{gp_id}/leakage_points/{pointId}": { "schema": { "$ref": "#/entities/leakage_point" } }
   }
 }
