@@ -1,0 +1,466 @@
+
+{
+  "pipelines": [
+    {
+      "id": "pl_001",
+      "name": "Anjur Main East",
+      "start": { "lat": 12.82701, "lng": 80.04990 },
+      "end": { "lat": 12.82890, "lng": 80.05132 },
+      "diameter_mm": 150,
+      "material": "PVC",
+      "pressure_rating": 10,
+      "color": "#1E90FF",
+      "status": "Active"
+    },
+    {
+      "id": "pl_002",
+      "name": "Market Road Line",
+      "start": { "lat": 12.82890, "lng": 80.05132 },
+      "end": { "lat": 12.83050, "lng": 80.05250 },
+      "diameter_mm": 100,
+      "material": "HDPE",
+      "pressure_rating": 8,
+      "color": "#1E90FF",
+      "status": "Active"
+    },
+    {
+      "id": "pl_003",
+      "name": "School Zone Feeder",
+      "start": { "lat": 12.82890, "lng": 80.05132 },
+      "end": { "lat": 12.82800, "lng": 80.05300 },
+      "diameter_mm": 75,
+      "material": "PVC",
+      "pressure_rating": 10,
+      "color": "#FFC300",
+      "status": "Leak Suspected"
+    },
+    {
+      "id": "pl_004",
+      "name": "West Village Extension",
+      "start": { "lat": 12.82701, "lng": 80.04990 },
+      "end": { "lat": 12.82600, "lng": 80.04850 },
+      "diameter_mm": 100,
+      "material": "PVC",
+      "pressure_rating": 10,
+      "color": "#1E90FF",
+      "status": "Active"
+    },
+    {
+      "id": "pl_005",
+      "name": "South Anjur Connector",
+      "start": { "lat": 12.82600, "lng": 80.04850 },
+      "end": { "lat": 12.82500, "lng": 80.05100 },
+      "diameter_mm": 150,
+      "material": "HDPE",
+      "pressure_rating": 8,
+      "color": "#1E90FF",
+      "status": "Active"
+    },
+    {
+      "id": "pl_006",
+      "name": "Temple Street Line",
+      "start": { "lat": 12.83050, "lng": 80.05250 },
+      "end": { "lat": 12.83150, "lng": 80.05350 },
+      "diameter_mm": 75,
+      "material": "PVC",
+      "pressure_rating": 10,
+      "color": "#D3D3D3",
+      "status": "Under Maintenance"
+    },
+    {
+      "id": "pl_007",
+      "name": "Farm Line North",
+      "start": { "lat": 12.83150, "lng": 80.05350 },
+      "end": { "lat": 12.83300, "lng": 80.05450 },
+      "diameter_mm": 100,
+      "material": "PVC",
+      "pressure_rating": 10,
+      "color": "#1E90FF",
+      "status": "Active"
+    },
+    {
+      "id": "pl_008",
+      "name": "Panchayat Office Line",
+      "start": { "lat": 12.82800, "lng": 80.05300 },
+      "end": { "lat": 12.82900, "lng": 80.05400 },
+      "diameter_mm": 50,
+      "material": "PVC",
+      "pressure_rating": 10,
+      "color": "#1E90FF",
+      "status": "Active"
+    },
+    {
+      "id": "pl_009",
+      "name": "Industrial Area Feeder",
+      "start": { "lat": 12.82500, "lng": 80.05100 },
+      "end": { "lat": 12.82400, "lng": 80.05250 },
+      "diameter_mm": 200,
+      "material": "DI",
+      "pressure_rating": 12,
+      "color": "#1E90FF",
+      "status": "Active"
+    },
+    {
+      "id": "pl_010",
+      "name": "New Colony Line",
+      "start": { "lat": 12.82900, "lng": 80.05400 },
+      "end": { "lat": 12.83000, "lng": 80.05550 },
+      "diameter_mm": 75,
+      "material": "PVC",
+      "pressure_rating": 10,
+      "color": "#FFC300",
+      "status": "Leak Suspected"
+    }
+  ],
+  "sensors": [
+    {
+      "id": "s_pressure_01",
+      "pipeline_id": "pl_001",
+      "location": { "lat": 12.82701, "lng": 80.04990 },
+      "type": "pressure",
+      "last_reading": 5.2,
+      "threshold_limits": { "min": 4.5, "max": 6.0 },
+      "battery": 95,
+      "status": "Active"
+    },
+    {
+      "id": "s_flow_01",
+      "pipeline_id": "pl_001",
+      "location": { "lat": 12.82795, "lng": 80.05061 },
+      "type": "flow",
+      "last_reading": 1500,
+      "threshold_limits": { "min": 1000, "max": 2000 },
+      "battery": 88,
+      "status": "Active"
+    },
+    {
+      "id": "s_pressure_02",
+      "pipeline_id": "pl_002",
+      "location": { "lat": 12.82890, "lng": 80.05132 },
+      "type": "pressure",
+      "last_reading": 4.8,
+      "threshold_limits": { "min": 4.0, "max": 5.5 },
+      "battery": 92,
+      "status": "Active"
+    },
+    {
+      "id": "s_quality_01",
+      "pipeline_id": "pl_002",
+      "location": { "lat": 12.83050, "lng": 80.05250 },
+      "type": "quality",
+      "last_reading": 7.2,
+      "threshold_limits": { "min": 6.5, "max": 8.5 },
+      "battery": 70,
+      "status": "Active"
+    },
+    {
+      "id": "s_pressure_03",
+      "pipeline_id": "pl_003",
+      "location": { "lat": 12.82800, "lng": 80.05300 },
+      "type": "pressure",
+      "last_reading": 3.5,
+      "threshold_limits": { "min": 4.0, "max": 5.5 },
+      "battery": 65,
+      "status": "Active"
+    },
+    {
+      "id": "s_flow_02",
+      "pipeline_id": "pl_003",
+      "location": { "lat": 12.82850, "lng": 80.05215 },
+      "type": "flow",
+      "last_reading": 800,
+      "threshold_limits": { "min": 500, "max": 1000 },
+      "battery": 30,
+      "status": "Active"
+    },
+    {
+      "id": "s_pressure_04",
+      "pipeline_id": "pl_004",
+      "location": { "lat": 12.82600, "lng": 80.04850 },
+      "type": "pressure",
+      "last_reading": 5.5,
+      "threshold_limits": { "min": 4.5, "max": 6.0 },
+      "battery": 98,
+      "status": "Active"
+    },
+    {
+      "id": "s_pressure_05",
+      "pipeline_id": "pl_005",
+      "location": { "lat": 12.82500, "lng": 80.05100 },
+      "type": "pressure",
+      "last_reading": 5.8,
+      "threshold_limits": { "min": 5.0, "max": 6.5 },
+      "battery": 80,
+      "status": "Active"
+    },
+    {
+        "id": "s_flow_03",
+        "pipeline_id": "pl_006",
+        "location": { "lat": 12.83150, "lng": 80.05350 },
+        "type": "flow",
+        "last_reading": 0,
+        "threshold_limits": { "min": 400, "max": 800 },
+        "battery": 55,
+        "status": "Offline"
+    },
+    {
+        "id": "s_quality_02",
+        "pipeline_id": "pl_007",
+        "location": { "lat": 12.83300, "lng": 80.05450 },
+        "type": "quality",
+        "last_reading": 250,
+        "threshold_limits": { "min": 100, "max": 500 },
+        "battery": 82,
+        "status": "Active"
+    },
+    {
+        "id": "s_pressure_06",
+        "pipeline_id": "pl_008",
+        "location": { "lat": 12.82900, "lng": 80.05400 },
+        "type": "pressure",
+        "last_reading": 5.1,
+        "threshold_limits": { "min": 4.0, "max": 5.5 },
+        "battery": 91,
+        "status": "Active"
+    },
+    {
+        "id": "s_pressure_07",
+        "pipeline_id": "pl_009",
+        "location": { "lat": 12.82400, "lng": 80.05250 },
+        "type": "pressure",
+        "last_reading": 7.0,
+        "threshold_limits": { "min": 6.0, "max": 8.0 },
+        "battery": 89,
+        "status": "Active"
+    },
+    {
+        "id": "s_flow_04",
+        "pipeline_id": "pl_010",
+        "location": { "lat": 12.83000, "lng": 80.05550 },
+        "type": "flow",
+        "last_reading": 950,
+        "threshold_limits": { "min": 600, "max": 900 },
+        "battery": 78,
+        "status": "Active"
+    },
+    {
+      "id": "s_quality_03",
+      "pipeline_id": "pl_001",
+      "location": { "lat": 12.8285, "lng": 80.051 },
+      "type": "quality",
+      "last_reading": 1.2,
+      "threshold_limits": { "min": 0, "max": 5 },
+      "battery": 85,
+      "status": "Active"
+    },
+    {
+      "id": "s_pressure_08",
+      "pipeline_id": "pl_002",
+      "location": { "lat": 12.8297, "lng": 80.0519 },
+      "type": "pressure",
+      "last_reading": 4.9,
+      "threshold_limits": { "min": 4.0, "max": 5.5 },
+      "battery": 88,
+      "status": "Active"
+    },
+    {
+      "id": "s_flow_05",
+      "pipeline_id": "pl_004",
+      "location": { "lat": 12.8265, "lng": 80.0492 },
+      "type": "flow",
+      "last_reading": 1100,
+      "threshold_limits": { "min": 800, "max": 1500 },
+      "battery": 93,
+      "status": "Active"
+    },
+    {
+      "id": "s_pressure_09",
+      "pipeline_id": "pl_007",
+      "location": { "lat": 12.8322, "lng": 80.054 },
+      "type": "pressure",
+      "last_reading": 5.3,
+      "threshold_limits": { "min": 4.5, "max": 6.0 },
+      "battery": 76,
+      "status": "Active"
+    },
+    {
+      "id": "s_quality_04",
+      "pipeline_id": "pl_009",
+      "location": { "lat": 12.8245, "lng": 80.0517 },
+      "type": "quality",
+      "last_reading": 0.5,
+      "threshold_limits": { "min": 0, "max": 1.0 },
+      "battery": 90,
+      "status": "Active"
+    },
+    {
+      "id": "s_pressure_10",
+      "pipeline_id": "pl_010",
+      "location": { "lat": 12.8295, "lng": 80.0547 },
+      "type": "pressure",
+      "last_reading": 4.1,
+      "threshold_limits": { "min": 4.0, "max": 5.5 },
+      "battery": 81,
+      "status": "Active"
+    },
+    {
+      "id": "s_flow_06",
+      "pipeline_id": "pl_005",
+      "location": { "lat": 12.8255, "lng": 80.0497 },
+      "type": "flow",
+      "last_reading": 1600,
+      "threshold_limits": { "min": 1200, "max": 2200 },
+      "battery": 84,
+      "status": "Active"
+    }
+  ],
+  "water_flow": [
+    {
+      "sensor_id": "s_flow_01",
+      "timestamp": "2023-10-27T10:00:00Z",
+      "flow_rate_lpm": 1520,
+      "pressure_bar": 5.1,
+      "turbidity_NTU": 0.8,
+      "pump_influence": true
+    },
+    {
+      "sensor_id": "s_flow_02",
+      "timestamp": "2023-10-27T10:00:00Z",
+      "flow_rate_lpm": 780,
+      "pressure_bar": 3.6,
+      "turbidity_NTU": 1.5,
+      "pump_influence": true
+    },
+    {
+      "sensor_id": "s_flow_01",
+      "timestamp": "2023-10-27T10:05:00Z",
+      "flow_rate_lpm": 1490,
+      "pressure_bar": 5.0,
+      "turbidity_NTU": 0.8,
+      "pump_influence": true
+    },
+    {
+      "sensor_id": "s_flow_04",
+      "timestamp": "2023-10-27T10:05:00Z",
+      "flow_rate_lpm": 960,
+      "pressure_bar": 4.0,
+      "turbidity_NTU": 0.9,
+      "pump_influence": true
+    },
+    {
+      "sensor_id": "s_flow_01",
+      "timestamp": "2023-10-27T11:00:00Z",
+      "flow_rate_lpm": 50,
+      "pressure_bar": 1.2,
+      "turbidity_NTU": 0.7,
+      "pump_influence": false
+    },
+    {
+      "sensor_id": "s_flow_02",
+      "timestamp": "2023-10-27T11:00:00Z",
+      "flow_rate_lpm": 20,
+      "pressure_bar": 1.1,
+      "turbidity_NTU": 1.4,
+      "pump_influence": false
+    }
+  ],
+  "alerts": [
+    {
+      "id": "alert_001",
+      "type": "Low Pressure",
+      "sensor_id": "s_pressure_03",
+      "pipeline_id": "pl_003",
+      "severity": "Medium",
+      "timestamp": "2023-10-27T09:15:00Z",
+      "description": "Pressure at sensor s_pressure_03 dropped to 3.5 bar.",
+      "resolved": false
+    },
+    {
+      "id": "alert_002",
+      "type": "Leak Detected",
+      "sensor_id": "s_flow_02",
+      "pipeline_id": "pl_003",
+      "severity": "High",
+      "timestamp": "2023-10-27T09:30:00Z",
+      "description": "Anomalous flow pattern detected between s_flow_01 and s_flow_02, suggesting a leak on pipeline pl_003.",
+      "resolved": false
+    },
+    {
+      "id": "alert_003",
+      "type": "High Pressure",
+      "sensor_id": "s_pressure_05",
+      "pipeline_id": "pl_005",
+      "severity": "Low",
+      "timestamp": "2023-10-26T14:00:00Z",
+      "description": "Slight pressure increase detected at sensor s_pressure_05.",
+      "resolved": true
+    },
+    {
+        "id": "alert_004",
+        "type": "Pump Failure",
+        "sensor_id": "pump_02",
+        "pipeline_id": "pl_006",
+        "severity": "High",
+        "timestamp": "2023-10-27T12:00:00Z",
+        "description": "Pump House 2 (West End) reported a motor fault.",
+        "resolved": false
+    }
+  ],
+  "pump_status": [
+    {
+      "id": "pump_01",
+      "name": "Main Pump House (OHT)",
+      "location": { "lat": 12.8265, "lng": 80.0495 },
+      "motor_status": "Running",
+      "water_level_percent": 85,
+      "load_kW": 7.5,
+      "temperature_C": 55,
+      "auto_mode": true,
+      "last_update": "2023-10-27T10:10:00Z"
+    },
+    {
+      "id": "pump_02",
+      "name": "West End Booster",
+      "location": { "lat": 12.8285, "lng": 80.0535 },
+      "motor_status": "Fault",
+      "water_level_percent": 60,
+      "load_kW": 0,
+      "temperature_C": 40,
+      "auto_mode": true,
+      "last_update": "2023-10-27T12:01:00Z"
+    },
+    {
+      "id": "pump_03",
+      "name": "South Village Pump",
+      "location": { "lat": 12.8245, "lng": 80.0515 },
+      "motor_status": "Stopped",
+      "water_level_percent": 90,
+      "load_kW": 0,
+      "temperature_C": 35,
+      "auto_mode": false,
+      "last_update": "2023-10-27T08:30:00Z"
+    },
+    {
+      "id": "pump_04",
+      "name": "New Colony Pump",
+      "location": { "lat": 12.8305, "lng": 80.0560 },
+      "motor_status": "Running",
+      "water_level_percent": 70,
+      "load_kW": 5.2,
+      "temperature_C": 58,
+      "auto_mode": true,
+      "last_update": "2023-10-27T10:12:00Z"
+    },
+    {
+      "id": "pump_05",
+      "name": "Farm Line Pump",
+      "location": { "lat": 12.8335, "lng": 80.0550 },
+      "motor_status": "Stopped",
+      "water_level_percent": 50,
+      "load_kW": 0,
+      "temperature_C": 38,
+      "auto_mode": true,
+      "last_update": "2023-10-27T09:00:00Z"
+    }
+  ]
+}
