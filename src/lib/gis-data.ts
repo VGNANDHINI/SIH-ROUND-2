@@ -1,5 +1,4 @@
 
-
 export type State = { id: string; name: string; center: { lat: number; lng: number; }; zoom: number; };
 export type District = { id: string; name: string; center: { lat: number; lng: number; }; zoom: number; };
 export type Mandal = { id: string; name: string; center: { lat: number; lng: number; }; zoom: number; };
@@ -33,10 +32,6 @@ export const states: Omit<State, 'id'>[] = [
 export const districts: { [key: string]: Omit<District, 'id'>[] } = {
     'tamil_nadu': [
         { name: 'Chengalpattu', center: { lat: 12.684, lng: 79.983 }, zoom: 11 },
-        { name: 'Chennai', center: { lat: 13.0827, lng: 80.2707 }, zoom: 11 },
-        { name: 'Coimbatore', center: { lat: 11.0168, lng: 76.9558 }, zoom: 11 },
-        { name: 'Madurai', center: { lat: 9.9252, lng: 78.1198 }, zoom: 11 },
-        { name: 'Kanyakumari', center: { lat: 8.0883, lng: 77.5385 }, zoom: 11 },
     ]
 };
 
@@ -55,6 +50,7 @@ export const panchayats: { [key: string]: Omit<Panchayat, 'id'>[] } = {
 
 export const pipelines: Omit<Pipeline, 'id'>[] = [
     {
+        id: 'pipe-001',
         type: 'Rising Main',
         material: 'DI',
         diameter: 150,
@@ -67,6 +63,7 @@ export const pipelines: Omit<Pipeline, 'id'>[] = [
         villageServed: 'Anjur'
     },
     {
+        id: 'pipe-002',
         type: 'Distribution',
         material: 'HDPE',
         diameter: 90,
@@ -79,6 +76,7 @@ export const pipelines: Omit<Pipeline, 'id'>[] = [
         villageServed: 'Anjur'
     },
     {
+        id: 'pipe-003',
         type: 'Distribution',
         material: 'HDPE',
         diameter: 90,
@@ -94,21 +92,22 @@ export const pipelines: Omit<Pipeline, 'id'>[] = [
 
 export const markers: Omit<Marker, 'id'>[] = [
     {
+        id: 'marker-001',
         type: 'Pump',
         label: 'Main Pumping Station',
         position: { lat: 12.824, lng: 80.038 }
     },
     {
+        id: 'marker-002',
         type: 'Tank',
         label: 'OHT - Anjur',
         position: { lat: 12.826, lng: 80.045 },
         data: { capacity: 50000 }
     },
     {
+        id: 'marker-003',
         type: 'Valve',
         label: 'V01',
         position: { lat: 12.825, lng: 80.042 }
     }
 ];
-
-    

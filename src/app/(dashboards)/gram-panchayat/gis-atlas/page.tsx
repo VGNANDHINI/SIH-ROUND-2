@@ -2,148 +2,123 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
-import React, { useState, useMemo, useEffect } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useStates, useDistricts, useMandals, usePanchayats, usePipelines, useMarkers, useComplaints, useFirestore } from "@/firebase";
+import { Layers, MapPin, Wifi, WifiOff, Edit, RefreshCw } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { usePipelines, useMarkers, useComplaints } from "@/firebase";
 import { Loader2 } from 'lucide-react';
-import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { Complaint } from '@/lib/data';
-import { doc, setDoc } from "firebase/firestore";
+import type { Panchayat, Marker as MarkerType } from '@/lib/gis-data';
 import { useToast } from "@/hooks/use-toast";
-import { errorEmitter } from "@/firebase/error-emitter";
-import { FirestorePermissionError } from "@/firebase/errors";
-import type { Panchayat } from '@/lib/gis-data';
 
+// Lazy-load the map component to prevent SSR issues with Leaflet
 const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then(mod => mod.PipelineMap), {
     ssr: false,
     loading: () => <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg"><Loader2 className="h-8 w-8 animate-spin" /></div>
 });
 
+const panchayatDetails: Panchayat = {
+    id: 'anjur',
+    name: 'Anjur',
+    center: { lat: 12.826, lng: 80.045 },
+    zoom: 15
+};
 
 export default function GisAtlasPage() {
-    const [selectedState, setSelectedState] = useState<string | null>('tamil_nadu');
-    const [selectedDistrict, setSelectedDistrict] = useState<string | null>('chengalpattu');
-    const [selectedMandal, setSelectedMandal] = useState<string | null>('kattankolathur');
-    const [selectedPanchayat, setSelectedPanchayat] = useState<string | null>('anjur');
-    
-    const router = useRouter();
-    const firestore = useFirestore();
     const { toast } = useToast();
 
-    const { data: states, loading: statesLoading } = useStates();
-    const { data: districts, loading: districtsLoading } = useDistricts(selectedState);
-    const { data: mandals, loading: mandalsLoading } = useMandals(selectedState, selectedDistrict);
-    const { data: panchayats, loading: panchayatsLoading } = usePanchayats(selectedState, selectedDistrict, selectedMandal);
+    // Layer visibility state
+    const [layers, setLayers] = useState({
+        pipelines: true,
+        valves: true,
+        tanks: true,
+        complaints: true,
+        pumps: true,
+    });
 
-    const pipelinePath = useMemo(() => selectedPanchayat ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/pipelines` : null, [selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
-    const markerPath = useMemo(() => selectedPanchayat ? `states/${selectedState}/districts/${selectedDistrict}/mandals/${selectedMandal}/panchayats/${selectedPanchayat}/markers` : null, [selectedState, selectedDistrict, selectedMandal, selectedPanchayat]);
+    const handleLayerToggle = (layer: keyof typeof layers) => {
+        setLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
+    };
+
+    const pipelinePath = `states/tamil_nadu/districts/chengalpattu/mandals/kattankolathur/panchayats/anjur/pipelines`;
+    const markerPath = `states/tamil_nadu/districts/chengalpattu/mandals/kattankolathur/panchayats/anjur/markers`;
     
     const { data: pipelines, loading: pipelinesLoading } = usePipelines(pipelinePath);
     const { data: staticMarkers, loading: markersLoading } = useMarkers(markerPath);
-    const { data: complaints, loading: complaintsLoading } = useComplaints();
+    const { data: allComplaints, loading: complaintsLoading } = useComplaints();
 
-    const complaintMarkers = useMemo(() => {
-        if (!complaints || !selectedPanchayat) return [];
-        const panchayatDetails = panchayats?.find(p => p.id === selectedPanchayat);
-        if (!panchayatDetails) return [];
+    const complaintMarkers = useMemo((): MarkerType[] => {
+        if (!allComplaints) return [];
         
-        const panchayatCenter = panchayatDetails.center || { lat: 12.825, lng: 80.045 };
-
-        return complaints.filter(c => c.status === 'Open' && c.userPanchayat === panchayatDetails.name).map((c: Complaint) => ({
-            id: c.id,
-            type: 'Complaint' as const,
-            label: c.issueType,
-            position: c.gpsLocation || { lat: panchayatCenter.lat + (Math.random() - 0.5) * 0.01, lng: panchayatCenter.lng + (Math.random() - 0.5) * 0.01 }, // Fallback random location
-            data: c
-        }));
-    }, [complaints, selectedPanchayat, panchayats]);
+        return allComplaints
+            .filter(c => c.status === 'Open' && c.userPanchayat === panchayatDetails.name)
+            .map((c: Complaint) => ({
+                id: c.id,
+                type: 'Complaint',
+                label: c.issueType,
+                position: c.gpsLocation || { lat: panchayatDetails.center.lat + (Math.random() - 0.5) * 0.01, lng: panchayatDetails.center.lng + (Math.random() - 0.5) * 0.01 },
+                data: c
+            }));
+    }, [allComplaints]);
 
     const allMarkers = useMemo(() => {
         return [...(staticMarkers || []), ...complaintMarkers];
     }, [staticMarkers, complaintMarkers]);
 
 
-    const handleStateChange = (stateId: string) => {
-        setSelectedState(stateId);
-        setSelectedDistrict(null);
-        setSelectedMandal(null);
-        setSelectedPanchayat(null);
-    }
+    const filteredMarkers = useMemo(() => {
+        return allMarkers.filter(marker => {
+            switch (marker.type) {
+                case 'Pipeline': return layers.pipelines;
+                case 'Valve': return layers.valves;
+                case 'Tank': return layers.tanks;
+                case 'Pump': return layers.pumps;
+                case 'Complaint': return layers.complaints;
+                default: return true;
+            }
+        });
+    }, [allMarkers, layers]);
 
-    const handleDistrictChange = (districtId: string) => {
-        setSelectedDistrict(districtId);
-        setSelectedMandal(null);
-        setSelectedPanchayat(null);
-    }
-
-    const handleMandalChange = (mandalId: string) => {
-        setSelectedMandal(mandalId);
-        setSelectedPanchayat(null);
-    }
-    
-    const loading = statesLoading || districtsLoading || mandalsLoading || panchayatsLoading || pipelinesLoading || markersLoading || complaintsLoading;
-
-    const panchayatDetails = useMemo(() => {
-        if (!selectedPanchayat || !panchayats) return null;
-        return panchayats.find(p => p.id === selectedPanchayat);
-    }, [selectedPanchayat, panchayats]);
-    
-    const handleMarkAsResolved = (complaintId: string) => {
-        if (!firestore) return;
-        const complaint = complaints?.find(c => c.id === complaintId);
-        if (!complaint) return;
-
-        const docRef = doc(firestore, 'complaints', complaintId);
-        const { id, ...complaintData } = complaint;
-        const updatedData = { ...complaintData, status: 'Resolved' as const };
-        
-        setDoc(docRef, updatedData, { merge: true })
-            .then(() => toast({ title: "Complaint Resolved", description: `Complaint ID ${complaintId.substring(0,5)}... marked as resolved.` }))
-            .catch(err => {
-                const permissionError = new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: updatedData });
-                errorEmitter.emit('permission-error', permissionError);
-            });
-    };
+    const loading = pipelinesLoading || markersLoading || complaintsLoading;
 
     return (
         <div className="grid lg:grid-cols-4 gap-6 items-start">
             <div className="lg:col-span-1 space-y-6">
                  <Card>
                     <CardHeader>
-                        <CardTitle>Map Controls</CardTitle>
-                        <CardDescription>Select a location to view its assets.</CardDescription>
+                        <CardTitle>Asset Layer Controls</CardTitle>
+                        <CardDescription>Toggle visibility of map assets.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <Select onValueChange={handleStateChange} value={selectedState ?? ''} disabled={statesLoading}>
-                            <SelectTrigger>
-                                {statesLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
-                                <SelectValue placeholder="Select State" />
-                            </SelectTrigger>
-                            <SelectContent>{states?.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
-                        </Select>
-                         <Select onValueChange={handleDistrictChange} value={selectedDistrict ?? ''} disabled={!selectedState || districtsLoading}>
-                            <SelectTrigger>
-                                {districtsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
-                                <SelectValue placeholder="Select District" />
-                            </SelectTrigger>
-                            <SelectContent>{districts?.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent>
-                        </Select>
-                        <Select onValueChange={handleMandalChange} value={selectedMandal ?? ''} disabled={!selectedDistrict || mandalsLoading}>
-                            <SelectTrigger>
-                                {mandalsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
-                                <SelectValue placeholder="Select Block/Mandal" />
-                            </SelectTrigger>
-                            <SelectContent>{mandals?.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
-                        </Select>
-                        <Select onValueChange={setSelectedPanchayat} value={selectedPanchayat ?? ''} disabled={!selectedMandal || panchayatsLoading}>
-                            <SelectTrigger>
-                                {panchayatsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
-                                <SelectValue placeholder="Select Panchayat" />
-                            </SelectTrigger>
-                            <SelectContent>{panchayats?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-                        </Select>
+                        {Object.keys(layers).map((layerKey) => (
+                             <div key={layerKey} className="flex items-center justify-between">
+                                <Label htmlFor={layerKey} className="capitalize">{layerKey}</Label>
+                                <Switch
+                                    id={layerKey}
+                                    checked={layers[layerKey as keyof typeof layers]}
+                                    onCheckedChange={() => handleLayerToggle(layerKey as keyof typeof layers)}
+                                />
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Map Status & Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                         <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                <Wifi className="h-5 w-5 text-green-500" />
+                                <span>Online</span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">Sync: All updated</span>
+                        </div>
+                        <Button variant="outline" className="w-full justify-start"><Edit className="mr-2 h-4 w-4" /> Enable Edit Mode</Button>
+                        <Button variant="outline" className="w-full justify-start" onClick={() => toast({ title: "Syncing...", description: "Force sync with server initiated."})}><RefreshCw className="mr-2 h-4 w-4" /> Force Sync</Button>
                     </CardContent>
                 </Card>
             </div>
@@ -155,15 +130,13 @@ export default function GisAtlasPage() {
                         <CardDescription>Interactive map of water infrastructure and live alerts.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                         {!selectedPanchayat ? (
-                            <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg">
-                                <p>Select a panchayat to view the map.</p>
-                            </div>
-                        ) : (
+                        {loading ? (
+                             <div className="flex items-center justify-center h-[70vh] bg-muted rounded-lg"><Loader2 className="h-8 w-8 animate-spin" /></div>
+                        ): (
                              <PipelineMap 
-                                pipelines={pipelines || []} 
-                                markers={allMarkers || []}
-                                onMarkAsResolved={handleMarkAsResolved} 
+                                pipelines={layers.pipelines ? (pipelines || []) : []} 
+                                markers={filteredMarkers}
+                                onMarkAsResolved={() => {}} 
                                 panchayat={panchayatDetails}
                             />
                         )}
