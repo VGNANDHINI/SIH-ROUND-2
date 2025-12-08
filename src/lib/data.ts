@@ -2,7 +2,6 @@
 
 import { collection, writeBatch, getDocs, doc, getFirestore, Timestamp } from "firebase/firestore";
 import { app } from "@/firebase/config";
-import { states, districts, mandals, panchayats, pipelines, markers } from "./gis-data";
 
 // NOTE: This file is used to seed the database with initial data.
 // It is not used in the application otherwise.
@@ -270,74 +269,3 @@ export type WaterTank = {
   currentLevel: number;
   lastUpdated: any;
 }
-
-// Function to seed data (call this once if needed)
-async function seedDatabase() {
-    const db = getFirestore(app);
-    
-    async function collectionIsEmpty(collectionPath: string) {
-        const collectionRef = collection(db, collectionPath);
-        const snapshot = await getDocs(collectionRef);
-        return snapshot.empty;
-    }
-
-    try {
-        const batch = writeBatch(db);
-
-        // Seed GIS data
-        if (await collectionIsEmpty('states')) {
-            console.log('Seeding GIS data...');
-            // State
-            const stateData = states[0];
-            const stateRef = doc(db, 'states', stateData.name.toLowerCase().replace(/\s+/g, '_'));
-            batch.set(stateRef, stateData);
-
-            // District
-            const districtData = districts['tamil-nadu'][0];
-            const districtRef = doc(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts`, districtData.name.toLowerCase());
-            batch.set(districtRef, districtData);
-
-            // Mandal
-            const mandalData = mandals['chengalpattu'][0];
-            const mandalRef = doc(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals`, mandalData.name.toLowerCase());
-            batch.set(mandalRef, mandalData);
-            
-            // Panchayat
-            const panchayatData = panchayats['kattankolathur'][0];
-            const panchayatRef = doc(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals/${mandalData.name.toLowerCase()}/panchayats`, panchayatData.name.toLowerCase());
-            batch.set(panchayatRef, panchayatData);
-            
-            // Pipelines for Anjur
-            pipelines.forEach(p => {
-                const pipelineRef = doc(collection(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals/${mandalData.name.toLowerCase()}/panchayats/${panchayatData.name.toLowerCase()}/pipelines`));
-                batch.set(pipelineRef, p);
-            });
-
-            // Markers for Anjur
-            markers.forEach(m => {
-                const markerRef = doc(collection(db, `states/${stateData.name.toLowerCase().replace(/\s+/g, '_')}/districts/${districtData.name.toLowerCase()}/mandals/${mandalData.name.toLowerCase()}/panchayats/${panchayatData.name.toLowerCase()}/markers`));
-                batch.set(markerRef, m);
-            });
-        }
-
-
-        // Seed other initial data if needed
-        if (await collectionIsEmpty('waterSchemes')) {
-            console.log('Seeding waterSchemes...');
-            waterSchemes.forEach((scheme) => {
-                const docRef = doc(db, "waterSchemes", scheme.id);
-                batch.set(docRef, scheme);
-            });
-        }
-        
-        await batch.commit();
-        console.log("Database seeded successfully!");
-
-    } catch (error) {
-        console.error("Error seeding database: ", error);
-    }
-}
-
-// Call this function to seed the db when the app starts if needed,
-// but be cautious as it will overwrite existing data structure if collections are not empty.
-// seedDatabase();
