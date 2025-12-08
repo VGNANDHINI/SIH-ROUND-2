@@ -38,7 +38,7 @@ export function useDailyChecklists(panchayatId?: string) {
 }
 
 export function useLeakageAlerts() {
-    return useCollection<LeakageAlert>('leakageAlerts');
+    return useCollection<LeakageAlert>('test_connection');
 }
 
 // NOTE: This hook uses static data for the prototype.

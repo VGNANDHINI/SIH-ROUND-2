@@ -193,6 +193,22 @@
             "flaggedParameters": { "type": "array", "items": { "type": "string" } }
         },
         "required": ["panchayatId", "operatorId", "ward", "testDate", "status"]
+    },
+    "leakageAlert": {
+      "title": "Leakage Alert",
+      "description": "Represents a real-time sensor reading and leakage analysis from a Colab pipeline.",
+      "type": "object",
+      "properties": {
+        "Timestamp": { "type": "string", "format": "date-time" },
+        "Sensor_ID": { "type": "string" },
+        "Pressure": { "type": "number", "description": "Pressure in bar" },
+        "Flow_Rate": { "type": "number", "description": "Flow rate in L/s" },
+        "Temperature": { "type": "number", "description": "Temperature in °C" },
+        "Leak_Status": { "type": "integer", "description": "0 for no leak, 1 for leak" },
+        "Burst_Status": { "type": "integer", "description": "0 for no burst, 1 for burst" },
+        "Leakage_Alerts": { "type": "string", "description": "A human-readable alert message." }
+      },
+      "required": ["Timestamp", "Sensor_ID", "Pressure", "Flow_Rate", "Temperature", "Leak_Status", "Burst_Status", "Leakage_Alerts"]
     }
   },
   "auth": {
@@ -213,6 +229,7 @@
     "/gis_assets/{villageId}/pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/gisFeature" } },
     "/gis_assets/{villageId}/valves/{valveId}": { "schema": { "$ref": "#/entities/gisFeature" } },
     "/gis_assets/{villageId}/pumps/{pumpId}": { "schema": { "$ref": "#/entities/gisFeature" } },
-    "/gis_assets/{villageId}/tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } }
+    "/gis_assets/{villageId}/tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/test_connection/{alertId}": { "schema": { "$ref": "#/entities/leakageAlert" } }
   }
 }

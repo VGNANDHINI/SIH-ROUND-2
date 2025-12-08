@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -175,8 +174,8 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 def upload_df_to_firestore(df):
-    """Uploads a pandas DataFrame to the 'leakageAlerts' collection."""
-    collection_ref = db.collection('leakageAlerts')
+    """Uploads a pandas DataFrame to the 'test_connection' collection."""
+    collection_ref = db.collection('test_connection')
     
     for index, row in df.iterrows():
         # Create a dictionary from the row
