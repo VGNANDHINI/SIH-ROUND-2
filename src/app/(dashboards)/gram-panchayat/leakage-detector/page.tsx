@@ -75,8 +75,7 @@ export default function LeakageDetectorPage() {
         </CardHeader>
       </Card>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <KpiCard title="Leakages Detected" value={stats.leakages} icon={<AlertTriangle className="h-4 w-4 text-muted-foreground" />} loading={loading} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <KpiCard title="Pipeline Bursts" value={stats.bursts} icon={<ShieldAlert className="h-4 w-4 text-muted-foreground" />} loading={loading} />
           <KpiCard title="Low-Pressure Warnings" value={stats.warnings} icon={<Signal className="h-4 w-4 text-muted-foreground" />} loading={loading} />
           <KpiCard title="Normal Readings" value={stats.normal} icon={<CheckCircle className="h-4 w-4 text-muted-foreground" />} loading={loading} />
@@ -152,4 +151,3 @@ export default function LeakageDetectorPage() {
     </div>
   );
 }
-
