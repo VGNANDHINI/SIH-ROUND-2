@@ -42,7 +42,6 @@ const navItems = {
     { href: "/village-resident", labelKey: "sidebar_vr_dashboard", icon: <LayoutDashboard /> },
     { href: "/village-resident/availability", labelKey: "sidebar_vr_availability", icon: <Droplet /> },
     { href: "/village-resident/complaints", labelKey: "sidebar_vr_complaints", icon: <FilePenLine /> },
-    { href: "/village-resident/photo-locator", labelKey: "sidebar_vr_photo_locator", icon: <MapPin /> },
     { href: "/village-resident/water-quality", labelKey: "sidebar_vr_water_quality", icon: <FlaskConical /> },
     { href: "/village-resident/report", labelKey: "sidebar_vr_report", icon: <Presentation /> },
     { href: "/village-resident/help", labelKey: "sidebar_vr_help", icon: <HelpCircle /> },

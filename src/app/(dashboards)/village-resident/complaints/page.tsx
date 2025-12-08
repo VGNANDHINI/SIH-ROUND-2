@@ -40,6 +40,7 @@ import type { UserProfile, Complaint } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const complaintSchema = z.object({
   issueType: z.string().min(1, 'Please select an issue type.'),
@@ -60,6 +61,7 @@ export default function RegisterComplaintPage() {
     user ? `users/${user.uid}` : null
   );
   const { data: allComplaints, loading: complaintsLoading } = useComplaints();
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   const communityComplaints = useMemo(() => {
     if (!userProfile || !allComplaints) return [];
@@ -105,9 +107,12 @@ export default function RegisterComplaintPage() {
 
     const { photo, ...restOfValues } = values;
 
+    // Simulate image upload by using a placeholder if a file was selected
+    const photoUrl = photoFile ? PlaceHolderImages.find(p => p.id === 'pump-issue-1')?.imageUrl || "" : "";
+
     const complaintData = {
       ...restOfValues,
-      photoUrl: '', // Placeholder for photo upload logic
+      photoUrl,
       reportedAt: serverTimestamp(),
       status: 'Open' as const,
       userId: user.uid,
@@ -127,6 +132,7 @@ export default function RegisterComplaintPage() {
           description: 'Your complaint has been successfully submitted.',
         });
         form.reset();
+        setPhotoFile(null);
       })
       .catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -145,6 +151,15 @@ export default function RegisterComplaintPage() {
         setIsLoading(false);
       });
   }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhotoFile(file);
+      // We are not setting the value in the form hook anymore for 'photo',
+      // as we handle the file state separately now.
+    }
+  };
 
   const loading = userLoading || userProfileLoading;
   
@@ -245,20 +260,20 @@ export default function RegisterComplaintPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="photo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload Photo (Optional)</FormLabel>
-                    <FormControl>
-                      <div className="flex items-center justify-center w-full">
-                        <label
-                          htmlFor="dropzone-file"
-                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
-                        >
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className="w-8 h-8 mb-3 text-muted-foreground" />
+              <FormItem>
+                <FormLabel>Upload Photo (Optional)</FormLabel>
+                <FormControl>
+                  <div className="flex items-center justify-center w-full">
+                    <label
+                      htmlFor="dropzone-file"
+                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 mb-3 text-muted-foreground" />
+                        {photoFile ? (
+                           <p className="text-sm text-green-600">{photoFile.name}</p>
+                        ) : (
+                          <>
                             <p className="mb-2 text-sm text-muted-foreground">
                               <span className="font-semibold">Click to upload</span>{' '}
                               or drag and drop
@@ -266,21 +281,21 @@ export default function RegisterComplaintPage() {
                             <p className="text-xs text-muted-foreground">
                               PNG or JPG
                             </p>
-                          </div>
-                          <Input
-                            id="dropzone-file"
-                            type="file"
-                            className="hidden"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.files)}
-                          />
-                        </label>
+                          </>
+                        )}
                       </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <Input
+                        id="dropzone-file"
+                        type="file"
+                        className="hidden"
+                        accept="image/png, image/jpeg"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
               <Button type="submit" disabled={isLoading || loading} className="w-full">
                 {isLoading ? (
                   <>
