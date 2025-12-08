@@ -2,18 +2,17 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Layers, RefreshCw, Wifi, Search } from "lucide-react";
+import { Layers, RefreshCw, Wifi, Search, Edit } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useComplaints } from "@/firebase";
-import { usePipelines, usePumps, useTanks, useValves } from "@/firebase/firestore/gis-hooks";
+import { useComplaints, usePipelines, usePumps, useTanks, useValves } from "@/firebase";
 import { Loader2 } from 'lucide-react';
 import dynamic from "next/dynamic";
 import type { Complaint } from '@/lib/data';
-import type { Panchayat, Pipeline, Valve, Pump, Tank, ComplaintMarker } from '@/lib/gis-data';
+import type { Panchayat, PipelineFeature, ValveFeature, PumpFeature, TankFeature, ComplaintFeature } from '@/lib/gis-data';
 import { useToast } from "@/hooks/use-toast";
 
 // Lazy-load the map component to prevent SSR issues with Leaflet
@@ -25,11 +24,9 @@ const PipelineMap = dynamic(() => import('@/components/atlas/pipeline-map').then
 const panchayatDetails: Panchayat = {
     id: 'anjur',
     name: 'Anjur',
-    center: { lat: 12.826, lng: 80.045 },
-    zoom: 15
+    center: { lat: 12.828, lng: 80.051 },
+    zoom: 16
 };
-
-const basePath = `states/tamil-nadu/districts/chengalpattu/mandals/kattankolathur/panchayats/anjur`;
 
 export default function GisAtlasPage() {
     const { toast } = useToast();
@@ -47,31 +44,31 @@ export default function GisAtlasPage() {
     };
 
     // Fetching data for all layers
-    const { data: pipelines, loading: pipelinesLoading } = usePipelines(basePath);
-    const { data: pumps, loading: pumpsLoading } = usePumps(basePath);
-    const { data: tanks, loading: tanksLoading } = useTanks(basePath);
-    const { data: valves, loading: valvesLoading } = useValves(basePath);
+    const { data: pipelines, loading: pipelinesLoading } = usePipelines();
+    const { data: pumps, loading: pumpsLoading } = usePumps();
+    const { data: tanks, loading: tanksLoading } = useTanks();
+    const { data: valves, loading: valvesLoading } = useValves();
     const { data: allComplaints, loading: complaintsLoading } = useComplaints();
 
-    const complaintMarkers = useMemo((): ComplaintMarker[] => {
+    const complaintMarkers = useMemo((): ComplaintFeature[] => {
         if (!allComplaints) return [];
         return allComplaints
-            .filter(c => c.status === 'Open' && c.userPanchayat === panchayatDetails.name && c.gpsLocation)
-            .map((c: Complaint) => ({
+            .filter(c => c.status !== 'Resolved' && c.userPanchayat === panchayatDetails.name && c.gpsLocation)
+            .map((c: Complaint): ComplaintFeature => ({
                 id: c.id,
                 type: 'Feature',
                 geometry: {
                     type: 'Point',
                     coordinates: [c.gpsLocation!.lng, c.gpsLocation!.lat]
                 },
-                properties: { ...c, asset_type: 'complaint' }
+                properties: c
             }));
     }, [allComplaints]);
 
     const loading = pipelinesLoading || pumpsLoading || tanksLoading || valvesLoading || complaintsLoading;
 
     // Filter logic based on search term
-    const filterData = (data: any[] | null) => {
+    const filterData = <T extends { properties: { name?: string, asset_id?: string } }>(data: T[] | null): T[] => {
         if (!data) return [];
         if (!searchTerm) return data;
         return data.filter(item => 
@@ -84,7 +81,14 @@ export default function GisAtlasPage() {
     const filteredPumps = useMemo(() => filterData(pumps), [pumps, searchTerm]);
     const filteredTanks = useMemo(() => filterData(tanks), [tanks, searchTerm]);
     const filteredValves = useMemo(() => filterData(valves), [valves, searchTerm]);
-    const filteredComplaints = useMemo(() => filterData(complaintMarkers), [complaintMarkers, searchTerm]);
+    const filteredComplaints = useMemo(() => {
+        if (!complaintMarkers) return [];
+        if (!searchTerm) return complaintMarkers;
+         return complaintMarkers.filter(item => 
+            item.properties.issueType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.properties.address?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [complaintMarkers, searchTerm]);
 
     return (
         <div className="grid lg:grid-cols-4 gap-6 items-start">
@@ -98,7 +102,7 @@ export default function GisAtlasPage() {
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="search"
-                                placeholder="Search by asset name or ID..."
+                                placeholder="Search by name or ID..."
                                 className="pl-8"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -154,7 +158,6 @@ export default function GisAtlasPage() {
                                 tanks={layers.tanks ? filteredTanks : []}
                                 valves={layers.valves ? filteredValves : []}
                                 complaints={layers.complaints ? filteredComplaints : []}
-                                onMarkAsResolved={() => {}} 
                             />
                         )}
                     </CardContent>

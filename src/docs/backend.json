@@ -194,42 +194,16 @@
         },
         "required": ["panchayatId", "operatorId", "ward", "testDate", "status"]
     },
-    "state": { "title": "State", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
-    "district": { "title": "District", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
-    "mandal": { "title": "Mandal", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
-    "panchayat": { "title": "Panchayat", "type": "object", "properties": { "name": { "type": "string" }, "center": { "type": "object", "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}} }, "zoom": { "type": "number"} }, "required": ["name"] },
-    "habitation": { "title": "Habitation", "type": "object", "properties": { "name": { "type": "string" } }, "required": ["name"] },
-    "pipeline": {
-      "title": "Pipeline", "type": "object", "properties": {
-        "asset_id": { "type": "string" },
-        "type": { "type": "string" }, "material": { "type": "string" }, "diameter": { "type": "number" },
-        "geometry": { "type": "object", "properties": { "type": {"type": "string", "enum": ["LineString"]}, "coordinates": { "type": "array", "items": {"type": "array", "items": {"type": "number"}}} } },
-        "length": { "type": "number" }, "villageServed": { "type": "string" }
-      }, "required": ["geometry"]
-    },
-    "valve": {
-      "title": "Valve", "type": "object", "properties": {
-        "asset_id": { "type": "string" },
-        "name": { "type": "string" },
-        "geometry": { "type": "object", "properties": { "type": {"type": "string", "enum": ["Point"]}, "coordinates": { "type": "array", "items": {"type": "number"}}}},
-        "status": { "type": "string" }
-      }, "required": ["asset_id", "geometry"]
-    },
-     "pump": {
-      "title": "Pump", "type": "object", "properties": {
-        "asset_id": { "type": "string" },
-        "name": { "type": "string" },
-        "geometry": { "type": "object", "properties": { "type": {"type": "string", "enum": ["Point"]}, "coordinates": { "type": "array", "items": {"type": "number"}}}},
-        "status": { "type": "string" }
-      }, "required": ["asset_id", "geometry"]
-    },
-     "tank": {
-      "title": "Tank", "type": "object", "properties": {
-        "asset_id": { "type": "string" },
-        "name": { "type": "string" },
-        "geometry": { "type": "object", "properties": { "type": {"type": "string", "enum": ["Point"]}, "coordinates": { "type": "array", "items": {"type": "number"}}}},
-        "capacity": { "type": "number" }
-      }, "required": ["asset_id", "geometry"]
+    "gisFeature": {
+      "title": "GIS Feature (GeoJSON)",
+      "description": "A generic GeoJSON feature.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["Feature"] },
+        "geometry": { "type": "object" },
+        "properties": { "type": "object" }
+      },
+      "required": ["type", "geometry", "properties"]
     }
   },
   "auth": {
@@ -247,14 +221,9 @@
     "/sopLibrary/{sopId}": { "schema": { "$ref": "#/entities/sopLibraryItem" } },
     "/panchayats/{panchayatId}/checklists/{checklistId}": { "schema": { "$ref": "#/entities/dailyChecklist" } },
     "/panchayats/{panchayatId}/waterTests/{testId}": { "schema": { "$ref": "#/entities/waterTest" } },
-    "/states/{stateId}": { "schema": { "$ref": "#/entities/state" } },
-    "/states/{stateId}/districts/{districtId}": { "schema": { "$ref": "#/entities/district" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}": { "schema": { "$ref": "#/entities/mandal" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}": { "schema": { "$ref": "#/entities/panchayat" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/habitations/{habitationId}": { "schema": { "$ref": "#/entities/habitation" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/pipeline" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/valves/{valveId}": { "schema": { "$ref": "#/entities/valve" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/pumps/{pumpId}": { "schema": { "$ref": "#/entities/pump" } },
-    "/states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/tanks/{tankId}": { "schema": { "$ref": "#/entities/tank" } }
+    "/assets_pipelines/{pipelineId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/assets_valves/{valveId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/assets_pumps/{pumpId}": { "schema": { "$ref": "#/entities/gisFeature" } },
+    "/assets_tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } }
   }
 }
