@@ -166,7 +166,9 @@ export default function LeakageDetectorPage() {
                   <TableHead>Timestamp</TableHead>
                   <TableHead>Sensor ID</TableHead>
                   <TableHead>Alert</TableHead>
-                  <TableHead className="text-right">Readings</TableHead>
+                  <TableHead className="text-right">Pressure (bar)</TableHead>
+                  <TableHead className="text-right">Flow (L/s)</TableHead>
+                  <TableHead className="text-right">Temp (°C)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,30 +185,15 @@ export default function LeakageDetectorPage() {
                             <span className="ml-2">{alert.Leakage_Alerts}</span>
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center justify-end gap-3 text-muted-foreground">
-                                  <Gauge className="h-4 w-4" /><span>{typeof alert.Pressure === 'number' ? `${alert.Pressure.toFixed(2)} bar` : 'N/A'}</span>
-                                  <Droplets className="h-4 w-4" /><span>{typeof alert.Flow_Rate === 'number' ? `${alert.Flow_Rate.toFixed(2)} L/s` : 'N/A'}</span>
-                                  <Thermometer className="h-4 w-4" /><span>{typeof alert.Temperature === 'number' ? `${alert.Temperature.toFixed(2)}°C` : 'N/A'}</span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Pressure: {typeof alert.Pressure === 'number' ? `${alert.Pressure.toFixed(2)} bar` : 'N/A'}</p>
-                                <p>Flow Rate: {typeof alert.Flow_Rate === 'number' ? `${alert.Flow_Rate.toFixed(2)} L/s` : 'N/A'}</p>
-                                <p>Temperature: {typeof alert.Temperature === 'number' ? `${alert.Temperature.toFixed(2)}°C` : 'N/A'}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert.Pressure === 'number' ? alert.Pressure.toFixed(2) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert.Flow_Rate === 'number' ? alert.Flow_Rate.toFixed(2) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert.Temperature === 'number' ? alert.Temperature.toFixed(2) : 'N/A'}</TableCell>
                       </TableRow>
                     );
                   })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       No sensor data available. Waiting for data from Colab...
                     </TableCell>
                   </TableRow>
