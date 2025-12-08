@@ -1,19 +1,22 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useLeakageAlerts } from '@/firebase';
 import type { LeakageAlert } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, AlertTriangle, ShieldAlert, CheckCircle, Signal, Thermometer, Droplets, Gauge } from 'lucide-react';
+import { Loader2, AlertTriangle, ShieldAlert, CheckCircle, Signal, Thermometer, Droplets, Gauge, Bot } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { diagnoseWaterNetwork, DiagnoseWaterNetworkOutput } from '@/ai/flows/diagnose-water-network';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 
 const getAlertInfo = (alert: LeakageAlert) => {
     const message = alert.Leakage_Alerts;
@@ -43,6 +46,8 @@ const KpiCard = ({ title, value, icon, loading }: { title: string, value: number
 
 export default function LeakageDetectorPage() {
   const { data: alerts, loading } = useLeakageAlerts();
+  const [analysis, setAnalysis] = useState<DiagnoseWaterNetworkOutput | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
 
   const sortedAlerts = useMemo(() => {
     if (!alerts) return [];
@@ -64,6 +69,34 @@ export default function LeakageDetectorPage() {
     };
   }, [alerts]);
 
+  useEffect(() => {
+    if(alerts && alerts.length > 0) {
+        setAnalysisLoading(true);
+        const latestAlert = sortedAlerts[0];
+        const leakComplaints = alerts.filter(a => a.Leak_Status === 1).length;
+
+        diagnoseWaterNetwork({
+            pressure_value: latestAlert.Pressure,
+            flow_rate: latestAlert.Flow_Rate,
+            chlorine_level: 0.5, // Dummy data, replace with real data if available
+            turbidity_level: 1, // Dummy data
+            reservoir_drop_rate: latestAlert.Leak_Status === 1 ? 500 : 50, // Dummy logic
+            pump_status: 'running', // Dummy
+            complaints_count: leakComplaints,
+            complaint_types: leakComplaints > 0 ? ['low pressure', 'leakage'] : [],
+            sewage_line_nearby: false, // Dummy
+            past_leak_history: 'no' // Dummy
+        }).then(result => {
+            setAnalysis(result);
+            setAnalysisLoading(false);
+        }).catch(err => {
+            console.error(err);
+            setAnalysisLoading(false);
+        });
+    }
+  }, [alerts, sortedAlerts]);
+
+
   return (
     <div className="space-y-6">
       <Card>
@@ -75,6 +108,24 @@ export default function LeakageDetectorPage() {
         </CardHeader>
       </Card>
       
+      {analysisLoading ? (
+        <Card>
+            <CardContent className="p-6 flex items-center justify-center">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Generating AI Diagnostic Report...
+            </CardContent>
+        </Card>
+      ) : analysis && (
+         <Alert>
+            <Bot className="h-4 w-4" />
+            <AlertTitle>AI Diagnostic Report</AlertTitle>
+            <AlertDescription className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                <p><strong>Diagnosis:</strong> {analysis.reasoning}</p>
+                <p><strong>Pressure:</strong> {analysis.pressure_status} | <strong>Leakage:</strong> {analysis.leakage_status} | <strong>Contamination:</strong> {analysis.sewage_contamination_status}</p>
+                <p className="font-semibold text-destructive"><strong>Action:</strong> {analysis.recommended_actions}</p>
+            </AlertDescription>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Live Sensor Alerts</CardTitle>
