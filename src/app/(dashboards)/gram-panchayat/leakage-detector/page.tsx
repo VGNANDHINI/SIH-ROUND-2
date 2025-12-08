@@ -63,13 +63,13 @@ export default function LeakageDetectorPage() {
   useEffect(() => {
     if(sortedAlerts && sortedAlerts.length > 0) {
         const latestAlert = sortedAlerts[0];
-        if (!latestAlert || !latestAlert.Pressure || !latestAlert.Flow_Rate) {
+        if (!latestAlert || latestAlert.Pressure === undefined || latestAlert.Flow_Rate === undefined) {
             return;
         }
         
         setAnalysisLoading(true);
 
-        const leakComplaints = alerts.filter(a => a.Leak_Status == 1).length;
+        const leakComplaints = alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length;
 
         diagnoseWaterNetwork({
             pressure_value: latestAlert.Pressure,
@@ -84,9 +84,9 @@ export default function LeakageDetectorPage() {
             past_leak_history: 'no' // Dummy
         }).then(result => {
             setAnalysis(result);
-            setAnalysisLoading(false);
         }).catch(err => {
             console.error(err);
+        }).finally(() => {
             setAnalysisLoading(false);
         });
     }
@@ -104,6 +104,33 @@ export default function LeakageDetectorPage() {
         </CardHeader>
       </Card>
       
+      <Card>
+        <CardHeader>
+            <CardTitle>Analysis Counter</CardTitle>
+            <CardDescription>A summary of all alerts received from the sensor network.</CardDescription>
+        </CardHeader>
+        <CardContent>
+           {loading ? <div className="flex justify-center items-center h-24"><Loader2 className="h-8 w-8 animate-spin" /></div> : (
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Alert Type</TableHead>
+                        <TableHead className="text-right">Total Count</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {alertCounts.map(([message, count]) => (
+                         <TableRow key={message}>
+                            <TableCell className="font-medium">{message}</TableCell>
+                            <TableCell className="text-right text-lg font-bold">{count}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+           )}
+        </CardContent>
+      </Card>
+
       {analysisLoading ? (
         <Card>
             <CardContent className="p-6 flex items-center justify-center">
@@ -187,32 +214,6 @@ export default function LeakageDetectorPage() {
               </TableBody>
             </Table>
           )}
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-            <CardTitle>Analysis Counter</CardTitle>
-            <CardDescription>A summary of all alerts received from the sensor network.</CardDescription>
-        </CardHeader>
-        <CardContent>
-           {loading ? <div className="flex justify-center items-center h-24"><Loader2 className="h-8 w-8 animate-spin" /></div> : (
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Alert Type</TableHead>
-                        <TableHead className="text-right">Total Count</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {alertCounts.map(([message, count]) => (
-                         <TableRow key={message}>
-                            <TableCell className="font-medium">{message}</TableCell>
-                            <TableCell className="text-right text-lg font-bold">{count}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-           )}
         </CardContent>
       </Card>
     </div>
