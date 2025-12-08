@@ -18,10 +18,10 @@ L.Icon.Default.mergeOptions({
 
 // Custom Water Tank Icon
 const waterTankIcon = L.icon({
-    iconUrl: '/assets/icons/water_tank.png',
-    iconSize: [32, 32], // size of the icon
-    iconAnchor: [16, 32], // point of the icon which will correspond to marker's location
-    popupAnchor: [0, -32] // point from which the popup should open relative to the iconAnchor
+    iconUrl: '/assets/icons/water_tank.png', // The path to your asset in the `public` folder
+    iconSize: [32, 32], // The size of the icon in pixels
+    iconAnchor: [16, 32], // The point of the icon which will correspond to the marker's location
+    popupAnchor: [0, -32] // The point from which the popup should open relative to the iconAnchor
 });
 
 // Custom Pump House Icon
