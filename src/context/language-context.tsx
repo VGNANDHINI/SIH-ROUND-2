@@ -4,8 +4,7 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import en from '@/locales/en.json';
 import hi from '@/locales/hi.json';
-// Import other languages as they are added
-// import ta from '@/locales/ta.json';
+import ta from '@/locales/ta.json';
 // import te from '@/locales/te.json';
 // import bn from '@/locales/bn.json';
 
@@ -16,7 +15,7 @@ type Translations = {
 const translations: { [key: string]: Translations } = {
     en,
     hi,
-    // ta,
+    ta,
     // te,
     // bn,
 };
