@@ -271,22 +271,7 @@ export type WaterTank = {
   lastUpdated: any;
 }
 
-export type DailyLeakCheck = {
-  id: string;
-  timestamp: any;
-  gp_id: string;
-  pump_hours_today: number;
-  pump_hours_previous: number;
-  tank_level_change: "Increase" | "No change" | "Decrease";
-  pressure_level: "High" | "Normal" | "Low";
-  flow_rate: "High" | "Normal" | "Low";
-  complaints_count: number;
-  leak_score: number;
-  severity: "red" | "yellow" | "green";
-  result_message: string;
-};
-
-
+// Function to seed data (call this once if needed)
 async function seedDatabase() {
     const db = getFirestore(app);
     
@@ -354,4 +339,5 @@ async function seedDatabase() {
 }
 
 // Call this function to seed the db when the app starts if needed,
+// but be cautious as it will overwrite existing data structure if collections are not empty.
 // seedDatabase();
