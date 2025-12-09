@@ -63,7 +63,7 @@ export default function LeakageDetectorPage() {
   useEffect(() => {
     if(sortedAlerts && sortedAlerts.length > 0) {
         const latestAlert = sortedAlerts[0];
-        if (!latestAlert || latestAlert.Pressure === undefined || latestAlert.Flow_Rate === undefined) {
+        if (latestAlert.Pressure === undefined || latestAlert.Flow_Rate === undefined) {
             return;
         }
         
