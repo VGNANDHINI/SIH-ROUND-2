@@ -31,6 +31,7 @@ const levels = [
 export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWaterLevelConfirmProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [aiPrediction, setAiPrediction] = useState<number | null>(null);
+  const [manualLevel, setManualLevel] = useState<number | ''>('');
   const [tankName, setTankName] = useState('Main OHT');
   const { toast } = useToast();
   const firestore = useFirestore();
@@ -41,6 +42,7 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
   useEffect(() => {
     if (sessionToConfirm && sessionToConfirm.duration && sessionToConfirm.energyConsumed && profile) {
         setIsLoading(true);
+        setManualLevel(''); // Clear manual input on new session
         suggestWaterLevel({
             duration: sessionToConfirm.duration,
             energyConsumed: sessionToConfirm.energyConsumed,
@@ -49,7 +51,9 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
             tankHeight: profile.tankHeight || 0,
             tankBaseArea: profile.tankBaseArea || 0,
         }).then(result => {
-            setAiPrediction(Math.round(result.predictedLevel));
+            const prediction = Math.round(result.predictedLevel);
+            setAiPrediction(prediction);
+            setManualLevel(prediction); // Pre-fill manual input with AI prediction
         }).catch(err => {
             console.error("AI Prediction failed:", err);
             toast({ title: 'AI Prediction Failed', description: 'Could not get a prediction. Please select a level manually.', variant: 'destructive'});
@@ -58,10 +62,15 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
         });
     } else {
         setAiPrediction(null);
+        setManualLevel('');
     }
   }, [sessionToConfirm, profile, toast]);
 
-  const handleConfirmLevel = async (level: number) => {
+  const handleConfirmLevel = async (level: number | '') => {
+    if (level === '' || level < 0 || level > 100) {
+        toast({ title: 'Invalid Level', description: 'Please enter a value between 0 and 100.', variant: 'destructive'});
+        return;
+    }
     if (!firestore || !sessionToConfirm || !tankName) {
         toast({ title: 'Error', description: 'Tank name is required.', variant: 'destructive' });
         return;
@@ -117,16 +126,21 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
             <Label htmlFor="tank-name">Tank Name</Label>
             <Input id="tank-name" value={tankName} onChange={(e) => setTankName(e.target.value)} placeholder="e.g., Main OHT" disabled={!sessionToConfirm} />
         </div>
-        <div className="grid grid-cols-2 gap-2 items-center text-center p-4 bg-muted rounded-lg">
+        <div className="grid grid-cols-2 gap-4 items-center text-center p-4 bg-muted rounded-lg">
           <div>
             <p className="text-sm text-muted-foreground">Prediction</p>
-            {isLoading && !aiPrediction ? <Loader2 className="h-6 w-6 mx-auto my-2 animate-spin"/> :
-            <p className="text-2xl font-bold">{aiPrediction ?? '--'}%</p>
-            }
+            <Input 
+              type="number"
+              className="text-2xl font-bold text-center h-auto border-none bg-transparent shadow-none focus-visible:ring-0 p-0"
+              value={manualLevel}
+              onChange={(e) => setManualLevel(e.target.value === '' ? '' : Number(e.target.value))}
+              disabled={!sessionToConfirm || isLoading}
+              placeholder={isLoading ? "..." : "--"}
+            />
           </div>
           <Button 
-              disabled={!aiPrediction || !sessionToConfirm || isLoading}
-              onClick={() => aiPrediction !== null && handleConfirmLevel(aiPrediction)}
+              disabled={!sessionToConfirm || isLoading}
+              onClick={() => handleConfirmLevel(manualLevel)}
           >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
               Submit
@@ -138,7 +152,10 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
                     key={level.value}
                     variant="outline"
                     disabled={!sessionToConfirm || isLoading}
-                    onClick={() => handleConfirmLevel(level.value)}
+                    onClick={() => {
+                        setManualLevel(level.value);
+                        handleConfirmLevel(level.value);
+                    }}
                 >
                     {level.label}
                 </Button>
