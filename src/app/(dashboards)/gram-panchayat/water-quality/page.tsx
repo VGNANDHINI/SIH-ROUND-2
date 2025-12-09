@@ -1,7 +1,6 @@
 'use client';
 
 import { WaterQualityLogForm } from './_components/water-quality-log-form';
-import { AiAnalysisForm } from './_components/ai-analysis-form';
 import { WaterQualityHistory } from './_components/water-quality-history';
 import { useState } from 'react';
 import type { WaterTest } from '@/lib/data';
@@ -15,9 +14,8 @@ export default function GramPanchayatWaterQualityPage() {
 
   return (
     <div className="space-y-8">
-      <div className="grid lg:grid-cols-2 gap-8 items-start">
+      <div className="grid lg:grid-cols-1 gap-8 items-start">
         <WaterQualityLogForm onTestLogged={handleTestLogged} />
-        <AiAnalysisForm />
       </div>
       <WaterQualityHistory newTest={newTest} />
     </div>
