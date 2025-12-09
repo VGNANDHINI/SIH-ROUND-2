@@ -118,7 +118,7 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
             <Input id="tank-name" value={tankName} onChange={(e) => setTankName(e.target.value)} placeholder="e.g., Main OHT" disabled={!sessionToConfirm} />
         </div>
         <div className="text-center p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">AI Prediction</p>
+            <p className="text-sm text-muted-foreground">Prediction</p>
             {isLoading && !aiPrediction ? <Loader2 className="h-6 w-6 mx-auto my-2 animate-spin"/> :
             <p className="text-2xl font-bold">{aiPrediction ?? '--'}%</p>
             }
