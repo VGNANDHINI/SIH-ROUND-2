@@ -71,7 +71,7 @@ export default function LeakageDetectorPage() {
         
         setAnalysisLoading(true);
 
-        const leakComplaints = alerts.filter(a => a.Leak_Status == 1).length;
+        const leakComplaints = alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length;
 
         diagnoseWaterNetwork({
             pressure_value: latestAlert.Pressure,
@@ -92,7 +92,7 @@ export default function LeakageDetectorPage() {
             setAnalysisLoading(false);
         });
     }
-  }, [alerts, sortedAlerts, analysis]);
+  }, [sortedAlerts]);
 
 
   return (
@@ -187,9 +187,9 @@ export default function LeakageDetectorPage() {
                             <span className="ml-2">{alert.Leakage_Alerts}</span>
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right font-mono">{typeof alert.Pressure === 'number' ? alert.Pressure.toFixed(2) : 'N/A'}</TableCell>
-                        <TableCell className="text-right font-mono">{typeof alert.Flow_Rate === 'number' ? alert.Flow_Rate.toFixed(2) : 'N/A'}</TableCell>
-                        <TableCell className="text-right font-mono">{typeof alert.Temperature === 'number' ? alert.Temperature.toFixed(2) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert.Pressure === 'number' ? alert.Pressure.toFixed(3) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert.Flow_Rate === 'number' ? alert.Flow_Rate.toFixed(3) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert.Temperature === 'number' ? alert.Temperature.toFixed(3) : 'N/A'}</TableCell>
                       </TableRow>
                     );
                   })
