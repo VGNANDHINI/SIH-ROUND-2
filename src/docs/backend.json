@@ -201,14 +201,14 @@
       "properties": {
         "Timestamp": { "type": "string", "format": "date-time" },
         "Sensor_ID": { "type": "string" },
-        "Pressure": { "type": "number", "description": "Pressure in bar" },
-        "Flow_Rate": { "type": "number", "description": "Flow rate in L/s" },
-        "Temperature": { "type": "number", "description": "Temperature in °C" },
+        "Pressure (bar)": { "type": "number", "description": "Pressure in bar" },
+        "Flow Rate (L/s)": { "type": "number", "description": "Flow rate in L/s" },
+        "Temperature (°C)": { "type": "number", "description": "Temperature in °C" },
         "Leak_Status": { "type": "integer", "description": "0 for no leak, 1 for leak" },
         "Burst_Status": { "type": "integer", "description": "0 for no burst, 1 for burst" },
         "Leakage_Alerts": { "type": "string", "description": "A human-readable alert message." }
       },
-      "required": ["Timestamp", "Sensor_ID", "Pressure", "Flow_Rate", "Temperature", "Leak_Status", "Burst_Status", "Leakage_Alerts"]
+      "required": ["Timestamp", "Sensor_ID", "Pressure (bar)", "Flow Rate (L/s)", "Temperature (°C)", "Leak_Status", "Burst_Status", "Leakage_Alerts"]
     }
   },
   "auth": {

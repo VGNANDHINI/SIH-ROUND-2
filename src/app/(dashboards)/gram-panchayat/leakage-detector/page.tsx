@@ -63,7 +63,7 @@ export default function LeakageDetectorPage() {
   useEffect(() => {
     if(sortedAlerts && sortedAlerts.length > 0) {
         const latestAlert = sortedAlerts[0];
-        if (latestAlert.Pressure === undefined || latestAlert.Flow_Rate === undefined) {
+        if (latestAlert['Pressure (bar)'] === undefined || latestAlert['Flow Rate (L/s)'] === undefined) {
             // If the latest alert doesn't have pressure or flow, don't run analysis
             if(analysis) setAnalysis(null); // Clear old analysis
             return;
@@ -74,8 +74,8 @@ export default function LeakageDetectorPage() {
         const leakComplaints = alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length;
 
         diagnoseWaterNetwork({
-            pressure_value: latestAlert.Pressure,
-            flow_rate: latestAlert.Flow_Rate,
+            pressure_value: latestAlert['Pressure (bar)'],
+            flow_rate: latestAlert['Flow Rate (L/s)'],
             chlorine_level: 0.5, // Dummy data, replace with real data if available
             turbidity_level: 1, // Dummy data
             reservoir_drop_rate: latestAlert.Leak_Status === 1 ? 500 : 50, // Dummy logic
@@ -92,7 +92,7 @@ export default function LeakageDetectorPage() {
             setAnalysisLoading(false);
         });
     }
-  }, [sortedAlerts]);
+  }, [sortedAlerts, alerts, analysis]);
 
 
   return (
@@ -187,9 +187,9 @@ export default function LeakageDetectorPage() {
                             <span className="ml-2">{alert.Leakage_Alerts}</span>
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right font-mono">{typeof alert.Pressure === 'number' ? alert.Pressure.toFixed(3) : 'N/A'}</TableCell>
-                        <TableCell className="text-right font-mono">{typeof alert.Flow_Rate === 'number' ? alert.Flow_Rate.toFixed(3) : 'N/A'}</TableCell>
-                        <TableCell className="text-right font-mono">{typeof alert.Temperature === 'number' ? alert.Temperature.toFixed(3) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert['Pressure (bar)'] === 'number' ? alert['Pressure (bar)'].toFixed(3) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert['Flow Rate (L/s)'] === 'number' ? alert['Flow Rate (L/s)'].toFixed(3) : 'N/A'}</TableCell>
+                        <TableCell className="text-right font-mono">{typeof alert['Temperature (°C)'] === 'number' ? alert['Temperature (°C)'].toFixed(3) : 'N/A'}</TableCell>
                       </TableRow>
                     );
                   })

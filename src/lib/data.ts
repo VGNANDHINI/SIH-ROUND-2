@@ -274,9 +274,9 @@ export type LeakageAlert = {
     id: string;
     Timestamp: any;
     Sensor_ID: string;
-    Pressure: number;
-    Flow_Rate: number;
-    Temperature: number;
+    'Pressure (bar)': number;
+    'Flow Rate (L/s)': number;
+    'Temperature (°C)': number;
     Leak_Status: 0 | 1;
     Burst_Status: 0 | 1;
     Leakage_Alerts: string;
