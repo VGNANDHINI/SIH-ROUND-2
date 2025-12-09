@@ -230,6 +230,6 @@
     "/gis_assets/{villageId}/valves/{valveId}": { "schema": { "$ref": "#/entities/gisFeature" } },
     "/gis_assets/{villageId}/pumps/{pumpId}": { "schema": { "$ref": "#/entities/gisFeature" } },
     "/gis_assets/{villageId}/tanks/{tankId}": { "schema": { "$ref": "#/entities/gisFeature" } },
-    "/leakageAlerts/{alertId}": { "schema": { "$ref": "#/entities/leakageAlert" } }
+    "/test_connection/{alertId}": { "schema": { "$ref": "#/entities/leakageAlert" } }
   }
 }

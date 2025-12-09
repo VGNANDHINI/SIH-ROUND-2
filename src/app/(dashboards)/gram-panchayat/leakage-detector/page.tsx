@@ -64,12 +64,14 @@ export default function LeakageDetectorPage() {
     if(sortedAlerts && sortedAlerts.length > 0) {
         const latestAlert = sortedAlerts[0];
         if (latestAlert.Pressure === undefined || latestAlert.Flow_Rate === undefined) {
+            // If the latest alert doesn't have pressure or flow, don't run analysis
+            if(analysis) setAnalysis(null); // Clear old analysis
             return;
         }
         
         setAnalysisLoading(true);
 
-        const leakComplaints = alerts.filter(a => a.Leak_Status == 1 || a.Leak_Status == "1").length;
+        const leakComplaints = alerts.filter(a => a.Leak_Status == 1).length;
 
         diagnoseWaterNetwork({
             pressure_value: latestAlert.Pressure,
@@ -90,7 +92,7 @@ export default function LeakageDetectorPage() {
             setAnalysisLoading(false);
         });
     }
-  }, [alerts, sortedAlerts]);
+  }, [alerts, sortedAlerts, analysis]);
 
 
   return (
@@ -104,7 +106,7 @@ export default function LeakageDetectorPage() {
         </CardHeader>
       </Card>
       
-      <Card>
+       <Card>
         <CardHeader>
             <CardTitle>Analysis Counter</CardTitle>
             <CardDescription>A summary of all alerts received from the sensor network.</CardDescription>

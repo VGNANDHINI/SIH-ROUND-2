@@ -108,5 +108,10 @@ service cloud.firestore {
     match /states/{stateId}/districts/{districtId}/mandals/{mandalId}/panchayats/{panchayatId}/{collection}/{docId} {
         allow read: if request.auth != null;
     }
+
+    match /test_connection/{alertId} {
+      allow read: if request.auth != null;
+      allow write: if true; // Allow writes from Colab
+    }
   }
 }
