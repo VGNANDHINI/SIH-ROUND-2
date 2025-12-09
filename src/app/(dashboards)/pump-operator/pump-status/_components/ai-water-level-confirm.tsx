@@ -117,11 +117,20 @@ export function AiWaterLevelConfirm({ sessionToConfirm, onConfirmation }: AiWate
             <Label htmlFor="tank-name">Tank Name</Label>
             <Input id="tank-name" value={tankName} onChange={(e) => setTankName(e.target.value)} placeholder="e.g., Main OHT" disabled={!sessionToConfirm} />
         </div>
-        <div className="text-center p-4 bg-muted rounded-lg">
+        <div className="grid grid-cols-2 gap-2 items-center text-center p-4 bg-muted rounded-lg">
+          <div>
             <p className="text-sm text-muted-foreground">Prediction</p>
             {isLoading && !aiPrediction ? <Loader2 className="h-6 w-6 mx-auto my-2 animate-spin"/> :
             <p className="text-2xl font-bold">{aiPrediction ?? '--'}%</p>
             }
+          </div>
+          <Button 
+              disabled={!aiPrediction || !sessionToConfirm || isLoading}
+              onClick={() => aiPrediction !== null && handleConfirmLevel(aiPrediction)}
+          >
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+              Submit
+          </Button>
         </div>
         <div className="grid grid-cols-3 gap-2">
             {levels.map(level => (
